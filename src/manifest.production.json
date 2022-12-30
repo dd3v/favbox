@@ -1,0 +1,23 @@
+{
+    "manifest_version": 3,
+    "name": "bookmarks",
+    "description": "chrome extension",
+    "version": "0.0.1",
+    "background": {
+        "service_worker": "/background.js"
+    },
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "/content.js"
+            ]
+        }
+    ],
+    "options_page": "options.html"
+}

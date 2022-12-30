@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "bookmarks",
+  "description": "chrome extension",
+  "version": "0.0.1",
+  "permissions": [
+    "identity",
+    "https://www.googleapis.com/*",
+    "nativeMessaging"
+  ],
+
+  "oauth2": {
+    "client_id": "117258413154-d9fc02lao5lq4dpem9gge28dvlcl518t.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive.appdata",
+      "https://www.googleapis.com/auth/drive.file"
+    ]
+  },
+  "background": {
+    "service_worker": "/entry/background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["/content.js"]
+    }
+  ],
+  "options_page": "options.html"
+}
