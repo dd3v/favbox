@@ -1,9 +1,8 @@
 <template>
   <div id="popup">
-    <label for="title">
-      <input type="text" name="text">
-      <button @click="openTab">123</button>
-    </label>
+    <header></header>
+    <main></main>
+    <footer></footer>
   </div>
 </template>
 
@@ -11,7 +10,7 @@
 import getLinkPreview from '@/libs/linkPreview';
 
 const openTab = async () => {
-  console.log(await getLinkPreview('https://andrejgajdos.com/how-to-create-a-link-preview/'));
+  console.log(await getLinkPreview('google.com'));
   chrome.runtime.sendMessage('get-user-data', (response) => {
     console.log('received user data', response);
   });
@@ -31,6 +30,6 @@ body {
 }
 #popup {
   width: 500px;
-  padding: 30px;
+  height: 300px;
 }
 </style>
