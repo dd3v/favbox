@@ -2,13 +2,16 @@
   <div id="popup">
     <label for="title">
       <input type="text" name="text">
+      <button @click="openTab">123</button>
     </label>
   </div>
 </template>
 
 <script setup>
-// eslint-disable-next-line no-unused-vars
-const openTab = () => {
+import getLinkPreview from '@/libs/linkPreview';
+
+const openTab = async () => {
+  console.log(await getLinkPreview('https://andrejgajdos.com/how-to-create-a-link-preview/'));
   chrome.runtime.sendMessage('get-user-data', (response) => {
     console.log('received user data', response);
   });
