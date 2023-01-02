@@ -5,11 +5,13 @@
   "version": "0.0.1",
   "permissions": [
     "identity",
-    "https://www.googleapis.com/*",
-    "nativeMessaging",
-    "tabs",
-    "bookmarks"
+    "bookmarks",
+    "history",
+    "activeTab"
   ],
+  "cookies": {
+    "exclude_matches": ["*://*/*"]
+  },
   "oauth2": {
     "client_id": "117258413154-d9fc02lao5lq4dpem9gge28dvlcl518t.apps.googleusercontent.com",
     "scopes": [
