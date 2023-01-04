@@ -6,54 +6,46 @@
         <el-button class="button" text>View all</el-button>
       </div>
     </template>
-    <el-row :gutter="5" align="middle">
-      <el-col :span="24">
-        <el-form :model="data" label-width="150px" label-position="top">
-          <el-form-item>
-            <el-input v-model="data.title" placeholder="Type something">
-              <template #prefix>
-                <img :src="data.favicon" width="16" :alt="data.title" />
-              </template>
-            </el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-select v-model="folder" placeholder="Folder" filterable class="w-100">
-              <el-option
-                v-for="item in folders"
-                :key="item.id"
-                :label="item.title"
-                :value="item.id"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-tag
-              v-for="tag in dynamicTags"
-              :key="tag"
-              class="mr-1 ml-1 mt-1"
-              closable
-              :disable-transitions="false"
-              @close="handleClose(tag)"
-            >
-              {{ tag }}
-            </el-tag>
-            <el-input
-              v-if="inputVisible"
-              ref="InputRef"
-              v-model="inputValue"
-              class="mt-1 w-20"
-              @keyup.enter="handleInputConfirm"
-              @blur="handleInputConfirm"
-              size="small"
-            />
-            <el-button v-else class="button-new-tag mt-1" size="small" @click="showInput">
-              + New Tag
-            </el-button>
-          </el-form-item>
-          <el-button class="w-90">Add to bookmarks</el-button>
-        </el-form>
-      </el-col>
-    </el-row>
+    <el-form :model="data" label-width="150px" label-position="top">
+      <el-form-item>
+        <el-input v-model="data.title" placeholder="Type something">
+          <template #prefix>
+            <img :src="data.favicon" width="16" :alt="data.title" />
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-select v-model="folder" placeholder="Folder" filterable>
+          <el-option v-for="item in folders" :key="item.id" :label="item.title" :value="item.id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item class="min-h-20">
+        <el-tag
+          v-for="tag in dynamicTags"
+          :key="tag"
+          class="mr-1 ml-1 mt-1"
+          closable
+          :disable-transitions="false"
+          @close="handleClose(tag)"
+        >
+          {{ tag }}
+        </el-tag>
+        <el-input
+          v-if="inputVisible"
+          ref="InputRef"
+          v-model="inputValue"
+          class="mt-1 w-20"
+          @keyup.enter="handleInputConfirm"
+          @blur="handleInputConfirm"
+          size="small"
+        />
+        <el-button v-else class="button-new-tag mt-1" size="small" @click="showInput">
+          + New Tag
+        </el-button>
+      </el-form-item>
+
+      <el-button class="w-full">Add to bookmarks</el-button>
+    </el-form>
   </el-card>
 </template>
 
@@ -108,7 +100,7 @@ const folders = getFolderTitles(getFolders(tree));
 console.warn(folders);
 
 const inputValue = ref('');
-const dynamicTags = ref(['Tag 1', 'Tag 2', 'Tag 3']);
+const dynamicTags = ref(['Tag 1', 'Tag 2', 'Tag 3', 'sdfsdfsdfsdf', 'sdfsd sdf sdf sdf sdf']);
 const inputVisible = ref(false);
 const InputRef = ref('');
 const handleClose = (tag) => {
@@ -143,27 +135,15 @@ const folder = ref('');
 // };
 </script>
 <style>
-html,
-body {
-  padding: 0;
-  margin: 0;
-}
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .text {
   font-size: 14px;
 }
-
 .item {
   margin-bottom: 18px;
-}
-
-.box-card {
-  width: 400px;
-  height: 400px;
 }
 </style>
