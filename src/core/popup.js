@@ -1,8 +1,9 @@
 import { createApp } from 'vue';
-import App from '@/views/PopupView.vue';
+import PopupApp from '@/PopupApp.vue';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import 'windi.css';
 
-const app = createApp(App);
+const app = createApp(PopupApp);
 app.use(ElementPlus);
 app.mount('#app');

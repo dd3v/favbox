@@ -6,10 +6,7 @@
         <el-button class="button" text>View all</el-button>
       </div>
     </template>
-    <el-row :gutter="5"  align="middle">
-      <el-col :span="24">
-        <el-image :src="data.image" fit="cover"/>
-      </el-col>
+    <el-row :gutter="5" align="middle">
       <el-col :span="24">
         <el-form :model="data" label-width="150px" label-position="top">
           <el-form-item>
@@ -20,33 +17,40 @@
             </el-input>
           </el-form-item>
           <el-form-item>
-            <el-select
-              v-model="value"
-              multiple
-              filterable
-              allow-create
-              collapse-tags
-              placeholder="Tags"
-            >
+            <el-select v-model="folder" placeholder="Folder" filterable class="w-100">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in folders"
+                :key="item.id"
+                :label="item.title"
+                :value="item.id"
               />
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-select v-model="category" placeholder="Category" filterable>
-              <el-option
-                v-for="item in categories"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+            <el-tag
+              v-for="tag in dynamicTags"
+              :key="tag"
+              class="mr-1 ml-1 mt-1"
+              closable
+              :disable-transitions="false"
+              @close="handleClose(tag)"
+            >
+              {{ tag }}
+            </el-tag>
+            <el-input
+              v-if="inputVisible"
+              ref="InputRef"
+              v-model="inputValue"
+              class="mt-1 w-20"
+              @keyup.enter="handleInputConfirm"
+              @blur="handleInputConfirm"
+              size="small"
+            />
+            <el-button v-else class="button-new-tag mt-1" size="small" @click="showInput">
+              + New Tag
+            </el-button>
           </el-form-item>
-          <el-button class="w-100">Add to bookmarks</el-button>
+          <el-button class="w-90">Add to bookmarks</el-button>
         </el-form>
       </el-col>
     </el-row>
@@ -54,64 +58,79 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 
 const data = ref({});
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  chrome.tabs.sendMessage(
-    tabs[0].id,
-    {
-      action: 'getCurrentTabPreview',
-    },
-    (response) => {
-      console.log(response);
-      const { preview } = response;
-      console.log(preview);
-      data.value = preview;
-    },
-  );
+  const tab = tabs[0];
+  if (tab.url.includes('chrome://')) {
+    const preview = {
+      title: tab.title,
+      url: tab.url,
+      favicon: tab.favIconUrl,
+      image: null,
+      domain: null,
+      description: null,
+    };
+    data.value = preview;
+  } else {
+    chrome.tabs.sendMessage(
+      tab.id,
+      {
+        action: 'getCurrentTabPreview',
+        tab: tabs[0],
+      },
+      (response) => {
+        console.log(response);
+        const { preview } = response;
+        console.log(preview);
+        data.value = preview;
+      },
+    );
+  }
 });
 
-const value = ref([]);
-const options = [
-  {
-    value: 'HTML',
-    label: 'HTML',
-  },
-  {
-    value: 'CSS',
-    label: 'CSS',
-  },
-  {
-    value: 'JavaScript',
-    label: 'JavaScript',
-  },
-];
+function getFolderTitles(folders) {
+  return folders.filter((folder) => folder.title !== '');
+}
+function getFolders(bookmarks) {
+  let folders = [];
+  for (let i = 0; i < bookmarks.length; i += 1) {
+    if (bookmarks[i].children) {
+      folders.push(bookmarks[i]);
+      folders = folders.concat(getFolders(bookmarks[i].children));
+    }
+  }
+  return folders;
+}
+const tree = await chrome.bookmarks.getTree();
+const folders = getFolderTitles(getFolders(tree));
+console.warn(folders);
 
-const category = ref('');
+const inputValue = ref('');
+const dynamicTags = ref(['Tag 1', 'Tag 2', 'Tag 3']);
+const inputVisible = ref(false);
+const InputRef = ref('');
+const handleClose = (tag) => {
+  dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1);
+};
 
-const categories = [
-  {
-    value: 'Option1',
-    label: 'Option1',
-  },
-  {
-    value: 'Option2',
-    label: 'Option2',
-  },
-  {
-    value: 'Option3',
-    label: 'Option3',
-  },
-  {
-    value: 'Option4',
-    label: 'Option4',
-  },
-  {
-    value: 'Option5',
-    label: 'Option5',
-  },
-];
+const showInput = () => {
+  inputVisible.value = true;
+  nextTick(() => {
+    InputRef.value?.input?.focus();
+  });
+};
+
+const handleInputConfirm = () => {
+  if (inputValue.value) {
+    dynamicTags.value.push(inputValue.value);
+  }
+  inputVisible.value = false;
+  inputValue.value = '';
+};
+
+const folder = ref('');
 
 // const openTab = async () => {
 // console.log(await getLinkPreview('https://developer.mozilla.org/ru/docs/Web/API/DOMParser'));
@@ -145,5 +164,6 @@ body {
 
 .box-card {
   width: 400px;
+  height: 400px;
 }
 </style>

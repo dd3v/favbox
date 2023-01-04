@@ -27,9 +27,15 @@ chromeName.forEach((name) => {
 const isDevMode = process.env.NODE_ENV === 'development';
 
 module.exports = {
+  pluginOptions: {
+    windicss: {
+      // see https://github.com/windicss/vite-plugin-windicss/blob/main/packages/plugin-utils/src/options.ts
+    },
+  },
   pages,
   filenameHashing: false,
   chainWebpack: (config) => {
+    // eslint-disable-next-line global-require
     config.plugin('copy').use(require('copy-webpack-plugin'), [
       {
         patterns: [

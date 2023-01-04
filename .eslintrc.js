@@ -1,5 +1,8 @@
 module.exports = {
   root: true,
+  settings: {
+    'import/core-modules': ['windi.css'],
+  },
   env: {
     node: true,
     webextensions: true,

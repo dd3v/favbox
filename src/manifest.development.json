@@ -7,11 +7,9 @@
     "identity",
     "bookmarks",
     "history",
-    "activeTab"
+    "activeTab",
+    "tabs"
   ],
-  "cookies": {
-    "exclude_matches": ["*://*/*"]
-  },
   "oauth2": {
     "client_id": "117258413154-d9fc02lao5lq4dpem9gge28dvlcl518t.apps.googleusercontent.com",
     "scopes": [
