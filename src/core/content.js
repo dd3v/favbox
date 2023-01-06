@@ -14,9 +14,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         domain: parser.getDomain(),
         description: parser.getDescription(),
       };
-      sendResponse({
-        preview,
-      });
+      console.warn(preview);
+      sendResponse({ preview });
     } catch (e) {
       console.warn(e);
     }

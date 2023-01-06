@@ -1,3 +1,14 @@
+const createBookmark = (bookmark) => {
+  console.warn(bookmark);
+};
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'createBookmark') {
+    createBookmark(request.bookmark);
+    sendResponse({ result: 'success' });
+  }
+});
+
 // import Parser from '@/libs/parser';
 // import PageRequest from '@/libs/pageRequest';
 // import { parseHTML } from 'linkedom';
