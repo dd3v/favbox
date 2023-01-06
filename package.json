@@ -14,6 +14,7 @@
     "ant-design-vue": "^3.2.15",
     "copy-webpack-plugin": "^11.0.0",
     "core-js": "^3.27.1",
+    "jsstore": "^4.5.0",
     "linkedom": "^0.14.21",
     "vue": "^3.2.13"
   },
@@ -33,7 +34,6 @@
     "eslint-plugin-vue": "^8.0.3",
     "eslint-plugin-vuejs-accessibility": "^1.1.0",
     "jest": "^27.0.5",
-    "vue-cli-plugin-chrome-extension-cli": "~1.1.4",
-    "vue-cli-plugin-windicss": "~1.1.6"
+    "vue-cli-plugin-chrome-extension-cli": "~1.1.4"
   }
 }
