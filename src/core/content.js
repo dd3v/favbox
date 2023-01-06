@@ -1,23 +1,23 @@
 import Parser from '@/libs/parser';
 
 console.warn('content.js here');
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'getCurrentTabPreview') {
-    console.warn(request.tab);
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'getCurrentTabPreview') {
+    console.warn(message.data);
     try {
       const parser = new Parser(document);
       const preview = {
-        title: request.tab.title,
-        url: request.tab.url,
-        favicon: request.tab.favIconUrl,
+        title: message.data.title,
+        url: message.data.url,
+        favicon: message.data.favIconUrl,
         image: parser.getImage(),
         domain: parser.getDomain(),
         description: parser.getDescription(),
       };
-      console.warn(preview);
-      sendResponse({ preview });
+      sendResponse({ result: true, data: preview });
     } catch (e) {
       console.warn(e);
     }
   }
+  return true;
 });

@@ -1,12 +1,14 @@
-const createBookmark = (bookmark) => {
-  console.warn(bookmark);
-};
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'createBookmark') {
-    createBookmark(request.bookmark);
-    sendResponse({ result: 'success' });
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'createBookmark') {
+    chrome.bookmarks.create(
+      {
+        parentId: message.data.folder,
+        title: message.data.title,
+        url: message.data.url,
+      },
+    ).then((bookmark) => sendResponse({ success: true, bookmark }));
   }
+  return true;
 });
 
 // import Parser from '@/libs/parser';
