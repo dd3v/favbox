@@ -27,11 +27,7 @@ chromeName.forEach((name) => {
 const isDevMode = process.env.NODE_ENV === 'development';
 
 module.exports = {
-  pluginOptions: {
-    windicss: {
-      // see https://github.com/windicss/vite-plugin-windicss/blob/main/packages/plugin-utils/src/options.ts
-    },
-  },
+  pluginOptions: {},
   pages,
   filenameHashing: false,
   chainWebpack: (config) => {

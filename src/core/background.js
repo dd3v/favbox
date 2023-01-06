@@ -1,12 +1,24 @@
+import Bookmark from '@/storage/bookmark';
+import initStorage from '@/storage/idb/idb';
+
+// https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
+// https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'createBookmark') {
-    chrome.bookmarks.create(
-      {
-        parentId: message.data.folder,
-        title: message.data.title,
-        url: message.data.url,
-      },
-    ).then((bookmark) => sendResponse({ success: true, bookmark }));
+    (async () => {
+      const bookmark = await chrome.bookmarks.create(
+        {
+          parentId: message.data.folder,
+          title: message.data.title,
+          url: message.data.url,
+        },
+      );
+      await initStorage();
+      const bookmarkStorage = new Bookmark();
+      await bookmarkStorage.create({ title: 'sdfsdf', bookmark });
+      sendResponse({ success: true, bookmark });
+      return true;
+    })();
   }
   return true;
 });

@@ -1,7 +1,7 @@
 import Parser from '@/libs/parser';
 
 console.warn('content.js here');
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.action === 'getCurrentTabPreview') {
     console.warn(message.data);
     try {
