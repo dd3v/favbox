@@ -1,5 +1,5 @@
 <template>
-  <a-card style="width: 350px; height:100%;">
+  <a-card style="width: 350px; height: 100%">
     <template #title> LinkFlow </template>
     <template #extra><a href="#">more</a></template>
     <a-form :model="bookmark" name="basic">
@@ -10,22 +10,22 @@
       >
         <a-input v-model:value="bookmark.title">
           <template #prefix>
-            <img :src="bookmark.favicon" width="16" :alt="bookmark.title" />
+            <img :src="bookmark.favicon" width="16" :alt="bookmark.title" v-if="httpProtocol" />
+            <home-outlined v-else />
           </template>
         </a-input>
       </a-form-item>
       <a-form-item>
         <a-select
-          v-model:value="folder"
+          v-model:value="bookmark.folder"
           show-search
           placeholder="Folder"
           :options="folders"
-          :filter-option="filter"
           :fieldNames="{ label: 'title', value: 'id' }"
         ></a-select>
       </a-form-item>
       <a-form-item>
-        <template v-for="tag in tags" :key="tag">
+        <template v-for="tag in bookmark.tags" :key="tag">
           <a-tooltip v-if="tag.length > 20" :title="tag">
             <a-tag :closable="true" @close="handleClose(tag)">
               {{ `${tag.slice(0, 20)}...` }}
@@ -56,22 +56,20 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
-import { PlusOutlined } from '@ant-design/icons-vue';
+import { ref, nextTick, computed } from 'vue';
+import { PlusOutlined, HomeOutlined } from '@ant-design/icons-vue';
 
-const bookmark = ref({});
-
-const sendMessage = (tabId, request) => new Promise((resolve, reject) => {
-  chrome.tabs.sendMessage(tabId, request, (response) => {
-    if (chrome.runtime.lastError) {
-      reject(chrome.runtime.lastError);
-    } else {
-      resolve(response);
-    }
-  });
+const bookmark = ref({
+  title: '',
+  url: '',
+  favicon: '',
+  image: '',
+  domain: '',
+  description: '',
+  tags: [],
+  folder: null,
 });
-const filter = (input, option) => option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-const getFolderTitles = (folders) => folders.filter((folder) => folder.title !== '');
+
 const getFolders = (bookmarks) => {
   let folders = [];
   for (let i = 0; i < bookmarks.length; i += 1) {
@@ -80,8 +78,11 @@ const getFolders = (bookmarks) => {
       folders = folders.concat(getFolders(bookmarks[i].children));
     }
   }
+  folders = folders.filter((folder) => folder.title !== '');
   return folders;
 };
+
+const httpProtocol = computed(() => !!bookmark.value.favicon.includes('http'));
 
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 if (tab.url.includes('chrome://')) {
@@ -96,19 +97,18 @@ if (tab.url.includes('chrome://')) {
   bookmark.value = preview;
 } else {
   // https://developer.chrome.com/docs/extensions/reference/runtime/#method-sendMessage
-  const { preview } = await sendMessage(tab.id, { action: 'getCurrentTabPreview', tab });
-  bookmark.value = preview;
+  const { data } = await chrome.tabs.sendMessage(tab.id, { action: 'getCurrentTabPreview', data: tab });
+  bookmark.value = { ...bookmark.value, ...data };
+  console.warn(bookmark.value);
 }
 
 const tree = await chrome.bookmarks.getTree();
-const folders = getFolderTitles(getFolders(tree));
+const folders = getFolders(tree);
+bookmark.value.folder = folders[0]?.id;
 console.warn(folders);
 
-const folder = ref('');
-// const tagsList = ref([]);
 const inputRef = ref();
 
-const tags = ref(['Unremovable', 'Tag 2', 'Tag 3Tag 3Tag 3Tag 3Tag 3Tag 3Tag 3']);
 const inputVisible = ref(false);
 const inputValue = ref('');
 const showInput = () => {
@@ -118,26 +118,19 @@ const showInput = () => {
   });
 };
 const handleInputConfirm = () => {
-  if (inputValue.value && tags.value.indexOf(inputValue.value) === -1) {
-    tags.value.push(inputValue.value);
+  if (inputValue.value && bookmark.value.tags.indexOf(inputValue.value) === -1) {
+    bookmark.value.tags.push(inputValue.value);
   }
   inputVisible.value = false;
+  inputValue.value = '';
 };
 const handleClose = (removedTag) => {
-  tags.value = tags.value.filter((tag) => tag !== removedTag);
+  bookmark.value.tags = bookmark.value.tags.filter((tag) => tag !== removedTag);
 };
 
-const createBookmark = () => {
-  chrome.runtime.sendMessage(
-    {
-      action: 'createBookmark',
-      bookmark: bookmark.value,
-    },
-    (response) => {
-      console.warn(response);
-    },
-  );
+const createBookmark = async () => {
+  const response = await chrome.runtime.sendMessage({ action: 'createBookmark', data: bookmark.value });
+  console.warn(response);
 };
 </script>
-<style>
-</style>
+<style></style>
