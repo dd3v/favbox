@@ -67,6 +67,7 @@ const bookmark = ref({
   domain: '',
   description: '',
   tags: [],
+  parentId: null,
   folder: null,
 });
 

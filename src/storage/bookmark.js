@@ -43,19 +43,6 @@ export default class Bookmark {
     });
   }
 
-  softDelete(entity) {
-    return connection.update({
-      in: this.tableName,
-      set: {
-        deleted: 1,
-        updated_at: new Date().toISOString(),
-      },
-      where: {
-        id: entity.id,
-      },
-    });
-  }
-
   update(entity) {
     return connection.update({
       in: this.tableName,
