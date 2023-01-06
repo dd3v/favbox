@@ -1,9 +1,9 @@
 import { createApp } from 'vue';
 import PopupApp from '@/PopupApp.vue';
-import ElementPlus from 'element-plus';
-import 'element-plus/dist/index.css';
+import Antd from 'ant-design-vue';
+import 'ant-design-vue/dist/antd.css';
 import 'windi.css';
 
 const app = createApp(PopupApp);
-app.use(ElementPlus);
+app.use(Antd);
 app.mount('#app');

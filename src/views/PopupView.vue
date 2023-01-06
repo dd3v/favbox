@@ -1,91 +1,78 @@
 <template>
-  <el-card class="box-card">
-    <template #header>
-      <div class="card-header">
-        <span>Bookmarks manager</span>
-        <el-button class="button" text>View all</el-button>
-      </div>
-    </template>
-    <el-form :model="data" label-width="150px" label-position="top">
-      <el-form-item>
-        <el-input v-model="data.title" placeholder="Type something">
+  <a-card style="width: 350px; height:100%;">
+    <template #title> LinkFlow </template>
+    <template #extra><a href="#">more</a></template>
+    <a-form :model="bookmark" name="basic">
+      <a-form-item
+        name="title"
+        :rules="[{ required: true, message: 'Please input bookmark title' }]"
+        @finish="createBookmark"
+      >
+        <a-input v-model:value="bookmark.title">
           <template #prefix>
-            <img :src="data.favicon" width="16" :alt="data.title" />
+            <img :src="bookmark.favicon" width="16" :alt="bookmark.title" />
           </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-select v-model="folder" placeholder="Folder" filterable>
-          <el-option v-for="item in folders" :key="item.id" :label="item.title" :value="item.id" />
-        </el-select>
-      </el-form-item>
-      <el-form-item class="min-h-20">
-        <el-tag
-          v-for="tag in dynamicTags"
-          :key="tag"
-          class="mr-1 ml-1 mt-1"
-          closable
-          :disable-transitions="false"
-          @close="handleClose(tag)"
-        >
-          {{ tag }}
-        </el-tag>
-        <el-input
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-select
+          v-model:value="folder"
+          show-search
+          placeholder="Folder"
+          :options="folders"
+          :filter-option="filter"
+          :fieldNames="{ label: 'title', value: 'id' }"
+        ></a-select>
+      </a-form-item>
+      <a-form-item>
+        <template v-for="tag in tags" :key="tag">
+          <a-tooltip v-if="tag.length > 20" :title="tag">
+            <a-tag :closable="true" @close="handleClose(tag)">
+              {{ `${tag.slice(0, 20)}...` }}
+            </a-tag>
+          </a-tooltip>
+          <a-tag v-else :closable="true" @close="handleClose(tag)">
+            {{ tag }}
+          </a-tag>
+        </template>
+        <a-input
           v-if="inputVisible"
-          ref="InputRef"
-          v-model="inputValue"
-          class="mt-1 w-20"
-          @keyup.enter="handleInputConfirm"
-          @blur="handleInputConfirm"
+          ref="inputRef"
+          v-model:value="inputValue"
+          type="text"
           size="small"
+          :style="{ width: '78px' }"
+          @blur="handleInputConfirm"
+          @keyup.enter="handleInputConfirm"
         />
-        <el-button v-else class="button-new-tag mt-1" size="small" @click="showInput">
-          + New Tag
-        </el-button>
-      </el-form-item>
-
-      <el-button class="w-full">Add to bookmarks</el-button>
-    </el-form>
-  </el-card>
+        <a-tag v-else style="background: #fff; border-style: dashed" @click="showInput">
+          <plus-outlined />
+          New Tag
+        </a-tag>
+      </a-form-item>
+      <a-button class="w-full" @click="createBookmark">Add to bookmarks</a-button>
+    </a-form>
+  </a-card>
 </template>
 
 <script setup>
 import { ref, nextTick } from 'vue';
+import { PlusOutlined } from '@ant-design/icons-vue';
 
-const data = ref({});
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  const tab = tabs[0];
-  if (tab.url.includes('chrome://')) {
-    const preview = {
-      title: tab.title,
-      url: tab.url,
-      favicon: tab.favIconUrl,
-      image: null,
-      domain: null,
-      description: null,
-    };
-    data.value = preview;
-  } else {
-    chrome.tabs.sendMessage(
-      tab.id,
-      {
-        action: 'getCurrentTabPreview',
-        tab: tabs[0],
-      },
-      (response) => {
-        console.log(response);
-        const { preview } = response;
-        console.log(preview);
-        data.value = preview;
-      },
-    );
-  }
+const bookmark = ref({});
+
+const sendMessage = (tabId, request) => new Promise((resolve, reject) => {
+  chrome.tabs.sendMessage(tabId, request, (response) => {
+    if (chrome.runtime.lastError) {
+      reject(chrome.runtime.lastError);
+    } else {
+      resolve(response);
+    }
+  });
 });
-
-function getFolderTitles(folders) {
-  return folders.filter((folder) => folder.title !== '');
-}
-function getFolders(bookmarks) {
+const filter = (input, option) => option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+const getFolderTitles = (folders) => folders.filter((folder) => folder.title !== '');
+const getFolders = (bookmarks) => {
   let folders = [];
   for (let i = 0; i < bookmarks.length; i += 1) {
     if (bookmarks[i].children) {
@@ -94,56 +81,63 @@ function getFolders(bookmarks) {
     }
   }
   return folders;
+};
+
+const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+if (tab.url.includes('chrome://')) {
+  const preview = {
+    title: tab.title,
+    url: tab.url,
+    favicon: tab.favIconUrl,
+    image: null,
+    domain: null,
+    description: null,
+  };
+  bookmark.value = preview;
+} else {
+  // https://developer.chrome.com/docs/extensions/reference/runtime/#method-sendMessage
+  const { preview } = await sendMessage(tab.id, { action: 'getCurrentTabPreview', tab });
+  bookmark.value = preview;
 }
+
 const tree = await chrome.bookmarks.getTree();
 const folders = getFolderTitles(getFolders(tree));
 console.warn(folders);
 
-const inputValue = ref('');
-const dynamicTags = ref(['Tag 1', 'Tag 2', 'Tag 3', 'sdfsdfsdfsdf', 'sdfsd sdf sdf sdf sdf']);
-const inputVisible = ref(false);
-const InputRef = ref('');
-const handleClose = (tag) => {
-  dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1);
-};
+const folder = ref('');
+// const tagsList = ref([]);
+const inputRef = ref();
 
+const tags = ref(['Unremovable', 'Tag 2', 'Tag 3Tag 3Tag 3Tag 3Tag 3Tag 3Tag 3']);
+const inputVisible = ref(false);
+const inputValue = ref('');
 const showInput = () => {
   inputVisible.value = true;
   nextTick(() => {
-    InputRef.value?.input?.focus();
+    inputRef.value.focus();
   });
 };
-
 const handleInputConfirm = () => {
-  if (inputValue.value) {
-    dynamicTags.value.push(inputValue.value);
+  if (inputValue.value && tags.value.indexOf(inputValue.value) === -1) {
+    tags.value.push(inputValue.value);
   }
   inputVisible.value = false;
-  inputValue.value = '';
+};
+const handleClose = (removedTag) => {
+  tags.value = tags.value.filter((tag) => tag !== removedTag);
 };
 
-const folder = ref('');
-
-// const openTab = async () => {
-// console.log(await getLinkPreview('https://developer.mozilla.org/ru/docs/Web/API/DOMParser'));
-// chrome.identity.getAuthToken({ interactive: true }, (token) => {
-//   console.warn(token);
-// });
-// chrome.tabs.create({
-//   url: 'bookmarks.html',
-// });
-// };
+const createBookmark = () => {
+  chrome.runtime.sendMessage(
+    {
+      action: 'createBookmark',
+      bookmark: bookmark.value,
+    },
+    (response) => {
+      console.warn(response);
+    },
+  );
+};
 </script>
 <style>
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.text {
-  font-size: 14px;
-}
-.item {
-  margin-bottom: 18px;
-}
 </style>
