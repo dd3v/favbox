@@ -60,6 +60,7 @@ import tagHelper from '@/helpers/tags';
 
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 const folders = await getBookmarkFolders();
+console.log(folders);
 const bookmark = ref({
   title: tab.title, url: tab.url, favicon: tab.favIconUrl, parentId: folders[0]?.id,
 });
