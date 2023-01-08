@@ -48,13 +48,6 @@ export default class Bookmark {
       in: this.tableName,
       set: {
         title: entity.title,
-        access_level: entity.access_level,
-        code: entity.code,
-        language: entity.language,
-        favorite: entity.favorite,
-        tags: entity.tags,
-        editor_options: entity.editor_options,
-        updated_at: new Date().toISOString(),
       },
       where: {
         id: entity.id,

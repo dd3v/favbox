@@ -18,23 +18,22 @@
       <a-form-item>
         <a-select
           v-model:value="bookmark.parentId"
-          @change="updateFolder"
           placeholder="Folder"
           :options="folders"
           :fieldNames="{ label: 'title', value: 'id' }"
         ></a-select>
       </a-form-item>
       <a-form-item>
-        <template v-for="tag in bookmark.tags" :key="tag">
+        <template v-for="tag in tags" :key="tag">
           <a-tooltip v-if="tag.length > 20" :title="tag">
             <a-tag :closable="true" @close="handleClose(tag)">{{ `${tag.slice(0, 20)}...` }}</a-tag>
           </a-tooltip>
           <a-tag v-else :closable="true" @close="handleClose(tag)">{{ tag }}</a-tag>
         </template>
         <a-input
-          v-if="inputVisible"
-          ref="inputRef"
-          v-model:value="inputValue"
+          v-if="tagInputVisible"
+          ref="tagInputRef"
+          v-model:value="tagInputValue"
           type="text"
           size="small"
           :style="{ width: '78px' }"
@@ -52,77 +51,46 @@
 </template>
 
 <script setup>
-import { ref, nextTick, computed } from 'vue';
+import {
+  ref, nextTick, computed, reactive,
+} from 'vue';
 import { PlusOutlined, HomeOutlined } from '@ant-design/icons-vue';
-
-const bookmark = ref({
-  title: '',
-  url: '',
-  favicon: '',
-  tags: [],
-  parentId: null,
-});
-
-const getFolders = (bookmarks) => {
-  let folders = [];
-  for (let i = 0; i < bookmarks.length; i += 1) {
-    if (bookmarks[i].children) {
-      folders.push(bookmarks[i]);
-      folders = folders.concat(getFolders(bookmarks[i].children));
-    }
-  }
-  folders = folders.filter((folder) => folder.title !== '');
-  return folders;
-};
+import { getBookmarkFolders } from '@/helpers/folders';
+import tagHelper from '@/helpers/tags';
 
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-bookmark.value = {
-  title: tab.title,
-  url: tab.url,
-  favicon: tab.favIconUrl,
-  tags: [],
-};
+const folders = await getBookmarkFolders();
+const bookmark = ref({
+  title: tab.title, url: tab.url, favicon: tab.favIconUrl, parentId: folders[0]?.id,
+});
+let tags = reactive([]);
+const tagInputRef = ref();
+const tagInputVisible = ref(false);
+const tagInputValue = ref('');
 
-const tree = await chrome.bookmarks.getTree();
-const folders = getFolders(tree);
-bookmark.value.parentId = folders[0]?.id;
-bookmark.value.folder = folders[0]?.title;
-console.warn(folders);
-
-const updateFolder = (id) => {
-  const folder = folders.find((item) => item.id === id);
-  bookmark.value.folder = folder?.title;
-};
-console.warn(bookmark);
-const httpProtocol = computed(() => (bookmark.value.favicon ? bookmark.value.favicon.includes('http') : false));
-const inputRef = ref();
-
-const inputVisible = ref(false);
-const inputValue = ref('');
 const showInput = () => {
-  inputVisible.value = true;
-  nextTick(() => {
-    inputRef.value.focus();
-  });
+  tagInputVisible.value = true;
+  nextTick(() => tagInputRef.value.focus());
 };
 const handleInputConfirm = () => {
-  if (inputValue.value && bookmark.value.tags.indexOf(inputValue.value) === -1) {
-    bookmark.value.tags.push(inputValue.value);
+  if (tagInputValue.value && tags.indexOf(tagInputValue.value) === -1) {
+    tags.push(tagInputValue.value);
   }
-  inputVisible.value = false;
-  inputValue.value = '';
+  tagInputVisible.value = false;
+  tagInputValue.value = '';
 };
 const handleClose = (removedTag) => {
-  bookmark.value.tags = bookmark.value.tags.filter((tag) => tag !== removedTag);
+  tags = tags.filter((tag) => tag !== removedTag);
 };
+
+const httpProtocol = computed(() => (bookmark.value.favicon ? bookmark.value.favicon.includes('http') : false));
 
 const createBookmark = async () => {
   console.warn(bookmark.value);
-  const response = await chrome.runtime.sendMessage({
-    action: 'createBookmark',
-    data: bookmark.value,
-  });
+  bookmark.value.title = tagHelper.toString(bookmark.value.title, tags);
+  const response = await chrome.runtime.sendMessage({ action: 'createBookmark', data: bookmark.value });
   console.warn(response);
 };
+
 </script>
 <style></style>

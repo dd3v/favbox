@@ -1,6 +1,11 @@
 import Bookmark from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
-import makeHash from '@/libs/hash';
+import makeHash from '@/helpers/hash';
+import Parser from '@/libs/parser';
+import PageRequest from '@/libs/pageRequest';
+import { parseHTML } from 'linkedom';
+import tagHelper from '@/helpers/tags';
+import { findFolderByParentId } from '@/helpers/folders';
 
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
 // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
@@ -29,23 +34,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
 chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
-  console.warn('Handle native bookmark on created...');
   const storageIndex = makeHash(bookmark.url);
-  const pageInfo = await chrome.storage.session.get(storageIndex);
-  if (Object.keys(pageInfo).length === 0 && pageInfo.constructor === Object) {
-    console.log('Data is an empty object');
+  let pageInfo = await chrome.storage.session.get(`${storageIndex}sdf`);
+  if (Object.keys(pageInfo).length === 0) {
+    console.log('Cache is empty. Fetching data.. 🌎');
+    try {
+      const page = await new PageRequest(bookmark.url).getData();
+      const { document } = parseHTML(page.text);
+      pageInfo = (new Parser(bookmark.url, document)).getFullPageInfo();
+    } catch (e) {
+      console.warn(e);
+    }
   }
-  console.warn(bookmark);
-  const idbBookmark = pageInfo;
-  idbBookmark.browserBookmarkId = parseInt(bookmark.id, 10);
-  idbBookmark.parentId = parseInt(bookmark.parentId, 10);
-  idbBookmark.createdAt = new Date().toISOString();
-  idbBookmark.updatedAt = new Date().toISOString();
-  console.warn(idbBookmark);
+  const folder = findFolderByParentId(bookmark.parentId);
+  console.warn(folder);
+  const entity = {
+    browserBookmarkId: parseInt(bookmark.id, 10),
+    parentId: parseInt(bookmark.parentId, 10),
+    title: tagHelper.getTitle(bookmark.title),
+    url: bookmark.url,
+    description: pageInfo.description ?? null,
+    favicon: pageInfo.favicon ?? null,
+    image: pageInfo.image ?? null,
+    domain: pageInfo.domain ?? null,
+    tags: tagHelper.getTags(bookmark.title),
+    folder: '',
+    favorite: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
   await initStorage();
-  new Bookmark().create(idbBookmark);
-  // const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  console.log(id, bookmark);
+  new Bookmark().create(entity);
 });
 
 // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onRemoved
