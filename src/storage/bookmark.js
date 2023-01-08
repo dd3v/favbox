@@ -6,7 +6,7 @@ export default class Bookmark {
   }
 
   search(conditions, skip = 0, limit = 100) {
-    const whereConditions = {};
+    const whereConditions = null;
     if (conditions.tags.length) {
       Object.assign(whereConditions, {
         tags: {
@@ -14,14 +14,9 @@ export default class Bookmark {
         },
       });
     }
-    Object.assign(whereConditions, { deleted: 0 });
-    if (conditions.snippets === 'favorite') {
-      Object.assign(whereConditions, { favorite: 1 });
-    }
     if (conditions.term.trim().length) {
       Object.assign(whereConditions, { title: { like: `%${conditions.term}%` } });
     }
-
     return connection.select({
       from: this.tableName,
       distinct: true,
@@ -58,9 +53,6 @@ export default class Bookmark {
   async tags() {
     const response = await connection.select({
       from: this.tableName,
-      where: {
-        deleted: 0,
-      },
       flatten: ['tags'],
       groupBy: 'tags',
       order: {

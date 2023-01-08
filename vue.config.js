@@ -43,6 +43,7 @@ module.exports = {
             from: path.resolve('public/'),
             to: `${path.resolve('dist')}/`,
           },
+          { from: 'src/assets/icons', to: `${path.resolve('dist')}/` },
         ],
       },
     ]);

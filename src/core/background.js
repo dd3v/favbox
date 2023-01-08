@@ -63,6 +63,7 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+  console.warn(entity);
   await initStorage();
   new Bookmark().create(entity);
 });
