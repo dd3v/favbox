@@ -17,8 +17,8 @@
       </a-form-item>
       <a-form-item>
         <a-select
-          v-model:value="bookmark.folder"
-          show-search
+          v-model:value="bookmark.parentId"
+          @change="updateFolder"
           placeholder="Folder"
           :options="folders"
           :fieldNames="{ label: 'title', value: 'id' }"
@@ -27,13 +27,9 @@
       <a-form-item>
         <template v-for="tag in bookmark.tags" :key="tag">
           <a-tooltip v-if="tag.length > 20" :title="tag">
-            <a-tag :closable="true" @close="handleClose(tag)">
-              {{ `${tag.slice(0, 20)}...` }}
-            </a-tag>
+            <a-tag :closable="true" @close="handleClose(tag)">{{ `${tag.slice(0, 20)}...` }}</a-tag>
           </a-tooltip>
-          <a-tag v-else :closable="true" @close="handleClose(tag)">
-            {{ tag }}
-          </a-tag>
+          <a-tag v-else :closable="true" @close="handleClose(tag)">{{ tag }}</a-tag>
         </template>
         <a-input
           v-if="inputVisible"
@@ -63,12 +59,8 @@ const bookmark = ref({
   title: '',
   url: '',
   favicon: '',
-  image: '',
-  domain: '',
-  description: '',
   tags: [],
   parentId: null,
-  folder: null,
 });
 
 const getFolders = (bookmarks) => {
@@ -83,31 +75,26 @@ const getFolders = (bookmarks) => {
   return folders;
 };
 
-const httpProtocol = computed(() => !!bookmark.value.favicon.includes('http'));
-
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-if (tab.url.includes('chrome://')) {
-  const preview = {
-    title: tab.title,
-    url: tab.url,
-    favicon: tab.favIconUrl,
-    image: null,
-    domain: null,
-    description: null,
-  };
-  bookmark.value = preview;
-} else {
-  // https://developer.chrome.com/docs/extensions/reference/runtime/#method-sendMessage
-  const { data } = await chrome.tabs.sendMessage(tab.id, { action: 'getCurrentTabPreview', data: tab });
-  bookmark.value = { ...bookmark.value, ...data };
-  console.warn(bookmark.value);
-}
+bookmark.value = {
+  title: tab.title,
+  url: tab.url,
+  favicon: tab.favIconUrl,
+  tags: [],
+};
 
 const tree = await chrome.bookmarks.getTree();
 const folders = getFolders(tree);
-bookmark.value.folder = folders[0]?.id;
+bookmark.value.parentId = folders[0]?.id;
+bookmark.value.folder = folders[0]?.title;
 console.warn(folders);
 
+const updateFolder = (id) => {
+  const folder = folders.find((item) => item.id === id);
+  bookmark.value.folder = folder?.title;
+};
+console.warn(bookmark);
+const httpProtocol = computed(() => (bookmark.value.favicon ? bookmark.value.favicon.includes('http') : false));
 const inputRef = ref();
 
 const inputVisible = ref(false);
@@ -130,7 +117,11 @@ const handleClose = (removedTag) => {
 };
 
 const createBookmark = async () => {
-  const response = await chrome.runtime.sendMessage({ action: 'createBookmark', data: bookmark.value });
+  console.warn(bookmark.value);
+  const response = await chrome.runtime.sendMessage({
+    action: 'createBookmark',
+    data: bookmark.value,
+  });
   console.warn(response);
 };
 </script>

@@ -1,7 +1,10 @@
 export default class Parser {
   #html;
 
-  constructor(html) {
+  #url;
+
+  constructor(url, html) {
+    this.#url = url;
     this.#html = html;
   }
 
@@ -38,18 +41,11 @@ export default class Parser {
     if (image) return image;
     const linkImage = this.#html.querySelector('link[rel="image_src"]')?.getAttribute('href');
     if (linkImage) return linkImage;
-    // TODO: what if try to find?
     return null;
   }
 
   getDomain() {
-    const link = this.#html.querySelector('link[ref="canonical"]')?.getAttribute('href');
-    if (link) return link;
-    const ogLink = this.#html.querySelector('meta[property="og:url"]')?.getAttribute('content');
-    if (ogLink) return ogLink;
-    const windowLocation = this.#html.location.hostname;
-    if (windowLocation) return windowLocation;
-    return null;
+    return new URL(this.#url).hostname;
   }
 
   getFavicon() {
@@ -62,5 +58,20 @@ export default class Parser {
       return link;
     }
     return null;
+  }
+
+  getUrl() {
+    return this.#url;
+  }
+
+  getFullPageInfo() {
+    return {
+      title: this.getTitle(),
+      description: this.getDescription(),
+      image: this.getImage(),
+      domain: this.getDomain(),
+      favicon: this.getFavicon(),
+      url: this.getUrl(),
+    };
   }
 }
