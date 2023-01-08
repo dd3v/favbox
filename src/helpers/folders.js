@@ -15,9 +15,9 @@ const getBookmarkFolders = async () => {
   return getList(tree).filter((folder) => folder.title !== '');
 };
 
-const findFolderByParentId = async (parentId) => {
+const getFolderById = async (id) => {
   const folders = await getBookmarkFolders();
-  return folders.find((item) => item.parentId === parentId);
+  return folders.find((item) => item.id === id);
 };
 
-export { getBookmarkFolders, findFolderByParentId };
+export { getBookmarkFolders, getFolderById };

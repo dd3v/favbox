@@ -5,7 +5,6 @@ import Parser from '@/libs/parser';
 import PageRequest from '@/libs/pageRequest';
 import { parseHTML } from 'linkedom';
 import tagHelper from '@/helpers/tags';
-import { findFolderByParentId } from '@/helpers/folders';
 
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
 // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
@@ -46,7 +45,8 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
       console.warn(e);
     }
   }
-  const folder = findFolderByParentId(bookmark.parentId);
+  const [folder] = await chrome.bookmarks.get(bookmark.parentId);
+  console.warn(bookmark);
   console.warn(folder);
   const entity = {
     browserBookmarkId: parseInt(bookmark.id, 10),
@@ -58,7 +58,7 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     image: pageInfo.image ?? null,
     domain: pageInfo.domain ?? null,
     tags: tagHelper.getTags(bookmark.title),
-    folder: '',
+    folder: folder.title,
     favorite: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
