@@ -17,7 +17,6 @@ const getDb = () => {
       title: {
         notNull: true,
         dataType: DATA_TYPE.String,
-        default: 'Untitled',
         enableSearch: true,
       },
       description: {

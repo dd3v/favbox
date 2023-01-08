@@ -1,13 +1,14 @@
 <template>
   <a-card style="width: 350px; height: 100%">
-    <template #title> LinkFlow </template>
-    <template #extra><a href="#">more</a></template>
-    <a-form :model="bookmark" name="basic">
-      <a-form-item
-        name="title"
-        :rules="[{ required: true, message: 'Please input bookmark title' }]"
-        @finish="createBookmark"
-      >
+    <template #title> FavBox </template>
+    <template #extra>
+      <a-button size="small" @click="openApp">
+        <template #icon><heart-outlined /></template>
+        View Bookmarks
+      </a-button>
+    </template>
+    <a-form :model="bookmark" @finish="createBookmark">
+      <a-form-item name="title" :rules="[{ required: true }]">
         <a-input v-model:value="bookmark.title">
           <template #prefix>
             <img :src="bookmark.favicon" width="16" :alt="bookmark.title" v-if="httpProtocol" />
@@ -45,7 +46,7 @@
           New Tag
         </a-tag>
       </a-form-item>
-      <a-button class="w-full" @click="createBookmark">Add to bookmarks</a-button>
+      <a-button block @click="createBookmark">Add to bookmarks</a-button>
     </a-form>
   </a-card>
 </template>
@@ -54,7 +55,7 @@
 import {
   ref, nextTick, computed, reactive,
 } from 'vue';
-import { PlusOutlined, HomeOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined, HomeOutlined, HeartOutlined } from '@ant-design/icons-vue';
 import { getBookmarkFolders } from '@/helpers/folders';
 import tagHelper from '@/helpers/tags';
 
@@ -62,7 +63,10 @@ const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 const folders = await getBookmarkFolders();
 console.log(folders);
 const bookmark = ref({
-  title: tab.title, url: tab.url, favicon: tab.favIconUrl, parentId: folders[0]?.id,
+  title: tab.title,
+  url: tab.url,
+  favicon: tab.favIconUrl,
+  parentId: folders[0]?.id,
 });
 let tags = reactive([]);
 const tagInputRef = ref();
@@ -88,10 +92,19 @@ const httpProtocol = computed(() => (bookmark.value.favicon ? bookmark.value.fav
 
 const createBookmark = async () => {
   console.warn(bookmark.value);
-  bookmark.value.title = tagHelper.toString(bookmark.value.title, tags);
-  const response = await chrome.runtime.sendMessage({ action: 'createBookmark', data: bookmark.value });
+  const response = await chrome.runtime.sendMessage({
+    action: 'createBookmark',
+    data: {
+      title:
+        tags.length !== 0 ? tagHelper.toString(bookmark.value.title, tags) : bookmark.value.title,
+      parentId: bookmark.value.parentId,
+      url: bookmark.value.url,
+    },
+  });
   console.warn(response);
 };
+
+const openApp = () => chrome.tabs.create({ url: '/app.html', index: tab.index + 1 });
 
 </script>
 <style></style>

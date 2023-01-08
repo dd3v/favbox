@@ -1,5 +1,3 @@
-/* eslint-disable global-require */
-/* eslint-disable import/no-webpack-loader-syntax */
 import { Connection } from 'jsstore';
 import workerInjector from 'jsstore/dist/worker_injector';
 
