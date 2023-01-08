@@ -1,23 +1,15 @@
 import Parser from '@/libs/parser';
 
-console.warn('content.js here');
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-  if (message.action === 'getCurrentTabPreview') {
-    console.warn(message.data);
-    try {
-      const parser = new Parser(document);
-      const preview = {
-        title: message.data.title,
-        url: message.data.url,
-        favicon: message.data.favIconUrl,
-        image: parser.getImage(),
-        domain: parser.getDomain(),
-        description: parser.getDescription(),
-      };
-      sendResponse({ result: true, data: preview });
-    } catch (e) {
-      console.warn(e);
-    }
-  }
-  return true;
-});
+console.warn('LinkFlow extension..');
+(async () => {
+  const parser = new Parser(document.location.href, document);
+  const pageInfo = {
+    title: parser.getTitle(),
+    url: parser.getUrl(),
+    favicon: parser.getFavicon(),
+    image: parser.getImage(),
+    domain: parser.getDomain(),
+    description: parser.getDescription(),
+  };
+  await chrome.runtime.sendMessage({ action: 'cache', data: pageInfo });
+})();

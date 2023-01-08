@@ -10,7 +10,7 @@ const getDb = () => {
         autoIncrement: true,
         dataType: DATA_TYPE.Number,
       },
-      borwser_id: {
+      browserBookmarkId: {
         dataType: DATA_TYPE.Number,
         notNull: true,
       },
@@ -57,12 +57,12 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
         default: 0,
       },
-      created_at: {
+      createdAt: {
         dataType: DATA_TYPE.String,
         notNull: true,
         enableSearch: true,
       },
-      updated_at: {
+      updatedAt: {
         dataType: DATA_TYPE.String,
         notNull: true,
         enableSearch: true,
