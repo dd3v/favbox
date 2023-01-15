@@ -1,8 +1,6 @@
 <template>
   <suspense>
-    <a-config-provider prefix-cls="ant">
-      <app-view />
-    </a-config-provider>
+    <app-view />
   </suspense>
 </template>
 <script setup>

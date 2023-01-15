@@ -50,7 +50,7 @@ export default class Bookmark {
     });
   }
 
-  async tags() {
+  async getTags() {
     const response = await connection.select({
       from: this.tableName,
       flatten: ['tags'],
@@ -61,5 +61,19 @@ export default class Bookmark {
       },
     });
     return response.map((item) => item.tags);
+  }
+
+  async getDomains() {
+    const response = await connection.select({
+      from: this.tableName,
+      // flatten: ['domain'],
+      groupBy: 'domain',
+      order: {
+        by: 'domain',
+        type: 'asc',
+      },
+    });
+    console.warn(response);
+    return response.map((item) => item.domain);
   }
 }

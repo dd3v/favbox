@@ -25,7 +25,7 @@ const getDb = () => {
       },
       domain: {
         dataType: DATA_TYPE.String,
-        enableSearch: false,
+        enableSearch: true,
       },
       url: {
         dataType: DATA_TYPE.String,
