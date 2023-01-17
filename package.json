@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^6.1.0",
+    "@heroicons/vue": "^2.0.13",
     "ant-design-vue": "^3.2.15",
     "copy-webpack-plugin": "^11.0.0",
     "core-js": "^3.27.1",
