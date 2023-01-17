@@ -1,8 +1,8 @@
 <!-- eslint-disable max-len -->
 <template>
-  <div class="flex h-full sticky top-0">
-    <div class="min-h-screen bg-white p-3">
-      <div class="relative flex items-center w-full h-12 overflow-hidden">
+  <div class="flex h-full sticky top-0 ">
+    <div class="min-h-screen bg-white p-3 w-48">
+      <div class="relative flex items-center h-12 overflow-hidden">
         <div class="grid place-items-center h-full w-12 text-gray-300">
           <magnifying-glass-circle-icon class="w-6 h-6" />
         </div>
@@ -11,12 +11,13 @@
           type="text"
           id="search"
           placeholder="Search something.."
+          v-model="term"
         />
       </div>
       <label
+        v-for="(item, key) in list"
         :for="`${item + key}`"
         class="flex place-items-end cursor-pointer text-gray-700 hover:text-grey-900 hover:bg-neutral-100 rounded-md px-2 py-2 my-2"
-        v-for="(item, key) in items"
         :key="key"
       >
         <span
@@ -31,16 +32,16 @@
           :value="item"
           v-model="selected"
         />
-        {{ item }}
+       <span class="truncate">{{ item }}</span>
       </label>
     </div>
   </div>
 </template>
 <script setup>
 import { MagnifyingGlassCircleIcon } from '@heroicons/vue/24/outline';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-defineProps({
+const props = defineProps({
   modelValue: {
     type: Array,
   },
@@ -50,5 +51,12 @@ defineProps({
   },
 });
 
+const term = ref('');
 const selected = ref([]);
+const list = computed(() => {
+  if (term.value.length === 0) {
+    return props.items;
+  }
+  return props.items.filter((item) => item.toLowerCase().startsWith(term.value.toLowerCase()));
+});
 </script>
