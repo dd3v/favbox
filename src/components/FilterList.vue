@@ -54,9 +54,12 @@ const props = defineProps({
     required: true,
   },
 });
-
+const emit = defineEmits(['update:modelValue']);
+const selected = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+});
 const term = ref('');
-const selected = ref([]);
 const list = computed(() => {
   if (term.value.length === 0) {
     return props.items;
