@@ -13,7 +13,7 @@
       v-for="(item, key) in items"
       :key="key"
       class="relative tab m-3 p-2 rounded-full"
-      :id="`item-${key}`"
+      :id="item.value"
       @click="handleTab"
       :ref="setTabRef"
     >
@@ -22,28 +22,30 @@
   </div>
 </template>
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 
-defineProps({
+const props = defineProps({
   modelValue: {
-    type: Array,
+    type: String,
   },
   items: {
     type: Array,
     required: true,
   },
 });
-
+const emit = defineEmits(['update:modelValue']);
 const indicatorRef = ref(null);
 const tabRefs = [];
 const setTabRef = (el) => tabRefs.push(el);
-
+const selected = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+});
 const handleTab = (tab) => {
   indicatorRef.value.style.top = `${
     tab.target.getBoundingClientRect().top - tab.target.parentElement.getBoundingClientRect().top
   }px`;
-  const selectedTab = tab.target.getAttribute('id');
-  console.warn(selectedTab);
+  selected.value = tab.target.getAttribute('id');
 };
 
 onMounted(() => {
