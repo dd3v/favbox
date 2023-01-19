@@ -4,7 +4,9 @@
     <nav-sidebar :items="tabs" />
     <filter-list :items="domains" />
     <div class="flex px-4 py-4">
-      <bookmark-card v-for="(bookmark, key) in bookmarks" :key="key"/>
+       <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 gap-x-6 gap-y-10">
+      <bookmark-card v-for="(bookmark, key) in bookmarks" :bookmark="bookmark" :key="key"/>
+       </div>
     </div>
   </div>
 </template>
