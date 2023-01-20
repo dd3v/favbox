@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <button
-      class="inline-flex items-stretch rounded-md border bg-white rounded-l-md px-2 py-2 hover:bg-gray-50 hover:text-gray-700"
+      class="inline-flex items-stretch rounded-md border bg-white p-2 hover:bg-gray-50 hover:text-gray-700 "
       @click="$emit('update:modelValue', sort === 'desc' ? 'asc' : 'desc')"
     >
       <component :is="icon" class="h-5 w-5 text-gray-600" />
