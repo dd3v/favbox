@@ -3,12 +3,12 @@
 <template>
   <div class="flex h-full sticky top-0">
     <div class="min-h-screen bg-white p-3 w-48">
-      <div class="relative flex items-center h-12 overflow-hidden">
-        <div class="grid place-items-center h-full w-12 text-gray-300">
+      <div class="relative flex items-center border-none  overflow-hidden">
+        <div class="grid place-items-center  text-gray-300">
           <magnifying-glass-circle-icon class="w-6 h-6" />
         </div>
         <input
-          class="w-full outline-none text-gray-500"
+          class="w-full outline-none text-gray-500 border-none text-sm"
           type="text"
           id="search"
           placeholder="Search something.."

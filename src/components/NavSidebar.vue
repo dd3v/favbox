@@ -1,12 +1,12 @@
 <!-- eslint-disable max-len -->
 <template>
   <div
-    class="flex flex-col h-full sticky top-0 border-r border-neutral-200 items-center align-middle justify-center min-h-screen bg-neutral-50 w-12"
+    class="flex flex-col h-full sticky top-0 border-r border-neutral-200 items-center align-middle justify-center min-h-screen bg-neutral-50 w-12 dark:bg-gray-800"
     role="tablist"
     aria-label="tabs"
   >
     <div
-      class="absolute indicator h-10 w-10 my-auto bg-white rounded-md shadow"
+      class="absolute indicator h-10 w-10 my-auto bg-white rounded-md shadow dark:bg-gray-900"
       ref="indicatorRef"
     ></div>
     <button
