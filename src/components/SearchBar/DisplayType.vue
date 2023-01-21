@@ -2,7 +2,7 @@
   <Menu as="div" class="relative inline-block text-left">
     <div>
       <MenuButton
-        class="inline-flex items-stretch rounded-md border bg-white p-2 hover:bg-gray-50 hover:text-gray-700 "
+        class="inline-flex items-stretch rounded-md border bg-white p-2 hover:bg-gray-50 hover:text-gray-700 shadow-sm"
       >
         <component :is="icon" class="h-5 w-5 text-gray-600" aria-hidden="true" />
       </MenuButton>
@@ -16,7 +16,7 @@
       leave-to-class="transform scale-95 opacity-0"
     >
       <MenuItems
-        class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="absolute right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
       >
         <div class="p-1">
           <MenuItem v-slot="{ active }">
@@ -57,15 +57,15 @@ import { Squares2X2Icon, ListBulletIcon } from '@heroicons/vue/24/outline';
 import { computed } from 'vue';
 
 const props = defineProps({
-  view: {
+  modelValue: {
     type: String,
     requred: true,
   },
 });
-const emit = defineEmits(['update:view']);
+const emit = defineEmits(['update:modelValue']);
 const view = computed({
-  get: () => props.view,
-  set: (value) => emit('update:view', value),
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
 });
 const icon = computed({
   get: () => (view.value === 'card' ? Squares2X2Icon : ListBulletIcon),
