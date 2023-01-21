@@ -1,29 +1,30 @@
-<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
-<!-- eslint-disable max-len -->
 <template>
-  <div class="flex h-full sticky top-0">
-    <div class="min-h-screen bg-white p-3 w-48">
-      <div class="relative flex items-center border-none  overflow-hidden">
-        <div class="grid place-items-center  text-gray-300">
-          <magnifying-glass-circle-icon class="w-6 h-6" />
+  <div class="flex h-screen w-48 overflow-y-auto">
+    <div class="bg-white p-3">
+      <div class="relative flex items-center border-none">
+        <div class="grid place-items-center text-gray-300">
+          <magnifying-glass-circle-icon class="h-6 w-6" />
         </div>
-        <input
-          class="w-full outline-none text-gray-500 border-none text-sm"
-          type="text"
-          id="search"
-          placeholder="Search something.."
-          v-model="term"
-        />
+        <label for="searc">
+          <input
+            class="w-full border-none text-sm text-gray-500 outline-none focus:ring-0"
+            type="text"
+            id="search"
+            placeholder="Search something.."
+            v-model="term"
+            autocomplete="off"
+          />
+        </label>
       </div>
-      <transition-group tag="ul" name="fade" class="items">
+      <transition-group tag="ul" name="fade">
         <li v-for="(item, key) in list" :key="key">
           <label
             :for="`${item + key}`"
-            class="flex place-items-end cursor-pointer text-gray-700 hover:text-grey-900 hover:bg-neutral-100 rounded-md px-2 py-2 my-2"
+            class="my-2 flex cursor-pointer place-items-end rounded-md p-2 text-gray-700 hover:bg-neutral-100 hover:text-gray-900"
             :key="key"
           >
             <span
-              class="h-2 w-2 m-1 rounded-full"
+              class="m-1 h-2 w-2 rounded-full"
               :class="selected.includes(item) ? 'bg-gray-500' : 'bg-gray-300'"
             ></span>
             <input
