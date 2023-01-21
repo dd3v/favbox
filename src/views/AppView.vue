@@ -1,9 +1,7 @@
 <template>
-  <div class="flex">
+  <div class="flex w-full">
     <nav-sidebar :items="tabs" v-model="currentTab">
-      <template v-slot:header>
-        LOGO
-      </template>
+      <template v-slot:header> LOGO </template>
       <template v-slot:footer>
         <button @click="toggleTheme">THEME</button>
       </template>
@@ -11,7 +9,7 @@
     <div class="sticky top-0 flex h-full" v-for="(items, key) in filters" :key="key">
       <filter-list :items="items" v-model="conditions[key]" v-if="currentTab === key" />
     </div>
-    <div class="flex flex-col px-2">
+    <div class="flex w-full flex-col px-2">
       <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-white px-0 py-2">
         <search-term v-model="conditions.term" />
         <sort-direction v-model="conditions.sort" />
@@ -22,15 +20,20 @@
         />
         <display-type v-model="view" />
       </div>
-      <div class="grid grid-cols-1 gap-x-6 gap-y-10 py-3 sm:grid-cols-1 md:grid-cols-4">
-        <bookmark-card v-for="(bookmark, key) in bookmarks" :bookmark="bookmark" :key="key" />
+      <div class="grid w-full grid-cols-1 gap-x-6 gap-y-10 py-3 sm:grid-cols-1 md:grid-cols-1">
+        <component
+          :is="displayComponent"
+          v-for="(bookmark, key) in bookmarks"
+          :bookmark="bookmark"
+          :key="key"
+        />
       </div>
     </div>
   </div>
 </template>
 <script setup>
 import {
-  toRaw, reactive, ref, watch,
+  toRaw, reactive, ref, watch, computed,
 } from 'vue';
 import NavSidebar from '@/components/NavSidebar.vue';
 import FilterList from '@/components/FilterList.vue';
@@ -43,8 +46,9 @@ import SearchTerm from '@/components/SearchBar/SearchTerm.vue';
 import SortDirection from '@/components/SearchBar/SortDirection.vue';
 import FilterOptions from '@/components/SearchBar/FilterOptions.vue';
 import DisplayType from '@/components/SearchBar/DisplayType.vue';
+import BookmarkList from '@/components/BookmarkList.vue';
 
-const view = ref('card');
+const view = ref('list');
 const currentTab = ref('folders');
 const tabs = [
   { value: 'folders', icon: FolderOpenIcon },
@@ -87,6 +91,9 @@ const deleteAllOptions = () => {
   conditions.folders = [];
   conditions.tags = [];
 };
+const displayComponent = computed({
+  get: () => (view.value === 'card' ? BookmarkCard : BookmarkList),
+});
 const toggleTheme = () => console.warn('toggle theme');
 watch(currentTab, () => console.warn(currentTab));
 watch(
