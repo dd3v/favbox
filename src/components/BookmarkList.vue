@@ -12,7 +12,7 @@
         />
         <div class="flex w-full flex-col justify-start p-3">
           <div class="mb-2 flex flex-row items-center text-base font-semibold text-gray-900">
-            <img :src="bookmark.favicon" class="mr-1 h-4 w-4" :alt="bookmark.title" />
+            <img :src="bookmark.favicon" class="shrink-0 mr-1 h-4 w-4" :alt="bookmark.title" />
             {{ bookmark.title }}
           </div>
           <span class="text-xs">{{ bookmark.domain }}</span>
