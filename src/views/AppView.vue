@@ -9,7 +9,7 @@
     <div class="sticky top-0 flex h-full" v-for="(items, key) in filters" :key="key">
       <filter-list :items="items" v-model="conditions[key]" v-if="currentTab === key" />
     </div>
-    <div class="flex w-full flex-col px-2">
+    <div class="flex w-full flex-col px-2 min-w-[50%]">
       <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-white px-0 py-2">
         <search-term v-model="conditions.term" />
         <sort-direction v-model="conditions.sort" />
@@ -29,6 +29,7 @@
         />
       </div>
     </div>
+    <!-- <div class="bg-gray-50 text-sm text-gray-600" v-html="article.content"></div> -->
   </div>
 </template>
 <script setup>
@@ -47,6 +48,21 @@ import SortDirection from '@/components/SearchBar/SortDirection.vue';
 import FilterOptions from '@/components/SearchBar/FilterOptions.vue';
 import DisplayType from '@/components/SearchBar/DisplayType.vue';
 import BookmarkList from '@/components/BookmarkList.vue';
+import PageRequest from '@/libs/pageRequest';
+import { parseHTML } from 'linkedom';
+
+import { Readability } from '@mozilla/readability';
+
+const page = await new PageRequest(
+  'https://css-tricks.com/lazy-loading-images-with-vue-js-directives-and-intersection-observer/',
+).getData();
+const { document } = parseHTML(page.text);
+console.warn(page);
+console.warn(document);
+const reader = new Readability(document);
+const article = reader.parse();
+
+console.warn(article);
 
 const view = ref('list');
 const currentTab = ref('folders');
