@@ -9,7 +9,7 @@
     <div class="sticky top-0 flex h-full" v-for="(items, key) in filters" :key="key">
       <filter-list :items="items" v-model="conditions[key]" v-if="currentTab === key" />
     </div>
-    <div class="flex w-full flex-col px-2 min-w-[50%]">
+    <div class="flex h-screen w-full  flex-col overflow-y-auto px-2">
       <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-white px-0 py-2">
         <search-term v-model="conditions.term" />
         <sort-direction v-model="conditions.sort" />
@@ -26,20 +26,39 @@
           v-for="(bookmark, key) in bookmarks"
           :bookmark="bookmark"
           :key="key"
-        />
+        >
+          <template v-slot:actions>
+            <div class="visible absolute top-0 right-0 group-hover:visible">
+              <button
+                @click="remove"
+                class="m-1 rounded-full bg-red-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-red-900 hover:shadow-lg focus:bg-red-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-900 active:shadow-lg"
+              >
+                <trash-icon class="h-4 w-4" />
+              </button>
+              <button
+                @click="tools.open()"
+                class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
+              >
+                <newspaper-icon class="h-4 w-4" />
+              </button>
+            </div>
+          </template>
+        </component>
       </div>
     </div>
-    <!-- <div class="bg-gray-50 text-sm text-gray-600" v-html="article.content"></div> -->
+    <bookmark-tools ref="tools"/>
   </div>
 </template>
 <script setup>
 import {
   toRaw, reactive, ref, watch, computed,
 } from 'vue';
+import {
+  NewspaperIcon, TrashIcon, FolderOpenIcon, HashtagIcon, GlobeAltIcon,
+} from '@heroicons/vue/24/outline';
 import NavSidebar from '@/components/NavSidebar.vue';
 import FilterList from '@/components/FilterList.vue';
 import BookmarkCard from '@/components/BookmarkCard.vue';
-import { FolderOpenIcon, HashtagIcon, GlobeAltIcon } from '@heroicons/vue/24/outline';
 import Bookmark from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import { getBookmarkFolders } from '@/helpers/folders';
@@ -48,21 +67,7 @@ import SortDirection from '@/components/SearchBar/SortDirection.vue';
 import FilterOptions from '@/components/SearchBar/FilterOptions.vue';
 import DisplayType from '@/components/SearchBar/DisplayType.vue';
 import BookmarkList from '@/components/BookmarkList.vue';
-import PageRequest from '@/libs/pageRequest';
-import { parseHTML } from 'linkedom';
-
-import { Readability } from '@mozilla/readability';
-
-const page = await new PageRequest(
-  'https://css-tricks.com/lazy-loading-images-with-vue-js-directives-and-intersection-observer/',
-).getData();
-const { document } = parseHTML(page.text);
-console.warn(page);
-console.warn(document);
-const reader = new Readability(document);
-const article = reader.parse();
-
-console.warn(article);
+import BookmarkTools from '@/components/BookmarkTools.vue';
 
 const view = ref('list');
 const currentTab = ref('folders');
@@ -110,6 +115,7 @@ const deleteAllOptions = () => {
 const displayComponent = computed({
   get: () => (view.value === 'card' ? BookmarkCard : BookmarkList),
 });
+const tools = ref('');
 const toggleTheme = () => console.warn('toggle theme');
 watch(currentTab, () => console.warn(currentTab));
 watch(
