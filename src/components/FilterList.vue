@@ -1,13 +1,13 @@
 <template>
   <div class="flex h-screen w-48 overflow-y-auto">
-    <div class="bg-white p-3">
-      <div class="relative flex items-center border-none">
-        <div class="grid place-items-center text-gray-300">
+    <div class="bg-white p-2">
+      <div class="relative flex items-center rounded-md  border-none bg-neutral-100 p-0.5">
+        <div class="grid place-items-center text-gray-400 ">
           <magnifying-glass-circle-icon class="h-6 w-6" />
         </div>
         <label for="searc">
           <input
-            class="w-full border-none text-sm text-gray-500 outline-none focus:ring-0"
+            class="w-full border-none bg-neutral-100 text-xs  text-gray-500 outline-none focus:ring-0"
             type="text"
             id="search"
             placeholder="Search something.."
@@ -20,12 +20,12 @@
         <li v-for="(item, key) in list" :key="key">
           <label
             :for="`${item + key}`"
-            class="my-2 flex cursor-pointer place-items-end rounded-md p-2 text-gray-700 hover:bg-neutral-100 hover:text-gray-900"
+            class="my-1 flex cursor-pointer place-items-end rounded-md p-2 text-gray-700 hover:bg-neutral-100 hover:text-gray-900"
             :key="key"
           >
             <span
-              class="m-1 h-2 w-2 rounded-full"
-              :class="selected.includes(item) ? 'bg-gray-500' : 'bg-gray-300'"
+              class="m-1 h-2 w-2 rounded border border-solid border-gray-500 bg-white"
+              :class="selected.includes(item) ? 'bg-gray-500' : 'bg-white'"
             ></span>
             <input
               type="checkbox"
