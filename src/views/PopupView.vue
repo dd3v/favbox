@@ -1,92 +1,171 @@
 <template>
-  <a-card style="width: 350px; height: 100%">
-    <template #title> FavBox </template>
-    <template #extra>
-      <a-button size="small" @click="openApp">
-        <template #icon><heart-outlined /></template>
-        View Bookmarks
-      </a-button>
-    </template>
-    <a-form :model="bookmark" @finish="createBookmark">
-      <a-form-item name="title" :rules="[{ required: true }]">
-        <a-input v-model:value="bookmark.title">
-          <template #prefix>
-            <img :src="bookmark.favicon" width="16" :alt="bookmark.title" v-if="httpProtocol" />
-            <home-outlined v-else />
-          </template>
-        </a-input>
-      </a-form-item>
-      <a-form-item>
-        <a-select
-          v-model:value="bookmark.parentId"
-          placeholder="Folder"
-          :options="folders"
-          :fieldNames="{ label: 'title', value: 'id' }"
-        ></a-select>
-      </a-form-item>
-      <a-form-item>
-        <template v-for="tag in tags" :key="tag">
-          <a-tooltip v-if="tag.length > 20" :title="tag">
-            <a-tag :closable="true" @close="handleClose(tag)">{{ `${tag.slice(0, 20)}...` }}</a-tag>
-          </a-tooltip>
-          <a-tag v-else :closable="true" @close="handleClose(tag)">{{ tag }}</a-tag>
-        </template>
-        <a-input
-          v-if="tagInputVisible"
-          ref="tagInputRef"
-          v-model:value="tagInputValue"
-          type="text"
-          size="small"
-          :style="{ width: '78px' }"
-          @blur="handleInputConfirm"
-          @keyup.enter="handleInputConfirm"
-        />
-        <a-tag v-else style="background: #fff; border-style: dashed" @click="showInput">
-          <plus-outlined />
-          New Tag
-        </a-tag>
-      </a-form-item>
-      <a-button block @click="createBookmark">Add to bookmarks</a-button>
-    </a-form>
-  </a-card>
+  <div class="h-auto w-72 space-y-5 p-3 dark:bg-gray-900">
+    <div class="flex justify-between">
+      <h4 class="text-xl font-semibold">WebSnap</h4>
+      <div class="flex self-end">
+        <button
+          @click="openApp"
+          class="group relative inline-flex items-center justify-center overflow-hidden rounded-md border border-purple-500 p-2 px-3 py-1 font-medium text-indigo-600 shadow-sm transition duration-300 ease-out"
+        >
+          <span
+            class="ease absolute inset-0 flex h-full w-full -translate-x-full items-center justify-center bg-purple-500 text-white duration-300 group-hover:translate-x-0"
+          >
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              ></path>
+            </svg>
+          </span>
+          <span
+            class="ease absolute flex h-full w-full items-center justify-center text-purple-500 transition-all duration-300 group-hover:translate-x-full"
+            >Open App</span
+          >
+          <span class="invisible relative">Button Text</span>
+        </button>
+      </div>
+    </div>
+    <div class="relative">
+      <label for="title">
+
+      <input
+        type="email"
+        id="title"
+        :value="bookmark.title"
+        placeholder="Page title"
+        class="w-full rounded-md border-gray-200 pl-10 text-xs shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+      />
+
+      <span
+        class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500"
+      >
+          <img :src="bookmark.favicon" width="16" :alt="bookmark.title" v-if="httpProtocol" />
+            <home-icon class="h-4 w-4" v-else />
+      </span>
+       </label>
+    </div>
+    <div class="relative">
+      <Combobox v-model="selected">
+        <div class="relative mt-1">
+          <div class="w-full">
+            <ComboboxInput
+              class="w-full rounded-md border-gray-200 text-xs shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+              :displayValue="(folder) => folder.title"
+              @change="query = $event.target.value"
+            />
+            <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
+              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </ComboboxButton>
+          </div>
+          <TransitionRoot
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+            @after-leave="query = ''"
+          >
+            <ComboboxOptions
+              class="absolute z-10 mt-1 max-h-44 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+            >
+              <div
+                v-if="filteredFolders.length === 0 && query !== ''"
+                class="relative cursor-default select-none py-2 px-4 text-gray-700"
+              >
+                Nothing found.
+              </div>
+
+              <ComboboxOption
+                v-for="folder in filteredFolders"
+                as="template"
+                :key="folder.id"
+                :value="folder"
+                v-slot="{ selected, active }"
+              >
+                <li
+                  class="relative cursor-default select-none py-2 pl-10 pr-4"
+                  :class="{
+                    'bg-neutral-100 text-gray-900': active,
+                    'text-gray-500': !active,
+                  }"
+                >
+                  <span
+                    class="block truncate"
+                    :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                  >
+                    {{ folder.title }}
+                  </span>
+                  <span
+                    v-if="selected"
+                    class="absolute inset-y-0 left-0 flex items-center pl-3"
+                    :class="{ 'text-gray-900': active, 'text-gray-500': !active }"
+                  >
+                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                  </span>
+                </li>
+              </ComboboxOption>
+            </ComboboxOptions>
+          </TransitionRoot>
+        </div>
+      </Combobox>
+    </div>
+    <div>
+      <tag-input :max="5" placeholder="Enter a tag" v-model="bookmark.tags" />
+    </div>
+    <div class="my-4 flex w-full justify-between">
+      <button
+        @click="openApp"
+        class="inline-block w-full shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-2 font-medium text-white transition hover:bg-transparent hover:text-blue-600 focus:outline-none focus:ring active:text-blue-500"
+      >
+        Create bookmark
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import {
-  ref, nextTick, computed, reactive,
+  Combobox,
+  ComboboxInput,
+  ComboboxButton,
+  ComboboxOptions,
+  ComboboxOption,
+  TransitionRoot,
+} from '@headlessui/vue';
+import TagInput from '@/components/TagInput.vue';
+import { CheckIcon, ChevronUpDownIcon, HomeIcon } from '@heroicons/vue/20/solid';
+import {
+  ref, computed, reactive,
 } from 'vue';
-import { PlusOutlined, HomeOutlined, HeartOutlined } from '@ant-design/icons-vue';
 import { getBookmarkFolders } from '@/helpers/folders';
-import tagHelper from '@/helpers/tags';
 
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 const folders = await getBookmarkFolders();
+
+const selected = ref(folders[0]);
+const query = ref('');
+const filteredFolders = computed(() => (query.value === ''
+  ? folders
+  : folders.filter((folder) => folder.title
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .includes(query.value.toLowerCase().replace(/\s+/g, '')))));
+
+console.warn(filteredFolders);
 console.log(folders);
 const bookmark = ref({
   title: tab.title,
   url: tab.url,
   favicon: tab.favIconUrl,
   parentId: folders[0]?.id,
+  tags: ['test1', 'test2', '12312 fwerqwer eeeewrqwer'],
 });
-let tags = reactive([]);
-const tagInputRef = ref();
-const tagInputVisible = ref(false);
-const tagInputValue = ref('');
-
-const showInput = () => {
-  tagInputVisible.value = true;
-  nextTick(() => tagInputRef.value.focus());
-};
-const handleInputConfirm = () => {
-  if (tagInputValue.value && tags.indexOf(tagInputValue.value) === -1) {
-    tags.push(tagInputValue.value);
-  }
-  tagInputVisible.value = false;
-  tagInputValue.value = '';
-};
-const handleClose = (removedTag) => {
-  tags = tags.filter((tag) => tag !== removedTag);
-};
 
 const httpProtocol = computed(() => (bookmark.value.favicon ? bookmark.value.favicon.includes('http') : false));
 
@@ -94,17 +173,16 @@ const createBookmark = async () => {
   console.warn(bookmark.value);
   const response = await chrome.runtime.sendMessage({
     action: 'createBookmark',
-    data: {
-      title:
-        tags.length !== 0 ? tagHelper.toString(bookmark.value.title, tags) : bookmark.value.title,
-      parentId: bookmark.value.parentId,
-      url: bookmark.value.url,
-    },
+    data: bookmark,
   });
   console.warn(response);
 };
 
 const openApp = () => chrome.tabs.create({ url: '/app.html', index: tab.index + 1 });
-
 </script>
-<style></style>
+<style>
+html,
+body {
+  width: 18rem !important;
+}
+</style>
