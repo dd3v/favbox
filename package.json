@@ -10,13 +10,11 @@
     "build-watch": "vue-cli-service  --env.NODE_ENV=development build-watch --mode development"
   },
   "dependencies": {
-    "@ant-design/icons-vue": "^6.1.0",
     "@headlessui/vue": "^1.7.7",
     "@heroicons/vue": "^2.0.13",
     "@postlight/parser": "^2.2.3",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.9",
-    "ant-design-vue": "^3.2.15",
     "copy-webpack-plugin": "^11.0.0",
     "core-js": "^3.27.1",
     "jsstore": "^4.5.0",
