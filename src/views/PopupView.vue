@@ -5,7 +5,7 @@
       <div class="flex self-end">
         <button
           @click="openApp"
-          class="group relative inline-flex items-center justify-center overflow-hidden rounded-md border border-purple-500 p-2 px-3 py-1 font-medium text-indigo-600 shadow-sm transition duration-300 ease-out"
+          class="group relative inline-flex items-center justify-center overflow-hidden rounded-md border border-purple-500 p-2 py-1 font-medium text-indigo-600 shadow-sm transition duration-300 ease-out"
         >
           <span
             class="ease absolute inset-0 flex h-full w-full -translate-x-full items-center justify-center bg-purple-500 text-white duration-300 group-hover:translate-x-0"
@@ -35,25 +35,24 @@
     </div>
     <div class="relative">
       <label for="title">
+        <input
+          type="email"
+          id="title"
+          :value="bookmark.title"
+          placeholder="Page title"
+          class="w-full rounded-md border-gray-200 pl-10 text-xs shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+        />
 
-      <input
-        type="email"
-        id="title"
-        :value="bookmark.title"
-        placeholder="Page title"
-        class="w-full rounded-md border-gray-200 pl-10 text-xs shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
-      />
-
-      <span
-        class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500"
-      >
+        <span
+          class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500"
+        >
           <img :src="bookmark.favicon" width="16" :alt="bookmark.title" v-if="httpProtocol" />
-            <home-icon class="h-4 w-4" v-else />
-      </span>
-       </label>
+          <home-icon class="h-4 w-4" v-else />
+        </span>
+      </label>
     </div>
     <div class="relative">
-      <Combobox v-model="selected">
+      <Combobox v-model="folder">
         <div class="relative mt-1">
           <div class="w-full">
             <ComboboxInput
@@ -116,11 +115,11 @@
       </Combobox>
     </div>
     <div>
-      <tag-input :max="5" placeholder="Enter a tag" v-model="bookmark.tags" />
+      <tag-input :max="5" placeholder="Enter a tag" v-model="tags" />
     </div>
     <div class="my-4 flex w-full justify-between">
       <button
-        @click="openApp"
+        @click="createBookmark"
         class="inline-block w-full shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-2 font-medium text-white transition hover:bg-transparent hover:text-blue-600 focus:outline-none focus:ring active:text-blue-500"
       >
         Create bookmark
@@ -140,15 +139,12 @@ import {
 } from '@headlessui/vue';
 import TagInput from '@/components/TagInput.vue';
 import { CheckIcon, ChevronUpDownIcon, HomeIcon } from '@heroicons/vue/20/solid';
-import {
-  ref, computed, reactive,
-} from 'vue';
+import { ref, computed } from 'vue';
 import { getBookmarkFolders } from '@/helpers/folders';
+import tagHelper from '@/helpers/tags';
 
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 const folders = await getBookmarkFolders();
-
-const selected = ref(folders[0]);
 const query = ref('');
 const filteredFolders = computed(() => (query.value === ''
   ? folders
@@ -156,15 +152,12 @@ const filteredFolders = computed(() => (query.value === ''
     .toLowerCase()
     .replace(/\s+/g, '')
     .includes(query.value.toLowerCase().replace(/\s+/g, '')))));
-
-console.warn(filteredFolders);
-console.log(folders);
+const tags = ref([]);
+const folder = ref(folders[0]);
 const bookmark = ref({
   title: tab.title,
   url: tab.url,
   favicon: tab.favIconUrl,
-  parentId: folders[0]?.id,
-  tags: ['test1', 'test2', '12312 fwerqwer eeeewrqwer'],
 });
 
 const httpProtocol = computed(() => (bookmark.value.favicon ? bookmark.value.favicon.includes('http') : false));
@@ -173,7 +166,14 @@ const createBookmark = async () => {
   console.warn(bookmark.value);
   const response = await chrome.runtime.sendMessage({
     action: 'createBookmark',
-    data: bookmark,
+    data: {
+      title:
+        tags.value.length !== 0
+          ? tagHelper.toString(bookmark.value.title, tags.value)
+          : bookmark.value.title,
+      parentId: folder.value.id,
+      url: bookmark.value.url,
+    },
   });
   console.warn(response);
 };
