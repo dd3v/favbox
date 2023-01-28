@@ -1,7 +1,6 @@
-<!-- eslint-disable vuejs-accessibility/label-has-for -->
 <template>
   <div
-    class="h-screen w-full flex-row overflow-y-auto border-l border-solid border-gray-200 bg-gray-100 text-sm text-gray-600 delay-150 duration-100 ease-out"
+    class="h-screen w-0 flex-row overflow-y-auto border-l border-solid border-gray-200 bg-gray-100 text-sm text-gray-600 delay-150 duration-100 ease-out"
     ref="block"
   >
     <TabGroup :selectedIndex="selectedTab" @change="changeTab">
@@ -42,60 +41,14 @@
       </div>
 
       <TabPanels>
-        <TabPanel>
+        <TabPanel class="p-4">
           <button @click="load">Load</button>
           <article class="prose prose-slate">
             <div v-html="content?.content"></div>
           </article>
         </TabPanel>
-        <TabPanel>
-          <form action="" class="mt-6 mb-0 space-y-4 rounded-lg p-8 shadow-2xl">
-            <div>
-              <label for="email" class="text-sm font-medium">Email</label>
-
-              <div class="relative mt-1">
-                <input
-                  type="email"
-                  id="email"
-                  class="w-full rounded-lg border-gray-200 p-4 pr-12 text-sm shadow-sm"
-                  placeholder="Enter email"
-                />
-
-                <span class="absolute inset-y-0 right-4 inline-flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-                    />
-                  </svg>
-                </span>
-              </div>
-            </div>
-
-            <div>
-              folders
-            </div>
-<div>tags</div>
-            <button
-              type="submit"
-              class="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
-            >
-              Sign in
-            </button>
-
-            <p class="text-center text-sm text-gray-500">
-              No account?
-              <a class="underline" href="">Sign up</a>
-            </p>
-          </form>
+        <TabPanel class="p-4">
+          <bookmark-form v-model="bookmark" :folders="folders" @save="handleSave"/>
         </TabPanel>
       </TabPanels>
     </TabGroup>
@@ -104,17 +57,22 @@
 </template>
 <script setup>
 import Parser from '@postlight/parser';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { XCircleIcon } from '@heroicons/vue/24/outline';
 import {
   TabGroup, TabList, Tab, TabPanels, TabPanel,
 } from '@headlessui/vue';
+import BookmarkForm from '@/components/BookmarkForm.vue';
+import { getBookmarkFolders } from '@/helpers/folders';
+import tagHelper from '@/helpers/tags';
 
+const bookmark = ref({});
 const selectedTab = ref(1);
 
 function changeTab(index) {
   selectedTab.value = index;
 }
+const folders = ref([]);
 const block = ref(null);
 const content = ref({});
 const load = async () => {
@@ -126,16 +84,30 @@ const load = async () => {
   }
 };
 
+const handleSave = async () => {
+  await chrome.bookmarks.update(String(bookmark.value.id), {
+    title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
+    url: bookmark.value.url,
+  });
+  await chrome.bookmarks.move(String(bookmark.value.id), { parentId: bookmark.value.folder.id });
+};
+
 const close = () => {
   block.value.style.width = '0';
 };
 
-const open = async () => {
+const open = (data) => {
+  console.warn('tools', data);
   block.value.style.width = '900px';
-  if (selectedTab.value === 0) {
-    await load();
-  }
+  bookmark.value = data;
 };
 
+if (selectedTab.value === 0) {
+  await load();
+}
+
+onMounted(async () => {
+  folders.value = await getBookmarkFolders();
+});
 defineExpose({ open });
 </script>

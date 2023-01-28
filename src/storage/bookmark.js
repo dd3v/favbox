@@ -38,15 +38,20 @@ export default class Bookmark {
     });
   }
 
-  update(entity) {
+  update(id, data) {
     return connection.update({
       in: this.tableName,
-      set: {
-        title: entity.title,
-      },
+      set: data,
       where: {
-        id: entity.id,
+        id: Number(id),
       },
+    });
+  }
+
+  remove(id) {
+    return connection.remove({
+      from: this.tableName,
+      where: { id: Number(id) },
     });
   }
 
