@@ -5,22 +5,18 @@ import Parser from '@/libs/parser';
 import PageRequest from '@/libs/pageRequest';
 import { parseHTML } from 'linkedom';
 import tagHelper from '@/helpers/tags';
+import { getFolderById } from '@/helpers/folders';
+
+try {
+  await initStorage();
+} catch (e) {
+  console.error('Storate error', e);
+}
+const bookmarkStorage = new Bookmark();
 
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
 // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'createBookmark') {
-    (async () => {
-      const bookmark = await chrome.bookmarks.create(
-        {
-          parentId: message.data.parentId,
-          title: message.data.title,
-          url: message.data.url,
-        },
-      );
-      sendResponse({ success: true, bookmark });
-    })();
-  }
   if (message.action === 'cache') {
     (async () => {
       const storageIndex = makeHash(message.data.url);
@@ -33,6 +29,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
 chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
+  console.log('🎉 Bookmark has been created..');
   const storageIndex = makeHash(bookmark.url);
   let pageInfo = await chrome.storage.session.get(`${storageIndex}sdf`);
   if (Object.keys(pageInfo).length === 0) {
@@ -40,17 +37,16 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     try {
       const page = await new PageRequest(bookmark.url).getData();
       const { document } = parseHTML(page.text);
-      pageInfo = (new Parser(bookmark.url, document)).getFullPageInfo();
+      pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
     } catch (e) {
       console.warn(e);
     }
   }
-  const [folder] = await chrome.bookmarks.get(bookmark.parentId);
-  console.warn(bookmark);
-  console.warn(folder);
+  const folder = await getFolderById(bookmark.parentId);
   const entity = {
-    browserBookmarkId: parseInt(bookmark.id, 10),
-    parentId: parseInt(bookmark.parentId, 10),
+    id: parseInt(bookmark.id, 10),
+    folder,
+    folderName: folder.title,
     title: tagHelper.getTitle(bookmark.title),
     url: bookmark.url,
     description: pageInfo.description ?? null,
@@ -58,65 +54,32 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     image: pageInfo.image ?? null,
     domain: pageInfo.domain ?? null,
     tags: tagHelper.getTags(bookmark.title),
-    folder: folder.title,
     favorite: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
   console.warn(entity);
-  await initStorage();
-  new Bookmark().create(entity);
+  await bookmarkStorage.create(entity);
+});
+
+chrome.bookmarks.onChanged.addListener(async (id, changeInfo) => {
+  console.log('🔄 Bookmark has been updated..', id, changeInfo);
+  await bookmarkStorage.update(id, {
+    title: tagHelper.getTitle(changeInfo.title),
+    tags: tagHelper.getTags(changeInfo.title),
+    url: changeInfo.url,
+    updatedAt: new Date().toISOString(),
+  });
+});
+
+chrome.bookmarks.onMoved.addListener(async (id, moveInfo) => {
+  console.log('🗂 Bookmark has been moved..', id, moveInfo);
+  const folder = await getFolderById(moveInfo.parentId);
+  await bookmarkStorage.update(id, { folder, folderName: folder.title, updatedAt: new Date().toISOString() });
 });
 
 // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onRemoved
-chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
-  console.warn('remove bookmark');
-  console.warn(id);
-  console.warn(removeInfo);
+chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
+  console.log('🗑️ Bookmark has been removed..', id, removeInfo);
+  await bookmarkStorage.remove(id);
 });
-
-// import Parser from '@/libs/parser';
-// import PageRequest from '@/libs/pageRequest';
-// import { parseHTML } from 'linkedom';
-
-// // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onChanged
-// chrome.bookmarks.onChanged.addListener((id, changeInfo) => {
-//   console.warn(id);
-//   console.warn(changeInfo);
-//   console.warn('bookmark updated');
-// });
-
-// // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onMoved
-// chrome.bookmarks.onMoved.addListener((id, moveInfo) => {
-//   console.warn(id);
-//   console.warn(moveInfo);
-//   console.warn('moved bookmark');
-// });
-
-// // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onImportEnded
-// chrome.bookmarks.onImportEnded.addListener(() => {});
-
-// chrome.runtime.onMessage.addListener(() => {
-//   console.log('new event');
-//   return true;
-// });
-
-// const page = await new PageRequest(tab.url).getData();
-// const {
-//   // note, these are *not* globals
-//   document,
-//   // other exports ..
-// } = parseHTML(page.text);
-// console.warn(document);
-// const parser = new Parser(document);
-
-// const preview = {
-//   title: parser.getTitle(),
-//   image: parser.getImage(),
-//   domain: parser.getDomain(),
-//   description: parser.getDescription(),
-// };
-// chrome.runtime.sendMessage({ data: preview });
-// chrome.storage.local.set({ tabId: preview }, () => {
-//   console.warn('SAVED TO CACHE');
-// });

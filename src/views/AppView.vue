@@ -20,7 +20,7 @@
         />
         <display-type v-model="view" />
       </div>
-      <div class="grid w-full grid-cols-1 gap-x-6 gap-y-10 py-3 sm:grid-cols-1 md:grid-cols-1">
+      <div class="grid w-full gap-x-6 gap-y-10 py-3 sm:grid-cols-1" :class="view === 'list' ? 'md:grid-cols-1' : 'md:grid-cols-4'">
         <component
           :is="displayComponent"
           v-for="(bookmark, key) in bookmarks"
@@ -36,7 +36,7 @@
                 <trash-icon class="h-4 w-4" />
               </button>
               <button
-                @click="tools.open()"
+                @click="tools.open(bookmark)"
                 class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
               >
                 <newspaper-icon class="h-4 w-4" />
@@ -51,7 +51,7 @@
 </template>
 <script setup>
 import {
-  toRaw, reactive, ref, watch, computed,
+  toRaw, reactive, ref, watch, computed, onMounted,
 } from 'vue';
 import {
   NewspaperIcon, TrashIcon, FolderOpenIcon, HashtagIcon, GlobeAltIcon,
@@ -69,7 +69,7 @@ import DisplayType from '@/components/SearchBar/DisplayType.vue';
 import BookmarkList from '@/components/BookmarkList.vue';
 import BookmarkTools from '@/components/BookmarkTools.vue';
 
-const view = ref('list');
+const view = ref('card');
 const currentTab = ref('folders');
 const tabs = [
   { value: 'folders', icon: FolderOpenIcon },
@@ -133,5 +133,8 @@ watch(
   { immediate: true },
 );
 watch(view, () => console.warn(view));
+onMounted(() => {
+  tools.value.open(bookmarks.value[0]);
+});
 </script>
 <style scoped></style>

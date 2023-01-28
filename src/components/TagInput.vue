@@ -28,7 +28,7 @@
     </transition-group>
     <div class="relative">
       <input
-        class="border-none bg-white pl-8 text-xs outline-none focus:ring-0 dark:bg-gray-900 dark:text-white"
+        class="border-none bg-transparent pl-8 text-xs outline-none focus:ring-0 dark:bg-gray-900 dark:text-white"
         type="text"
         maxlength="25"
         v-model="tag"
