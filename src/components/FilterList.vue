@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen w-48 overflow-y-auto">
+  <div class="flex h-screen w-full overflow-y-auto">
     <div class="bg-white p-2">
       <div class="relative flex items-center rounded-md  border-none bg-neutral-100 p-0.5">
         <div class="grid place-items-center text-gray-400 ">
