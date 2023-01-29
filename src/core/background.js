@@ -83,3 +83,5 @@ chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
   console.log('🗑️ Bookmark has been removed..', id, removeInfo);
   await bookmarkStorage.remove(id);
 });
+
+console.warn('start foreach all bookmarks');

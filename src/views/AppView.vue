@@ -7,7 +7,7 @@
       </template>
     </nav-sidebar>
     <div class="sticky top-0 flex h-full" v-for="(items, key) in filters" :key="key">
-      <filter-list :items="items" v-model="conditions[key]" v-if="currentTab === key" />
+      <filter-list class="w-48" :items="items" v-model="conditions[key]" v-if="currentTab === key" />
     </div>
     <div class="flex h-screen w-full  flex-col overflow-y-auto px-2">
       <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-white px-0 py-2">
@@ -36,7 +36,7 @@
                 <trash-icon class="h-4 w-4" />
               </button>
               <button
-                @click="tools.open(bookmark)"
+                @click="tools.open(0, bookmark)"
                 class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
               >
                 <newspaper-icon class="h-4 w-4" />
@@ -51,7 +51,7 @@
 </template>
 <script setup>
 import {
-  toRaw, reactive, ref, watch, computed, onMounted,
+  toRaw, reactive, ref, watch, computed,
 } from 'vue';
 import {
   NewspaperIcon, TrashIcon, FolderOpenIcon, HashtagIcon, GlobeAltIcon,
@@ -133,8 +133,6 @@ watch(
   { immediate: true },
 );
 watch(view, () => console.warn(view));
-onMounted(() => {
-  tools.value.open(bookmarks.value[0]);
-});
+
 </script>
 <style scoped></style>

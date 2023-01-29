@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-screen w-0 flex-row overflow-y-auto border-l border-solid border-gray-200 bg-gray-100 text-sm text-gray-600 delay-150 duration-100 ease-out"
+    class="h-screen w-0 flex-row overflow-hidden border-l border-solid border-gray-200 bg-gray-100 text-sm text-gray-600 delay-150 duration-100 ease-out"
     ref="block"
   >
     <TabGroup :selectedIndex="selectedTab" @change="changeTab">
@@ -40,15 +40,15 @@
         </button>
       </div>
 
-      <TabPanels>
-        <TabPanel class="p-4">
-          <button @click="load">Load</button>
+      <TabPanels class="w-full">
+        <TabPanel class="flex h-screen w-full overflow-y-auto p-4">
+          <app-spinner v-if="loading" class="flex w-full items-center justify-center" />
           <article class="prose prose-slate">
-            <div v-html="content?.content"></div>
+            <div v-html="content"></div>
           </article>
         </TabPanel>
-        <TabPanel class="p-4">
-          <bookmark-form v-model="bookmark" :folders="folders" @save="handleSave"/>
+        <TabPanel class="flex h-screen w-full justify-center p-4">
+          <bookmark-form v-model="bookmark" :folders="folders" @save="handleSave" class="w-4/6" />
         </TabPanel>
       </TabPanels>
     </TabGroup>
@@ -57,7 +57,7 @@
 </template>
 <script setup>
 import Parser from '@postlight/parser';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { XCircleIcon } from '@heroicons/vue/24/outline';
 import {
   TabGroup, TabList, Tab, TabPanels, TabPanel,
@@ -65,26 +65,21 @@ import {
 import BookmarkForm from '@/components/BookmarkForm.vue';
 import { getBookmarkFolders } from '@/helpers/folders';
 import tagHelper from '@/helpers/tags';
+import AppSpinner from '@/components/AppSpinner.vue';
 
 const bookmark = ref({});
 const selectedTab = ref(1);
+const folders = ref([]);
+const block = ref(null);
+const content = ref('');
+const loading = ref(true);
 
 function changeTab(index) {
   selectedTab.value = index;
 }
-const folders = ref([]);
-const block = ref(null);
-const content = ref({});
-const load = async () => {
-  try {
-    content.value = await Parser.parse('https://tailwindcss.com/docs/font-size');
-    console.warn(content);
-  } catch (e) {
-    console.warn(e);
-  }
-};
 
 const handleSave = async () => {
+  console.warn('save');
   await chrome.bookmarks.update(String(bookmark.value.id), {
     title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
     url: bookmark.value.url,
@@ -96,16 +91,28 @@ const close = () => {
   block.value.style.width = '0';
 };
 
-const open = (data) => {
-  console.warn('tools', data);
-  block.value.style.width = '900px';
+const open = (tabIndex, data) => {
+  selectedTab.value = tabIndex;
+  block.value.style.width = '100vw';
   bookmark.value = data;
 };
 
-if (selectedTab.value === 0) {
-  await load();
-}
+watch(
+  bookmark,
+  async () => {
+    content.value = '';
+    loading.value = true;
+    const response = await Parser.parse(bookmark.value.url);
+    content.value = response?.content;
+    loading.value = false;
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 
+// FIXME
 onMounted(async () => {
   folders.value = await getBookmarkFolders();
 });
