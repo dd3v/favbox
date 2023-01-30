@@ -6,11 +6,25 @@ export default class Bookmark {
   }
 
   search(conditions, skip = 0, limit = 100) {
-    const whereConditions = null;
+    const whereConditions = {};
     if (conditions.tags.length) {
       Object.assign(whereConditions, {
         tags: {
           in: [...conditions.tags],
+        },
+      });
+    }
+    if (conditions.folders.length) {
+      Object.assign(whereConditions, {
+        folderName: {
+          in: [...conditions.folders],
+        },
+      });
+    }
+    if (conditions.domains.length) {
+      Object.assign(whereConditions, {
+        domain: {
+          in: [...conditions.domains],
         },
       });
     }
@@ -19,14 +33,13 @@ export default class Bookmark {
     }
     return connection.select({
       from: this.tableName,
-      distinct: true,
       limit,
       skip,
       order: {
         by: 'id',
         type: conditions.sort,
       },
-      where: whereConditions,
+      where: Object.keys(whereConditions).length === 0 ? null : whereConditions,
     });
   }
 
@@ -55,6 +68,35 @@ export default class Bookmark {
     });
   }
 
+  count(id) {
+    return connection.count({
+      from: this.tableName,
+      where: {
+        id: Number(id),
+      },
+    });
+  }
+
+  createMultiple(data) {
+    return connection.insert({
+      into: this.tableName,
+      values: data,
+      validation: false,
+    });
+  }
+
+  getByIds(ids) {
+    console.warn(ids);
+    return connection.select({
+      from: this.tableName,
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  }
+
   async getTags() {
     const response = await connection.select({
       from: this.tableName,
@@ -78,7 +120,6 @@ export default class Bookmark {
         type: 'asc',
       },
     });
-    console.warn(response);
     return response.map((item) => item.domain);
   }
 }

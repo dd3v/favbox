@@ -83,15 +83,14 @@ const bookmark = new Bookmark();
 
 const defaultConditions = {
   tags: [],
-  folders: ['test2', 'test3', 'Новая папка'],
-  domains: ['codepen.io', 'marketplace.visualstudio.com'],
+  folders: [],
+  domains: [],
   sort: 'desc',
   term: '',
 };
 const conditions = reactive({ ...defaultConditions });
 console.warn(conditions);
 const options = ref([]);
-bookmarks.value = await bookmark.search(toRaw(conditions));
 let folders = await getBookmarkFolders();
 folders = folders.map((item) => item.title);
 const tags = await bookmark.getTags();
@@ -120,7 +119,7 @@ const toggleTheme = () => console.warn('toggle theme');
 watch(currentTab, () => console.warn(currentTab));
 watch(
   conditions,
-  () => {
+  async () => {
     options.value = Object.entries({
       tags: conditions.tags,
       domains: conditions.domains,
@@ -128,11 +127,10 @@ watch(
     })
       .flatMap(([type, arr]) => arr.map((name) => ({ name, type })))
       .sort((a, b) => a.name.localeCompare(b.name));
-    console.warn(conditions);
+    bookmarks.value = await bookmark.search(toRaw(conditions));
   },
-  { immediate: true },
+  { immediate: true, deep: true },
 );
-watch(view, () => console.warn(view));
 
 </script>
 <style scoped></style>
