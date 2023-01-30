@@ -53,6 +53,11 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
         default: 0,
       },
+      error: {
+        notNull: true,
+        dataType: DATA_TYPE.Number,
+        default: 0,
+      },
       createdAt: {
         dataType: DATA_TYPE.String,
         notNull: true,

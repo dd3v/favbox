@@ -5,7 +5,7 @@ import Parser from '@/libs/parser';
 import PageRequest from '@/libs/pageRequest';
 import { parseHTML } from 'linkedom';
 import tagHelper from '@/helpers/tags';
-import { getFolderById } from '@/helpers/folders';
+import { getFolderById, getBookmarkFolders } from '@/helpers/folders';
 
 try {
   await initStorage();
@@ -13,6 +13,7 @@ try {
   console.error('Storate error', e);
 }
 const bookmarkStorage = new Bookmark();
+const folders = await getBookmarkFolders();
 
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
 // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
@@ -58,7 +59,6 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  console.warn(entity);
   await bookmarkStorage.create(entity);
 });
 
@@ -75,7 +75,11 @@ chrome.bookmarks.onChanged.addListener(async (id, changeInfo) => {
 chrome.bookmarks.onMoved.addListener(async (id, moveInfo) => {
   console.log('🗂 Bookmark has been moved..', id, moveInfo);
   const folder = await getFolderById(moveInfo.parentId);
-  await bookmarkStorage.update(id, { folder, folderName: folder.title, updatedAt: new Date().toISOString() });
+  await bookmarkStorage.update(id, {
+    folder,
+    folderName: folder.title,
+    updatedAt: new Date().toISOString(),
+  });
 });
 
 // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onRemoved
@@ -84,4 +88,81 @@ chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
   await bookmarkStorage.remove(id);
 });
 
-console.warn('start foreach all bookmarks');
+chrome.bookmarks.getTree(async (bookmarkNodes) => {
+  console.log('check bookmarks..');
+  console.time('execution time');
+  let count = 0;
+  let queue = [bookmarkNodes[0]];
+  let promises = [];
+  let browserBookmarks = [];
+  // eslint-disable-next-line no-unreachable-loop
+  while (queue.length > 0) {
+    const node = queue.shift();
+    if (node.children) {
+      queue = queue.concat(node.children);
+    }
+    if (node.url) {
+      browserBookmarks.push(node);
+      count += 1;
+      if (count % 20 === 0 || count === queue.length) {
+        // eslint-disable-next-line no-await-in-loop
+        const syncedBookmarks = await bookmarkStorage.getByIds(
+          browserBookmarks.map((item) => parseInt(item.id, 10)),
+        );
+        const bookmarksMap = syncedBookmarks.reduce((acc, bookmark) => {
+          acc[bookmark.id] = bookmark;
+          return acc;
+        }, {});
+        console.warn(syncedBookmarks);
+        // eslint-disable-next-line no-loop-func
+        browserBookmarks.forEach((browserBookmark) => {
+          if (!bookmarksMap[browserBookmark.id]) {
+            promises.push(
+              (async (bookmark) => {
+                const folder = folders.find((item) => item.id === bookmark.parentId);
+                const entity = {
+                  id: parseInt(bookmark.id, 10),
+                  folder,
+                  folderName: folder.title,
+                  title: tagHelper.getTitle(bookmark.title),
+                  description: null,
+                  favicon: null,
+                  image: null,
+                  domain: null,
+                  url: bookmark.url,
+                  tags: tagHelper.getTags(bookmark.title),
+                  favorite: 0,
+                  error: 0,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                };
+                try {
+                  const page = await new PageRequest(bookmark.url).getData();
+                  const { document } = parseHTML(page.text);
+                  const pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
+                  entity.description = pageInfo.description;
+                  entity.favicon = pageInfo.favicon;
+                  entity.image = pageInfo.image;
+                  entity.domain = pageInfo.domain;
+                  return entity;
+                } catch (e) {
+                  console.warn(e);
+                  entity.error = 1;
+                  return entity;
+                }
+              })(browserBookmark),
+            );
+          }
+        });
+        // eslint-disable-next-line no-await-in-loop
+        const response = await Promise.all(promises);
+        // eslint-disable-next-line no-await-in-loop
+        await bookmarkStorage.createMultiple(response);
+        browserBookmarks = [];
+        promises = [];
+      }
+    }
+  }
+  console.timeEnd('execution time');
+  console.warn('total', count);
+});

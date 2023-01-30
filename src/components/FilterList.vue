@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen w-full overflow-y-auto">
+  <div class="flex h-screen flex-col">
     <div class="bg-white p-2">
       <div class="relative flex items-center rounded-md  border-none bg-neutral-100 p-0.5">
         <div class="grid place-items-center text-gray-400 ">
@@ -16,7 +16,7 @@
           />
         </label>
       </div>
-      <transition-group tag="ul" name="fade">
+      <transition-group tag="ul" name="fade" class="flex h-screen flex-col overflow-y-auto">
         <li v-for="(item, key) in list" :key="key">
           <label
             :for="`${item + key}`"
