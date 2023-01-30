@@ -39,7 +39,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import BookmarkForm from '@/components/BookmarkForm.vue';
+import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 import { getBookmarkFolders } from '@/helpers/folders';
 

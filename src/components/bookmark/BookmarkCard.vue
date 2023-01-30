@@ -10,7 +10,7 @@
         :alt="bookmark.title"
       />
       <div class="flex items-center bg-gray-900 p-1">
-        <img :src="bookmark.favicon" alt="favicon" class="w-4" />
+        <bookmark-favicon :favicon="bookmark.favicon" class="h-4 w-4"/>
         <span class="mx-3 text-sm font-semibold text-white">{{ bookmark.domain }}</span>
       </div>
       <div class="px-6 py-4">
@@ -28,6 +28,7 @@
 </template>
 <script setup>
 import VLazyImage from 'v-lazy-image';
+import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 
 defineProps({
   bookmark: {

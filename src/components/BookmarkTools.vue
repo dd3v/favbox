@@ -62,7 +62,7 @@ import { XCircleIcon } from '@heroicons/vue/24/outline';
 import {
   TabGroup, TabList, Tab, TabPanels, TabPanel,
 } from '@headlessui/vue';
-import BookmarkForm from '@/components/BookmarkForm.vue';
+import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import { getBookmarkFolders } from '@/helpers/folders';
 import tagHelper from '@/helpers/tags';
 import AppSpinner from '@/components/AppSpinner.vue';
