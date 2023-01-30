@@ -13,8 +13,7 @@
         <span
           class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500"
         >
-          <img :src="bookmark.favicon" width="16" :alt="bookmark.title" v-if="httpProtocol" />
-          <home-icon class="h-4 w-4" v-else />
+        <bookmark-favicon :favicon="bookmark.favicon" class="h-4 w-4" />
         </span>
       </label>
     </div>
@@ -105,7 +104,8 @@ import {
   TransitionRoot,
 } from '@headlessui/vue';
 import TagInput from '@/components/TagInput.vue';
-import { CheckIcon, ChevronUpDownIcon, HomeIcon } from '@heroicons/vue/20/solid';
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
+import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 
 const props = defineProps({
   modelValue: {
@@ -125,7 +125,6 @@ const bookmark = computed({
 const folders = computed({
   get: () => props.folders,
 });
-const httpProtocol = computed(() => (bookmark.value.favicon ? bookmark.value.favicon.includes('http') : false));
 const query = ref('');
 const filteredFolders = computed(() => (query.value === ''
   ? folders.value

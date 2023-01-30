@@ -20,7 +20,7 @@
         />
         <display-type v-model="view" />
       </div>
-      <div class="grid w-full gap-x-6 gap-y-10 py-3 sm:grid-cols-1" :class="view === 'list' ? 'md:grid-cols-1' : 'md:grid-cols-4'">
+      <div class="grid  gap-x-6 gap-y-10 py-3 sm:grid-cols-1" :class="view === 'list' ? 'md:grid-cols-1' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'">
         <component
           :is="displayComponent"
           v-for="(bookmark, key) in bookmarks"
@@ -41,6 +41,12 @@
               >
                 <newspaper-icon class="h-4 w-4" />
               </button>
+              <button
+                @click="tools.open(1, bookmark)"
+                class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
+              >
+                <pencil-square-icon class="h-4 w-4" />
+              </button>
             </div>
           </template>
         </component>
@@ -54,11 +60,11 @@ import {
   toRaw, reactive, ref, watch, computed,
 } from 'vue';
 import {
-  NewspaperIcon, TrashIcon, FolderOpenIcon, HashtagIcon, GlobeAltIcon,
+  NewspaperIcon, TrashIcon, FolderOpenIcon, HashtagIcon, GlobeAltIcon, PencilSquareIcon,
 } from '@heroicons/vue/24/outline';
 import NavSidebar from '@/components/NavSidebar.vue';
 import FilterList from '@/components/FilterList.vue';
-import BookmarkCard from '@/components/BookmarkCard.vue';
+import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
 import Bookmark from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import { getBookmarkFolders } from '@/helpers/folders';
@@ -66,7 +72,7 @@ import SearchTerm from '@/components/SearchBar/SearchTerm.vue';
 import SortDirection from '@/components/SearchBar/SortDirection.vue';
 import FilterOptions from '@/components/SearchBar/FilterOptions.vue';
 import DisplayType from '@/components/SearchBar/DisplayType.vue';
-import BookmarkList from '@/components/BookmarkList.vue';
+import BookmarkList from '@/components/bookmark/BookmarkList.vue';
 import BookmarkTools from '@/components/BookmarkTools.vue';
 
 const view = ref('card');
