@@ -1,6 +1,6 @@
 <template>
-  <div class="flex h-screen flex-col">
-    <div class="bg-white p-2">
+  <div class="flex h-screen flex-col border-r border-neutral-100 bg-[#FBFBFB]">
+    <div class="p-2">
       <div class="relative flex items-center rounded-md  border-none bg-neutral-100 p-0.5">
         <div class="grid place-items-center text-gray-400 ">
           <magnifying-glass-circle-icon class="h-6 w-6" />
@@ -20,7 +20,7 @@
         <li v-for="(item, key) in list" :key="key">
           <label
             :for="`${item + key}`"
-            class="my-1 flex cursor-pointer place-items-end rounded-md p-2 text-gray-700 hover:bg-neutral-100 hover:text-gray-900"
+            class="my-1 flex cursor-pointer	place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 hover:text-gray-900"
             :key="key"
           >
             <span

@@ -1,7 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
   <div
-    class="sticky top-0 flex h-full min-h-screen w-12 flex-col items-center justify-center border-r border-neutral-200 bg-neutral-50 align-middle dark:bg-gray-800"
+    class="sticky top-0 flex h-full min-h-screen w-12 flex-col items-center justify-center bg-[#EEEEEF] align-middle  shadow-inner dark:bg-gray-800"
     role="tablist"
     aria-label="tabs"
   >
@@ -20,7 +20,7 @@
       @click="handleTab"
       :ref="setTabRef"
     >
-      <component :is="item.icon" class="pointer-events-none h-6 w-6 text-neutral-600" />
+      <component :is="item.icon" class="pointer-events-none h-6 w-6 text-[#6A686F]" />
     </button>
     <div class="absolute bottom-0 m-1">
       <slot name="footer"/>

@@ -18,7 +18,18 @@
       <MenuItems
         class="absolute right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
       >
-        <div class="p-1">
+        <div class="p-1"><MenuItem v-slot="{ active }">
+            <button
+              @click="view = 'masonry'"
+              :class="[
+                active ? 'bg-neutral-50 text-grey' : 'text-gray-900',
+                'group flex w-full items-center rounded-md px-2 py-2',
+              ]"
+            >
+              <view-columns-icon :active="active" class="mr-2 h-4 w-4" aria-hidden="true" />
+              Masonry
+            </button>
+          </MenuItem>
           <MenuItem v-slot="{ active }">
             <button
               @click="view = 'card'"
@@ -28,7 +39,7 @@
               ]"
             >
               <squares-2X2-icon :active="active" class="mr-2 h-4 w-4" aria-hidden="true" />
-              Card view
+              Cards
             </button>
           </MenuItem>
           <MenuItem v-slot="{ active }">
@@ -40,7 +51,7 @@
               ]"
             >
               <list-bullet-icon :active="active" class="mr-2 h-4 w-4" aria-hidden="true" />
-              List view
+              List
             </button>
           </MenuItem>
         </div>
@@ -52,7 +63,7 @@
 import {
   Menu, MenuButton, MenuItems, MenuItem,
 } from '@headlessui/vue';
-import { Squares2X2Icon, ListBulletIcon } from '@heroicons/vue/24/outline';
+import { Squares2X2Icon, ListBulletIcon, ViewColumnsIcon } from '@heroicons/vue/24/outline';
 
 import { computed } from 'vue';
 

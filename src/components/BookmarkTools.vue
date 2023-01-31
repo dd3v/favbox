@@ -1,7 +1,10 @@
 <template>
   <div
-    class="h-screen w-0 flex-row overflow-hidden border-l border-solid border-gray-200 bg-gray-100 text-sm text-gray-600 delay-150 duration-100 ease-out"
-    ref="block"
+    class="absolute top-0 right-0 z-50 h-screen w-0 overflow-hidden bg-white pl-0 transition-all"
+    :style="{
+      width: drawerVisible ? '50vw' : '0',
+      paddingLeft: drawerVisible ? '10px' : '0',
+    }"
   >
     <TabGroup :selectedIndex="selectedTab" @change="changeTab">
       <div class="flex w-full p-2">
@@ -52,9 +55,20 @@
         </TabPanel>
       </TabPanels>
     </TabGroup>
-    <hr />
+    <!-- We will make the mask fill the screen while the menu is visible. Because its z-index is 1 less than that of the menu, the menu will still be displayed on top of it -->
+
   </div>
+      <div
+      class="absolute left-0 top-0 z-10 h-screen w-0 bg-black/30 transition-opacity"
+      :style="{
+        width: drawerVisible ? '100vw' : '0',
+        opacity: drawerVisible ? '0.6' : '0',
+      }"
+      @keydown="close"
+      @click="close"
+    ></div>
 </template>
+
 <script setup>
 import Parser from '@postlight/parser';
 import { onMounted, ref, watch } from 'vue';
@@ -70,8 +84,8 @@ import AppSpinner from '@/components/AppSpinner.vue';
 const bookmark = ref({});
 const selectedTab = ref(1);
 const folders = ref([]);
-const block = ref(null);
 const content = ref('');
+const drawerVisible = ref(false);
 const loading = ref(true);
 
 function changeTab(index) {
@@ -88,13 +102,13 @@ const handleSave = async () => {
 };
 
 const close = () => {
-  block.value.style.width = '0';
+  drawerVisible.value = false;
 };
 
 const open = (tabIndex, data) => {
   selectedTab.value = tabIndex;
-  block.value.style.width = '100vw';
   bookmark.value = data;
+  drawerVisible.value = true;
 };
 
 watch(

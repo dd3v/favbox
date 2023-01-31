@@ -31,7 +31,7 @@
         </div>
       </div>
     </a>
-        <slot name="actions"/>
+    <slot name="actions"/>
   </div>
 </template>
 <script setup>

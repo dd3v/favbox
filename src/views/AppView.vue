@@ -1,7 +1,7 @@
 <template>
-  <div class="flex w-full">
+  <div class="flex w-full overflow-y-hidden">
     <nav-sidebar :items="tabs" v-model="currentTab">
-      <template v-slot:header> LOGO </template>
+      <template v-slot:header><img src="@/assets/icons/icon128.png" class="mt-2 h-6 w-6" alt="logo"></template>
       <template v-slot:footer>
         <button @click="toggleTheme">THEME</button>
       </template>
@@ -9,8 +9,8 @@
     <div class="sticky top-0 flex h-full" v-for="(items, key) in filters" :key="key">
       <filter-list class="w-48" :items="items" v-model="conditions[key]" v-if="currentTab === key" />
     </div>
-    <div class="flex h-screen w-full  flex-col overflow-y-auto px-2">
-      <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-white px-0 py-2">
+    <div class="flex h-screen w-full  flex-col overflow-y-auto bg-[#FBFBFB] px-2">
+      <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-[#FBFBFB]  px-3 py-2">
         <search-term v-model="conditions.term" />
         <sort-direction v-model="conditions.sort" />
         <filter-options
@@ -20,7 +20,7 @@
         />
         <display-type v-model="view" />
       </div>
-      <div class="grid  gap-x-6 gap-y-10 py-3 sm:grid-cols-1" :class="view === 'list' ? 'md:grid-cols-1' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'">
+      <div class="grid grid-cols-1 gap-x-6 gap-y-10 py-3 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         <component
           :is="displayComponent"
           v-for="(bookmark, key) in bookmarks"
@@ -28,10 +28,10 @@
           :key="key"
         >
           <template v-slot:actions>
-            <div class="visible absolute top-0 right-0 group-hover:visible">
+            <div class="visible absolute top-2 right-2 group-hover:visible">
               <button
                 @click="remove"
-                class="m-1 rounded-full bg-red-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-red-900 hover:shadow-lg focus:bg-red-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-900 active:shadow-lg"
+                class="m-1 rounded-full bg-[#E37878] p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:shadow-lg focus:bg-[#E37878] focus:shadow-lg focus:outline-none focus:ring-0 active:bg-[#E37878] active:shadow-lg"
               >
                 <trash-icon class="h-4 w-4" />
               </button>
@@ -68,14 +68,15 @@ import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
 import Bookmark from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import { getBookmarkFolders } from '@/helpers/folders';
-import SearchTerm from '@/components/SearchBar/SearchTerm.vue';
-import SortDirection from '@/components/SearchBar/SortDirection.vue';
-import FilterOptions from '@/components/SearchBar/FilterOptions.vue';
-import DisplayType from '@/components/SearchBar/DisplayType.vue';
+import SearchTerm from '@/components/search/SearchTerm.vue';
+import SortDirection from '@/components/search/SortDirection.vue';
+import FilterOptions from '@/components/search/FilterOptions.vue';
+import DisplayType from '@/components/search/DisplayType.vue';
 import BookmarkList from '@/components/bookmark/BookmarkList.vue';
 import BookmarkTools from '@/components/BookmarkTools.vue';
+import BookmarkMasonry from '@/components/bookmark/BookmarkMasonry.vue';
 
-const view = ref('card');
+const view = ref(localStorage.getItem('displayType') ?? 'masonry');
 const currentTab = ref('folders');
 const tabs = [
   { value: 'folders', icon: FolderOpenIcon },
@@ -118,11 +119,23 @@ const deleteAllOptions = () => {
   conditions.tags = [];
 };
 const displayComponent = computed({
-  get: () => (view.value === 'card' ? BookmarkCard : BookmarkList),
+  get: () => {
+    switch (view.value) {
+      case 'card':
+        return BookmarkCard;
+      case 'list':
+        return BookmarkList;
+      case 'masonry':
+        return BookmarkMasonry;
+      default:
+        return BookmarkMasonry;
+    }
+  },
 });
 const tools = ref('');
 const toggleTheme = () => console.warn('toggle theme');
 watch(currentTab, () => console.warn(currentTab));
+watch(view, () => localStorage.setItem('displayType', view.value));
 watch(
   conditions,
   async () => {
