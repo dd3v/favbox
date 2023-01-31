@@ -1,11 +1,11 @@
 <!-- eslint-disable max-len -->
 <template>
   <div
-    class="group relative w-full max-w-sm overflow-hidden rounded-lg border border-solid bg-white shadow-md transition-transform duration-300 ease-in-out hover:-translate-y-1 dark:bg-gray-800"
+    class="relative mb-6 w-full border border-solid max-w-sm overflow-hidden  bg-white shadow-sm"
   >
     <a :href="bookmark.url" target="_blank">
       <v-lazy-image
-        class="h-56 w-full object-cover object-center"
+        class=""
         :src="bookmark.image ?? ''"
         :alt="bookmark.title"
       />
