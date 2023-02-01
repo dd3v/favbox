@@ -38,7 +38,7 @@
             <template v-slot:actions>
               <div class="visible absolute top-2 right-2 group-hover:visible">
                 <button
-                  @click="remove"
+                  @click="removeBookmark(bookmark.id)"
                   class="m-1 rounded-full bg-[#E37878] p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:shadow-lg focus:bg-[#E37878] focus:shadow-lg focus:outline-none focus:ring-0 active:bg-[#E37878] active:shadow-lg"
                 >
                   <trash-icon class="h-4 w-4" />
@@ -150,6 +150,14 @@ const displayComponent = computed({
 });
 const tools = ref('');
 const toggleTheme = () => console.warn('toggle theme');
+const removeBookmark = async (id) => {
+  try {
+    await chrome.bookmarks.remove(String(id));
+    bookmarks.value = bookmarks.value.filter((item) => parseInt(item.id, 10) !== parseInt(id, 10));
+  } catch (e) {
+    console.log(e);
+  }
+};
 const paginate = async (skip) => {
   try {
     console.warn('load', skip);
