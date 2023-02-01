@@ -5,7 +5,7 @@ export default class Bookmark {
     this.tableName = 'bookmarks';
   }
 
-  search(conditions, skip = 0, limit = 100) {
+  search(conditions, skip = 0, limit = 50) {
     const whereConditions = {};
     if (conditions.tags.length) {
       Object.assign(whereConditions, {
