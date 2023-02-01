@@ -1,16 +1,23 @@
 <template>
   <div class="flex w-full overflow-y-hidden">
     <nav-sidebar :items="tabs" v-model="currentTab">
-      <template v-slot:header><img src="@/assets/icons/icon128.png" class="mt-2 h-6 w-6" alt="logo"></template>
+      <template v-slot:header
+        ><img src="@/assets/icons/icon128.png" class="mt-2 h-6 w-6" alt="logo"
+      /></template>
       <template v-slot:footer>
         <button @click="toggleTheme">THEME</button>
       </template>
     </nav-sidebar>
     <div class="sticky top-0 flex h-full" v-for="(items, key) in filters" :key="key">
-      <filter-list class="w-48" :items="items" v-model="conditions[key]" v-if="currentTab === key" />
+      <filter-list
+        class="w-48"
+        :items="items"
+        v-model="conditions[key]"
+        v-if="currentTab === key"
+      />
     </div>
-    <div class="flex h-screen w-full  flex-col overflow-y-auto bg-[#FBFBFB] px-2">
-      <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-[#FBFBFB]  px-3 py-2">
+    <div class="flex h-screen w-full flex-col overflow-y-auto bg-[#FBFBFB] px-2">
+      <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-[#FBFBFB] px-3 py-2">
         <search-term v-model="conditions.term" />
         <sort-direction v-model="conditions.sort" />
         <filter-options
@@ -20,7 +27,7 @@
         />
         <display-type v-model="view" />
       </div>
-      <div class="grid grid-cols-1 gap-x-6 gap-y-10 py-3 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <bookmark-layout :displayType="view" class="px-3 py-2">
         <component
           :is="displayComponent"
           v-for="(bookmark, key) in bookmarks"
@@ -50,9 +57,9 @@
             </div>
           </template>
         </component>
-      </div>
+      </bookmark-layout>
     </div>
-    <bookmark-tools ref="tools"/>
+    <bookmark-tools ref="tools" />
   </div>
 </template>
 <script setup>
@@ -60,7 +67,12 @@ import {
   toRaw, reactive, ref, watch, computed,
 } from 'vue';
 import {
-  NewspaperIcon, TrashIcon, FolderOpenIcon, HashtagIcon, GlobeAltIcon, PencilSquareIcon,
+  NewspaperIcon,
+  TrashIcon,
+  FolderOpenIcon,
+  HashtagIcon,
+  GlobeAltIcon,
+  PencilSquareIcon,
 } from '@heroicons/vue/24/outline';
 import NavSidebar from '@/components/NavSidebar.vue';
 import FilterList from '@/components/FilterList.vue';
@@ -75,6 +87,7 @@ import DisplayType from '@/components/search/DisplayType.vue';
 import BookmarkList from '@/components/bookmark/BookmarkList.vue';
 import BookmarkTools from '@/components/BookmarkTools.vue';
 import BookmarkMasonry from '@/components/bookmark/BookmarkMasonry.vue';
+import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 
 const view = ref(localStorage.getItem('displayType') ?? 'masonry');
 const currentTab = ref('folders');
@@ -150,6 +163,5 @@ watch(
   },
   { immediate: true, deep: true },
 );
-
 </script>
 <style scoped></style>

@@ -2,7 +2,7 @@
   <Menu as="div" class="relative inline-block text-left">
     <div>
       <MenuButton
-        class="inline-flex items-stretch rounded-md border bg-white p-2 hover:bg-gray-50 hover:text-gray-700 shadow-sm"
+        class="inline-flex items-stretch rounded-md border bg-white p-2 shadow-sm hover:bg-gray-50 hover:text-gray-700"
       >
         <component :is="icon" class="h-5 w-5 text-gray-600" aria-hidden="true" />
       </MenuButton>
@@ -79,6 +79,17 @@ const view = computed({
   set: (value) => emit('update:modelValue', value),
 });
 const icon = computed({
-  get: () => (view.value === 'card' ? Squares2X2Icon : ListBulletIcon),
+  get: () => {
+    switch (view.value) {
+      case 'card':
+        return Squares2X2Icon;
+      case 'list':
+        return ListBulletIcon;
+      case 'masonry':
+        return ViewColumnsIcon;
+      default:
+        return ViewColumnsIcon;
+    }
+  },
 });
 </script>
