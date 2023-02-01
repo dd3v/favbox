@@ -1,6 +1,6 @@
 import Parser from '@/libs/parser';
 
-console.warn('LinkFlow extension..');
+console.warn('FavoriteBox');
 (async () => {
   const parser = new Parser(document.location.href, document);
   const pageInfo = {
