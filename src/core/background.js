@@ -32,7 +32,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
   console.log('🎉 Bookmark has been created..');
   const storageIndex = makeHash(bookmark.url);
-  let pageInfo = await chrome.storage.session.get(`${storageIndex}sdf`);
+  let pageInfo = await chrome.storage.session.get(`${storageIndex}`);
   if (Object.keys(pageInfo).length === 0) {
     console.log('Cache is empty. Fetching data.. 🌎');
     try {
@@ -109,7 +109,11 @@ chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
 });
 
 chrome.bookmarks.getTree(async (bookmarkNodes) => {
-  console.log('check bookmarks..');
+  console.warn('check bookmarks..');
+  if (await chrome.storage.session.get('import') === true) {
+    console.log('already done..');
+    return;
+  }
   console.time('execution time');
   let count = 0;
   let queue = [bookmarkNodes[0]];
@@ -183,6 +187,7 @@ chrome.bookmarks.getTree(async (bookmarkNodes) => {
       }
     }
   }
+  await chrome.storage.session.set({ import: true });
   console.timeEnd('execution time');
   console.warn('total', count);
 });

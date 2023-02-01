@@ -18,7 +18,7 @@ const layout = computed({
   get: () => {
     switch (props.displayType) {
       case 'masonry':
-        return 'columns-2 md:columns-3 lg:columns-4';
+        return 'space-y-5 columns-1 md:columns-3 lg:columns-4';
       case 'card':
         return 'grid gap-10 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4';
       case 'list':

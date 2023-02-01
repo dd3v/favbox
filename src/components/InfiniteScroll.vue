@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full overflow-y-auto scroll-smooth" ref="scroll">
+  <div class="h-full overflow-y-auto " ref="scroll">
     <slot />
   </div>
 </template>
@@ -17,8 +17,6 @@ const scroll = ref(null);
 const skip = ref(0);
 const onScroll = () => {
   const el = scroll.value;
-  console.warn('scroll heigth', el.scrollHeight);
-  console.warn(Math.round(el.offsetHeight + el.scrollTop));
   if (Math.round(el.offsetHeight + el.scrollTop) >= el.scrollHeight) {
     skip.value += parseInt(props.limit, 10);
     emit('scroll:end', skip.value);

@@ -30,8 +30,8 @@
       <infinite-scroll @scroll:end="paginate" :limit="50" ref="scroll">
         <bookmark-layout :displayType="view" class="px-3 py-2">
           <component
-            :is="displayComponent"
             v-for="(bookmark, key) in bookmarks"
+            :is="displayComponent"
             :bookmark="bookmark"
             :key="key"
           >
@@ -92,7 +92,7 @@ import BookmarkMasonry from '@/components/bookmark/BookmarkMasonry.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 import InfiniteScroll from '@/components/InfiniteScroll.vue';
 
-const view = ref(localStorage.getItem('displayType') ?? 'masonry');
+const view = ref(localStorage.getItem('displayType') ?? 'card');
 const currentTab = ref('folders');
 const tabs = [
   { value: 'folders', icon: FolderOpenIcon },
@@ -112,7 +112,6 @@ const defaultConditions = {
   term: '',
 };
 const conditions = reactive({ ...defaultConditions });
-console.warn(conditions);
 const options = ref([]);
 const folders = ref([]);
 const tags = ref([]);
@@ -166,6 +165,7 @@ watch(view, () => localStorage.setItem('displayType', view.value));
 watch(
   conditions,
   async () => {
+    scroll.value?.scrollUp();
     options.value = Object.entries({
       tags: conditions.tags,
       domains: conditions.domains,
@@ -174,7 +174,6 @@ watch(
       .flatMap(([type, arr]) => arr.map((name) => ({ name, type })))
       .sort((a, b) => a.name.localeCompare(b.name));
     bookmarks.value = await bookmark.search(toRaw(conditions));
-    scroll.value.scrollUp();
   },
   { immediate: true, deep: true },
 );
