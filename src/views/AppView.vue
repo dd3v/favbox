@@ -27,7 +27,7 @@
         />
         <display-type v-model="view" />
       </div>
-      <infinite-scroll  @scroll:end="paginate" :limit="50" ref="scroll">
+      <infinite-scroll @scroll:end="paginate" :limit="50" ref="scroll">
         <bookmark-layout :displayType="view" class="px-3 py-2">
           <component
             :is="displayComponent"
@@ -66,7 +66,7 @@
 </template>
 <script setup>
 import {
-  toRaw, reactive, ref, watch, computed,
+  toRaw, reactive, ref, watch, computed, onMounted,
 } from 'vue';
 import {
   NewspaperIcon,
@@ -81,7 +81,7 @@ import FilterList from '@/components/FilterList.vue';
 import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
 import Bookmark from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
-import { getBookmarkFolders } from '@/helpers/folders';
+import { getFolderList } from '@/helpers/folders';
 import SearchTerm from '@/components/search/SearchTerm.vue';
 import SortDirection from '@/components/search/SortDirection.vue';
 import FilterOptions from '@/components/search/FilterOptions.vue';
@@ -114,15 +114,10 @@ const defaultConditions = {
 const conditions = reactive({ ...defaultConditions });
 console.warn(conditions);
 const options = ref([]);
-let folders = await getBookmarkFolders();
-folders = folders.map((item) => item.title);
-const tags = await bookmark.getTags();
-const domains = await bookmark.getDomains();
+const folders = ref([]);
+const tags = ref([]);
+const domains = ref([]);
 const filters = reactive({ folders, tags, domains });
-console.warn(filters);
-console.log(tags);
-console.warn(domains);
-console.log(folders);
 const handleDeleteOption = (option) => {
   const index = conditions[option.type].indexOf(option.name);
   if (index !== -1) {
@@ -153,9 +148,10 @@ const toggleTheme = () => console.warn('toggle theme');
 const removeBookmark = async (id) => {
   try {
     await chrome.bookmarks.remove(String(id));
-    bookmarks.value = bookmarks.value.filter((item) => parseInt(item.id, 10) !== parseInt(id, 10));
   } catch (e) {
-    console.log(e);
+    await bookmark.remove(parseInt(id, 10));
+  } finally {
+    bookmarks.value = bookmarks.value.filter((item) => parseInt(item.id, 10) !== parseInt(id, 10));
   }
 };
 const paginate = async (skip) => {
@@ -166,7 +162,6 @@ const paginate = async (skip) => {
     console.warn(e);
   }
 };
-watch(currentTab, () => console.warn(currentTab));
 watch(view, () => localStorage.setItem('displayType', view.value));
 watch(
   conditions,
@@ -183,5 +178,21 @@ watch(
   },
   { immediate: true, deep: true },
 );
+
+onMounted(async () => {
+  tags.value = await bookmark.getTags();
+  domains.value = await bookmark.getDomains();
+  folders.value = await getFolderList();
+});
+
+chrome.runtime.onMessage.addListener(async (request) => {
+  // handle updates from service worker
+  if (request.type === 'swDbUpdated') {
+    bookmarks.value = await bookmark.search(toRaw(conditions));
+    tags.value = await bookmark.getTags();
+    domains.value = await bookmark.getDomains();
+    folders.value = await getFolderList();
+  }
+});
 </script>
 <style scoped></style>

@@ -43,49 +43,69 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
       console.warn(e);
     }
   }
-  const folder = await getFolderById(bookmark.parentId);
-  const entity = {
-    id: parseInt(bookmark.id, 10),
-    folder,
-    folderName: folder.title,
-    title: tagHelper.getTitle(bookmark.title),
-    url: bookmark.url,
-    description: pageInfo.description ?? null,
-    favicon: pageInfo.favicon ?? null,
-    image: pageInfo.image ?? null,
-    domain: pageInfo.domain ?? null,
-    tags: tagHelper.getTags(bookmark.title),
-    favorite: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  await bookmarkStorage.create(entity);
+  try {
+    const folder = await getFolderById(bookmark.parentId);
+    const entity = {
+      id: parseInt(bookmark.id, 10),
+      folder,
+      folderName: folder.title,
+      title: tagHelper.getTitle(bookmark.title),
+      url: bookmark.url,
+      description: pageInfo.description ?? null,
+      favicon: pageInfo.favicon ?? null,
+      image: pageInfo.image ?? null,
+      domain: pageInfo.domain ?? null,
+      tags: tagHelper.getTags(bookmark.title),
+      favorite: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await bookmarkStorage.create(entity);
+    chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+  } catch (e) {
+    console.error('🎉', e, id, bookmark);
+  }
 });
 
 chrome.bookmarks.onChanged.addListener(async (id, changeInfo) => {
-  console.log('🔄 Bookmark has been updated..', id, changeInfo);
-  await bookmarkStorage.update(id, {
-    title: tagHelper.getTitle(changeInfo.title),
-    tags: tagHelper.getTags(changeInfo.title),
-    url: changeInfo.url,
-    updatedAt: new Date().toISOString(),
-  });
+  try {
+    console.log('🔄 Bookmark has been updated..', id, changeInfo);
+    await bookmarkStorage.update(id, {
+      title: tagHelper.getTitle(changeInfo.title),
+      tags: tagHelper.getTags(changeInfo.title),
+      url: changeInfo.url,
+      updatedAt: new Date().toISOString(),
+    });
+    chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+  } catch (e) {
+    console.error('🔄', e, id, changeInfo);
+  }
 });
 
 chrome.bookmarks.onMoved.addListener(async (id, moveInfo) => {
-  console.log('🗂 Bookmark has been moved..', id, moveInfo);
-  const folder = await getFolderById(moveInfo.parentId);
-  await bookmarkStorage.update(id, {
-    folder,
-    folderName: folder.title,
-    updatedAt: new Date().toISOString(),
-  });
+  try {
+    console.log('🗂 Bookmark has been moved..', id, moveInfo);
+    const folder = await getFolderById(moveInfo.parentId);
+    await bookmarkStorage.update(id, {
+      folder,
+      folderName: folder.title,
+      updatedAt: new Date().toISOString(),
+    });
+    chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+  } catch (e) {
+    console.error('🗂', e, id, moveInfo);
+  }
 });
 
 // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onRemoved
 chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
-  console.log('🗑️ Bookmark has been removed..', id, removeInfo);
-  await bookmarkStorage.remove(id);
+  try {
+    console.log('🗑️ Bookmark has been removed..', id, removeInfo);
+    await bookmarkStorage.remove(id);
+    chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+  } catch (e) {
+    console.error('🗑️', e, id, removeInfo);
+  }
 });
 
 chrome.bookmarks.getTree(async (bookmarkNodes) => {
