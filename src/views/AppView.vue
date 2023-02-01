@@ -16,7 +16,7 @@
         v-if="currentTab === key"
       />
     </div>
-    <div class="flex h-screen w-full flex-col overflow-y-auto bg-[#FBFBFB] px-2">
+    <div class="flex h-screen w-full flex-col overflow-y-hidden bg-[#FBFBFB] px-2">
       <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-[#FBFBFB] px-3 py-2">
         <search-term v-model="conditions.term" />
         <sort-direction v-model="conditions.sort" />
@@ -27,37 +27,39 @@
         />
         <display-type v-model="view" />
       </div>
-      <bookmark-layout :displayType="view" class="px-3 py-2">
-        <component
-          :is="displayComponent"
-          v-for="(bookmark, key) in bookmarks"
-          :bookmark="bookmark"
-          :key="key"
-        >
-          <template v-slot:actions>
-            <div class="visible absolute top-2 right-2 group-hover:visible">
-              <button
-                @click="remove"
-                class="m-1 rounded-full bg-[#E37878] p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:shadow-lg focus:bg-[#E37878] focus:shadow-lg focus:outline-none focus:ring-0 active:bg-[#E37878] active:shadow-lg"
-              >
-                <trash-icon class="h-4 w-4" />
-              </button>
-              <button
-                @click="tools.open(0, bookmark)"
-                class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
-              >
-                <newspaper-icon class="h-4 w-4" />
-              </button>
-              <button
-                @click="tools.open(1, bookmark)"
-                class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
-              >
-                <pencil-square-icon class="h-4 w-4" />
-              </button>
-            </div>
-          </template>
-        </component>
-      </bookmark-layout>
+      <infinite-scroll  @scroll:end="paginate" :limit="50" ref="scroll">
+        <bookmark-layout :displayType="view" class="px-3 py-2">
+          <component
+            :is="displayComponent"
+            v-for="(bookmark, key) in bookmarks"
+            :bookmark="bookmark"
+            :key="key"
+          >
+            <template v-slot:actions>
+              <div class="visible absolute top-2 right-2 group-hover:visible">
+                <button
+                  @click="remove"
+                  class="m-1 rounded-full bg-[#E37878] p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:shadow-lg focus:bg-[#E37878] focus:shadow-lg focus:outline-none focus:ring-0 active:bg-[#E37878] active:shadow-lg"
+                >
+                  <trash-icon class="h-4 w-4" />
+                </button>
+                <button
+                  @click="tools.open(0, bookmark)"
+                  class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
+                >
+                  <newspaper-icon class="h-4 w-4" />
+                </button>
+                <button
+                  @click="tools.open(1, bookmark)"
+                  class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
+                >
+                  <pencil-square-icon class="h-4 w-4" />
+                </button>
+              </div>
+            </template>
+          </component>
+        </bookmark-layout>
+      </infinite-scroll>
     </div>
     <bookmark-tools ref="tools" />
   </div>
@@ -88,6 +90,7 @@ import BookmarkList from '@/components/bookmark/BookmarkList.vue';
 import BookmarkTools from '@/components/BookmarkTools.vue';
 import BookmarkMasonry from '@/components/bookmark/BookmarkMasonry.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
+import InfiniteScroll from '@/components/InfiniteScroll.vue';
 
 const view = ref(localStorage.getItem('displayType') ?? 'masonry');
 const currentTab = ref('folders');
@@ -96,7 +99,7 @@ const tabs = [
   { value: 'tags', icon: HashtagIcon },
   { value: 'domains', icon: GlobeAltIcon },
 ];
-
+const scroll = ref(null);
 const bookmarks = ref([]);
 await initStorage();
 const bookmark = new Bookmark();
@@ -147,6 +150,14 @@ const displayComponent = computed({
 });
 const tools = ref('');
 const toggleTheme = () => console.warn('toggle theme');
+const paginate = async (skip) => {
+  try {
+    console.warn('load', skip);
+    bookmarks.value.push(...(await bookmark.search(toRaw(conditions), skip, 50)));
+  } catch (e) {
+    console.warn(e);
+  }
+};
 watch(currentTab, () => console.warn(currentTab));
 watch(view, () => localStorage.setItem('displayType', view.value));
 watch(
@@ -160,6 +171,7 @@ watch(
       .flatMap(([type, arr]) => arr.map((name) => ({ name, type })))
       .sort((a, b) => a.name.localeCompare(b.name));
     bookmarks.value = await bookmark.search(toRaw(conditions));
+    scroll.value.scrollUp();
   },
   { immediate: true, deep: true },
 );
