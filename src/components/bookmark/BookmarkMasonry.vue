@@ -1,13 +1,11 @@
-<!-- eslint-disable max-len -->
 <template>
   <div
-    class="relative min-h-max w-full max-w-sm overflow-hidden border border-solid bg-white shadow-sm"
+    class="relative mb-3 min-h-max w-full max-w-sm overflow-hidden border border-solid bg-white shadow-sm"
   >
     <a :href="bookmark.url" target="_blank">
       <v-lazy-image
         class="w-full object-cover object-center"
         :src="bookmark.image ?? placeholder"
-        :src-placeholder="placeholder"
         :alt="bookmark.title"
         @error="errorHandler"
       />
@@ -30,7 +28,7 @@
 <script setup>
 import VLazyImage from 'v-lazy-image';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import placeholder from '@/assets/placeholder.svg';
 
 const props = defineProps({
@@ -47,6 +45,10 @@ const bookmark = computed({
 const errorHandler = () => {
   bookmark.value.image = placeholder;
 };
+
+onMounted(() => {
+});
+
 </script>
 <style scoped>
 .v-lazy-image {

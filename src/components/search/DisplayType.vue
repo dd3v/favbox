@@ -19,7 +19,7 @@
         class="absolute right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
       >
         <div class="p-1">
-          <!-- <MenuItem v-slot="{ active }">
+          <MenuItem v-slot="{ active }">
             <button
               @click="view = 'masonry'"
               :class="[
@@ -30,7 +30,7 @@
               <view-columns-icon :active="active" class="mr-2 h-4 w-4" aria-hidden="true" />
               Masonry
             </button>
-          </MenuItem> -->
+          </MenuItem>
           <MenuItem v-slot="{ active }">
             <button
               @click="view = 'card'"
