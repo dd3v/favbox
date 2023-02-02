@@ -92,7 +92,7 @@ import BookmarkMasonry from '@/components/bookmark/BookmarkMasonry.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 import InfiniteScroll from '@/components/InfiniteScroll.vue';
 
-const view = ref(localStorage.getItem('displayType') ?? 'card');
+const view = ref(localStorage.getItem('displayType') ?? 'masonry');
 const currentTab = ref('folders');
 const tabs = [
   { value: 'folders', icon: FolderOpenIcon },
