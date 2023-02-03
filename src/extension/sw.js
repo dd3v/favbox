@@ -152,6 +152,8 @@ chrome.bookmarks.getTree(async (bookmarkNodes) => {
                   favicon: null,
                   image: null,
                   domain: null,
+                  type: null,
+                  keywords: [],
                   url: bookmark.url,
                   tags: tagHelper.getTags(bookmark.title),
                   favorite: 0,
@@ -167,6 +169,8 @@ chrome.bookmarks.getTree(async (bookmarkNodes) => {
                   entity.favicon = pageInfo.favicon;
                   entity.image = pageInfo.image;
                   entity.domain = pageInfo.domain;
+                  entity.type = pageInfo.type;
+                  entity.keywords = pageInfo.keywords;
                   return entity;
                 } catch (e) {
                   console.warn(e);
