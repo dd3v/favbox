@@ -29,7 +29,15 @@ export default class BookmarkStorage {
       });
     }
     if (conditions.term.trim().length) {
-      Object.assign(whereConditions, { title: { like: `%${conditions.term}%` } });
+      Object.assign(whereConditions, {
+        title: { like: `%${conditions.term}%` },
+        or: {
+          keywords: {
+            in: [conditions.term.trim()],
+          },
+        },
+
+      });
     }
     return connection.select({
       from: this.tableName,
@@ -121,5 +129,18 @@ export default class BookmarkStorage {
       },
     });
     return response.map((item) => item.domain);
+  }
+
+  async getKeywords() {
+    const response = await connection.select({
+      from: this.tableName,
+      flatten: ['keywords'],
+      groupBy: 'keywords',
+      order: {
+        by: 'keywords',
+        type: 'asc',
+      },
+    });
+    return response.map((item) => item.keywords);
   }
 }

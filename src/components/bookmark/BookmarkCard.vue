@@ -13,6 +13,7 @@
                   <trash-icon class="h-4 w-4" />
                 </button>
                 <button
+                  v-if="article"
                   @click="$emit('preview', bookmark)"
                   class="m-1 rounded-full bg-gray-800 p-1.5 text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:ring-0"
                 >
@@ -50,6 +51,10 @@ const props = defineProps({
   },
 });
 defineEmits(['remove', 'preview', 'edit']);
+
+const article = computed({
+  get: () => props.bookmark.type && ['article', 'blog'].some((word) => props.bookmark.type.includes(word)),
+});
 
 const displayComponent = computed({
   get: () => {
