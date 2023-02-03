@@ -26,7 +26,7 @@
     <div class="absolute bottom-2 flex flex-col space-y-2">
       <button
           @click="openGitHub"
-          class="rounded-full border border-black p-0.5 text-black shadow-sm hover:bg-black hover:text-white focus:outline-none focus:ring-0"
+          class="rounded-md border border-black p-0.5 text-black shadow-sm hover:bg-black hover:text-white focus:outline-none focus:ring-0"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512" class="h-5 w-5 hover:fill-white dark:fill-white">
             <path
@@ -36,7 +36,7 @@
         </button>
         <button
           @click="toggleTheme()"
-          class="rounded-full border border-black p-0.5 text-black shadow-sm hover:bg-black hover:text-white focus:outline-none focus:ring-0 dark:text-white"
+          class="rounded-md border border-black p-0.5 text-black shadow-sm hover:bg-black hover:text-white focus:outline-none focus:ring-0 dark:text-white"
         >
           <component :is="isDark ? SunIcon : MoonIcon" class="h-5 w-5" />
         </button>

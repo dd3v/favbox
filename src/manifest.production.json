@@ -1,23 +1,30 @@
 {
     "manifest_version": 3,
-    "name": "bookmarks",
-    "description": "chrome extension",
+    "name": "FavBox",
+    "description": "Browser bookmarks tool",
     "version": "0.0.1",
+    "permissions": [
+      "bookmarks",
+      "activeTab",
+      "storage"
+    ],
     "background": {
-        "service_worker": "/background.js"
+      "service_worker": "/sw.js"
     },
     "action": {
-        "default_popup": "popup.html"
+      "default_popup": "popup.html"
+    },
+    "icons": {
+      "16": "icon32.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
     },
     "content_scripts": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "js": [
-                "/content.js"
-            ]
-        }
-    ],
-    "options_page": "options.html"
-}
+      {
+        "matches": ["<all_urls>"],
+        "js": ["/content.js"]
+      }
+    ]
+  }
+  
