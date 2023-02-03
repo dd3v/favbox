@@ -109,8 +109,9 @@ chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
 
 chrome.bookmarks.getTree(async (bookmarkNodes) => {
   console.warn('check bookmarks..');
-  if (await chrome.storage.session.get('import') === true) {
-    console.log('already done..');
+  const storage = await chrome.storage.session.get('import');
+  if (storage?.import === true) {
+    console.warn('already done..');
     return;
   }
   console.time('execution time');
@@ -181,13 +182,19 @@ chrome.bookmarks.getTree(async (bookmarkNodes) => {
             );
           }
         });
+        try {
         // eslint-disable-next-line no-await-in-loop
-        const response = await Promise.all(promises);
-        // eslint-disable-next-line no-await-in-loop
-        await bookmarkStorage.createMultiple(response);
-        browserBookmarks = [];
-        promises = [];
-        chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+          const response = await Promise.all(promises);
+          // eslint-disable-next-line no-await-in-loop
+          await bookmarkStorage.createMultiple(response);
+          // eslint-disable-next-line no-await-in-loop
+          await chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+        } catch (e) {
+          console.warn(e);
+        } finally {
+          browserBookmarks = [];
+          promises = [];
+        }
       }
     }
   }

@@ -42,7 +42,7 @@ const props = defineProps({
 const bookmark = computed({
   get: () => props.bookmark,
 });
-const placeholder = ref(placeholderLight);
+const placeholder = ref(useDark().value ? placeholderDark : placeholderLight);
 const errorHandler = () => {
   bookmark.value.image = placeholder;
 };
