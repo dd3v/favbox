@@ -49,13 +49,10 @@ export default class Parser {
   }
 
   getFavicon() {
-    let link = this.#html.querySelector('link[rel="shortcut icon"]')?.getAttribute('href')
+    const link = this.#html.querySelector('link[rel="shortcut icon"]')?.getAttribute('href')
       ?? this.#html.querySelector('link[rel="icon"]')?.getAttribute('href');
     if (link) {
-      if (link.indexOf('http') !== 0) {
-        link = this.getDomain() + link;
-      }
-      return link;
+      return new URL(link, this.#url).href ?? null;
     }
     return null;
   }

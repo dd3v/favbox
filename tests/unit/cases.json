@@ -1,0 +1,67 @@
+[
+  {
+    "title": "Default HTML meta tags",
+    "input": {
+      "url": "https://snippets.ninja/",
+      "contentType": "text/html",
+      "text": "<!doctype html>\r\n<html lang=\"en\" data-theme=\"light\">\r\n<head>\r\n    <meta name=\"theme-color\" content=\"\">\r\n    <meta name=\"description\" content=\"PWA for code snippets\">\r\n    <title>snippets.ninja</title>\r\n    <link rel=\"icon\" type=\"image/svg+xml\" href=\"/img/icons/favicon.svg\">\r\n    <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/img/icons/favicon-32x32.png\">\r\n    <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/img/icons/favicon-16x16.png\">\r\n</head>\r\n<body>\r\n</body>\r\n</html>"
+    },
+    "output": {
+      "title": "snippets.ninja",
+      "description": "PWA for code snippets",
+      "image": null,
+      "favicon": "https://snippets.ninja/img/icons/favicon.svg",
+      "domain": "snippets.ninja",
+      "url": "https://snippets.ninja/"
+    }
+  },
+  {
+    "title": "Open Graph Meta Tags first",
+    "input": {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join",
+      "contentType": "text/html",
+      "text": "<!doctype html>\r\n<html lang=\"en-US\" prefix=\"og: https://ogp.me/ns#\">\r\n<head>\r\n    <meta charset=\"utf-8\" />\r\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\r\n    <link rel=\"icon\" href=\"/favicon-48x48.cbbd161b.png\" />\r\n    <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.6803c6f0.png\" />\r\n    <meta name=\"theme-color\" content=\"#ffffff\" />\r\n    <link rel=\"manifest\" href=\"/manifest.56b1cedc.json\" />\r\n    <link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"/opensearch.xml\" title=\"MDN Web Docs\" />\r\n    <title>Array.prototype.join() - JavaScript | MDN</title>\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/join\" hreflang=\"es\" />\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Array/join\" hreflang=\"fr\" />\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/join\" hreflang=\"ja\" />\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/join\" hreflang=\"ko\" />\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array/join\"\r\n        hreflang=\"pt\" />\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/join\" hreflang=\"ru\" />\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/join\"\r\n        hreflang=\"zh\" />\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/Array/join\"\r\n        hreflang=\"zh-TW\" />\r\n    <link rel=\"alternate\" title=\"Array.prototype.join()\"\r\n        href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join\"\r\n        hreflang=\"en\" />\r\n    <meta name=\"robots\" content=\"index, follow\">\r\n    <meta name=\"description\" content=\"The join() method creates and returns a new string by concatenating all of the elements in an array (or an array-like object), separated by commas or a specified separator string.\" />\r\n    <meta property=\"og:url\"\r\n        content=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join\" />\r\n    <meta property=\"og:title\" content=\"Array.prototype.join() - JavaScript | MDN\" />\r\n    <meta property=\"og:locale\" content=\"en-US\" />\r\n    <meta property=\"og:description\" content=\"The join() method creates and returns a new string by concatenating all of the elements in an array (or an array-like object),separated by commas or a specified separator string.\" />\r\n    <meta property=\"og:image\" content=\"https://developer.mozilla.org/mdn-social-share.cd6c4a5a.png\" />\r\n    <meta property=\"twitter:card\" content=\"summary_large_image\" />\r\n    <link rel=\"canonical\"\r\n        href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join\" />\r\n</head>\r\n<body>\r\n</body>\r\n</html>"
+    },
+    "output": {
+      "title": "Array.prototype.join() - JavaScript | MDN",
+      "description": "The join() method creates and returns a new string by concatenating all of the elements in an array (or an array-like object),separated by commas or a specified separator string.",
+      "image": "https://developer.mozilla.org/mdn-social-share.cd6c4a5a.png",
+      "favicon": "https://developer.mozilla.org/favicon-48x48.cbbd161b.png",
+      "domain": "developer.mozilla.org",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join"
+    }
+  },
+  {
+    "title": "Twitter tags",
+    "input": {
+      "url": "https://tailwindcomponents.com/component/property-card",
+      "contentType": "text/html",
+      "text": "<!doctype html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\r\n    <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\">\r\n    <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\r\n    <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/favicon-16x16.png\">\r\n    <link rel=\"manifest\" href=\"/site.webmanifest\">\r\n    <link rel=\"mask-icon\" href=\"/safari-pinned-tab.svg\" color=\"#0ed3cf\">\r\n    <meta name=\"msapplication-TileColor\" content=\"#0ed3cf\">\r\n    <meta name=\"theme-color\" content=\"#0ed3cf\">\r\n    <meta name=\"twitter:card\" content=\"summary_large_image\" />\r\n    <meta name=\"twitter:site\" content=\"@TwComponents\" />\r\n    <meta name=\"twitter:title\" content=\"property card | Cards | twitter\" />\r\n    <meta name=\"twitter:description\" content=\"[twitter] nice property card with all details\" />\r\n    <meta name=\"twitter:image\" content=\"http://tailwindcomponents.com/storage/748/temp60277.png?v=2023-01-09 17:52:06\" />\r\n    <meta property=\"og:url\" content=\"https://tailwindcomponents.com/component/property-card\" />\r\n    <title>property card | Cards</title>\r\n    <meta name=\"description\" content=\"&#039;nice property card with all details&#039;\">\r\n</head>\r\n<body>\r\n</body>\r\n</html>"
+    },
+    "output": {
+      "title": "property card | Cards | twitter",
+      "description": "[twitter] nice property card with all details",
+      "image": "http://tailwindcomponents.com/storage/748/temp60277.png?v=2023-01-09 17:52:06",
+      "favicon": "https://tailwindcomponents.com/favicon-32x32.png",
+      "domain": "tailwindcomponents.com",
+      "url": "https://tailwindcomponents.com/component/property-card"
+    }
+  },
+
+  {
+    "title": "Empty",
+    "input": {
+      "url": "http://127.0.0.1/test",
+      "contentType": "text/html",
+      "text": "<!doctype html><header></head><body></body></html>"
+    },
+    "output": {
+      "title": null,
+      "description": null,
+      "image": null,
+      "favicon": null,
+      "domain": "127.0.0.1",
+      "url": "http://127.0.0.1"
+    }
+  }
+]

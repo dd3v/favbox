@@ -7,12 +7,16 @@ const getDb = () => {
     columns: {
       id: {
         primaryKey: true,
-        autoIncrement: true,
+        autoIncrement: false,
         dataType: DATA_TYPE.Number,
       },
-      browserBookmarkId: {
-        dataType: DATA_TYPE.Number,
-        notNull: true,
+      folder: {
+        dataType: DATA_TYPE.Object,
+        enableSearch: false,
+      },
+      folderName: {
+        dataType: DATA_TYPE.String,
+        enableSearch: true,
       },
       title: {
         notNull: true,
@@ -25,15 +29,11 @@ const getDb = () => {
       },
       domain: {
         dataType: DATA_TYPE.String,
-        enableSearch: false,
+        enableSearch: true,
       },
       url: {
         dataType: DATA_TYPE.String,
         enableSearch: false,
-      },
-      folder: {
-        dataType: DATA_TYPE.String,
-        enableSearch: true,
       },
       favicon: {
         dataType: DATA_TYPE.String,
@@ -48,10 +48,12 @@ const getDb = () => {
         multiEntry: true,
         default: [],
       },
-      parentId: {
-        dataType: DATA_TYPE.Number,
-      },
       favorite: {
+        notNull: true,
+        dataType: DATA_TYPE.Number,
+        default: 0,
+      },
+      error: {
         notNull: true,
         dataType: DATA_TYPE.Number,
         default: 0,

@@ -1,110 +1,62 @@
 <template>
-  <a-card style="width: 350px; height: 100%">
-    <template #title> FavBox </template>
-    <template #extra>
-      <a-button size="small" @click="openApp">
-        <template #icon><heart-outlined /></template>
-        View Bookmarks
-      </a-button>
-    </template>
-    <a-form :model="bookmark" @finish="createBookmark">
-      <a-form-item name="title" :rules="[{ required: true }]">
-        <a-input v-model:value="bookmark.title">
-          <template #prefix>
-            <img :src="bookmark.favicon" width="16" :alt="bookmark.title" v-if="httpProtocol" />
-            <home-outlined v-else />
-          </template>
-        </a-input>
-      </a-form-item>
-      <a-form-item>
-        <a-select
-          v-model:value="bookmark.parentId"
-          placeholder="Folder"
-          :options="folders"
-          :fieldNames="{ label: 'title', value: 'id' }"
-        ></a-select>
-      </a-form-item>
-      <a-form-item>
-        <template v-for="tag in tags" :key="tag">
-          <a-tooltip v-if="tag.length > 20" :title="tag">
-            <a-tag :closable="true" @close="handleClose(tag)">{{ `${tag.slice(0, 20)}...` }}</a-tag>
-          </a-tooltip>
-          <a-tag v-else :closable="true" @close="handleClose(tag)">{{ tag }}</a-tag>
-        </template>
-        <a-input
-          v-if="tagInputVisible"
-          ref="tagInputRef"
-          v-model:value="tagInputValue"
-          type="text"
-          size="small"
-          :style="{ width: '78px' }"
-          @blur="handleInputConfirm"
-          @keyup.enter="handleInputConfirm"
-        />
-        <a-tag v-else style="background: #fff; border-style: dashed" @click="showInput">
-          <plus-outlined />
-          New Tag
-        </a-tag>
-      </a-form-item>
-      <a-button block @click="createBookmark">Add to bookmarks</a-button>
-    </a-form>
-  </a-card>
+  <div class="h-auto w-72 space-y-5 bg-[#FBFBFB] p-3 dark:bg-neutral-900">
+    <div class="flex justify-between">
+      <h4 class="text-xl font-semibold dark:text-white">FavBox</h4>
+      <div class="flex self-end">
+        <button
+          @click="openApp"
+          class="group relative inline-flex items-center justify-center overflow-hidden rounded-md border border-rose-400 p-2 py-1 font-medium text-rose-400 shadow-md transition duration-300 ease-out"
+        >
+          <span
+            class="ease absolute inset-0 flex h-full w-full -translate-x-full items-center justify-center bg-rose-400 text-white duration-300 group-hover:translate-x-0"
+          >
+           <heart-icon class="h-4 w-4"/>
+          </span>
+          <span
+            class="ease absolute flex h-full w-full items-center justify-center text-rose-400 transition-all duration-300 group-hover:translate-x-full"
+            >OPEN</span
+          >
+          <span class="invisible relative">Open App</span>
+        </button>
+      </div>
+    </div>
+    <div><bookmark-form v-model="bookmark" :folders="folders" @save="handleSave" /></div>
+  </div>
 </template>
 
 <script setup>
-import {
-  ref, nextTick, computed, reactive,
-} from 'vue';
-import { PlusOutlined, HomeOutlined, HeartOutlined } from '@ant-design/icons-vue';
-import { getBookmarkFolders } from '@/helpers/folders';
+import { ref } from 'vue';
+import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
+import { getBookmarkFolders } from '@/helpers/folders';
+import { HeartIcon } from '@heroicons/vue/24/solid';
 
-const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 const folders = await getBookmarkFolders();
-console.log(folders);
+const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 const bookmark = ref({
   title: tab.title,
   url: tab.url,
   favicon: tab.favIconUrl,
-  parentId: folders[0]?.id,
+  folder: null,
+  tags: [],
 });
-let tags = reactive([]);
-const tagInputRef = ref();
-const tagInputVisible = ref(false);
-const tagInputValue = ref('');
-
-const showInput = () => {
-  tagInputVisible.value = true;
-  nextTick(() => tagInputRef.value.focus());
-};
-const handleInputConfirm = () => {
-  if (tagInputValue.value && tags.indexOf(tagInputValue.value) === -1) {
-    tags.push(tagInputValue.value);
-  }
-  tagInputVisible.value = false;
-  tagInputValue.value = '';
-};
-const handleClose = (removedTag) => {
-  tags = tags.filter((tag) => tag !== removedTag);
-};
-
-const httpProtocol = computed(() => (bookmark.value.favicon ? bookmark.value.favicon.includes('http') : false));
-
-const createBookmark = async () => {
-  console.warn(bookmark.value);
-  const response = await chrome.runtime.sendMessage({
-    action: 'createBookmark',
-    data: {
-      title:
-        tags.length !== 0 ? tagHelper.toString(bookmark.value.title, tags) : bookmark.value.title,
-      parentId: bookmark.value.parentId,
+const handleSave = async () => {
+  try {
+    await chrome.bookmarks.create({
+      title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
+      parentId: bookmark.value.folder.id,
       url: bookmark.value.url,
-    },
-  });
-  console.warn(response);
+    });
+    window.close();
+  } catch (e) {
+    console.warn(e);
+  }
 };
-
 const openApp = () => chrome.tabs.create({ url: '/app.html', index: tab.index + 1 });
-
 </script>
-<style></style>
+<style>
+html,
+body {
+  width: 18rem !important;
+}
+</style>

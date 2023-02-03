@@ -54,6 +54,9 @@ module.exports = {
       chunkFilename: '[name].js',
     },
     devtool: isDevMode ? 'inline-source-map' : false,
+    experiments: {
+      topLevelAwait: true,
+    },
   },
   css: {
     extract: false, // Make sure the css is the same
