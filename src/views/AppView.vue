@@ -1,98 +1,104 @@
 <template>
   <div class="flex w-full overflow-y-hidden">
-    <nav-sidebar :items="tabs" v-model="currentTab">
-      <template v-slot:header
-        ><img src="@/assets/icons/icon128.png" class="mt-2 h-6 w-6" alt="logo"
-      /></template>
-      <template v-slot:footer>
-        <button @click="toggleTheme">THEME</button>
-      </template>
-    </nav-sidebar>
+    <nav-sidebar :items="tabs" v-model="currentTab" />
     <div class="sticky top-0 flex h-full" v-for="(items, key) in filters" :key="key">
       <filter-list
-        class="w-48"
+        class="w-52"
         :items="items"
         v-model="conditions[key]"
         v-if="currentTab === key"
       />
     </div>
-    <div class="flex h-screen w-full flex-col overflow-y-hidden bg-[#FBFBFB] px-2">
-      <div class="sticky top-0 z-10 flex flex-row space-x-4 bg-[#FBFBFB] px-3 py-2">
+    <div class="flex h-screen w-full flex-col overflow-hidden bg-gray-50 p-2 dark:bg-neutral-900">
+      <div class="sticky top-0 z-10 flex h-14 flex-row space-x-3">
         <search-term v-model="conditions.term" />
         <sort-direction v-model="conditions.sort" />
-        <filter-options
-          :options="options"
-          @delete:option="handleDeleteOption"
-          @delete:all="deleteAllOptions"
+        <search-conditions
+          v-model="conditions"
+          @remove="removeSearchOption"
+          @removeAll="removeAllSearchOptions"
         />
-        <display-type v-model="view" />
+        <bookmark-display v-model="displayType" />
       </div>
       <infinite-scroll @scroll:end="paginate" :limit="50" ref="scroll">
-        <bookmark-layout :displayType="view" class="px-3 py-2">
-          <component
+        <bookmark-layout :displayType="displayType">
+          <bookmark-card
             v-for="(bookmark, key) in bookmarks"
-            :is="displayComponent"
+            :displayType="displayType"
             :bookmark="bookmark"
             :key="key"
+            @remove="handleRemoveBookmark"
+            @preview="tools.open(0, bookmark)"
+            @edit="tools.open(1, bookmark)"
           >
-            <template v-slot:actions>
-              <div class="visible absolute top-2 right-2 group-hover:visible">
-                <button
-                  @click="removeBookmark(bookmark.id)"
-                  class="m-1 rounded-full bg-[#E37878] p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:shadow-lg focus:bg-[#E37878] focus:shadow-lg focus:outline-none focus:ring-0 active:bg-[#E37878] active:shadow-lg"
-                >
-                  <trash-icon class="h-4 w-4" />
-                </button>
-                <button
-                  @click="tools.open(0, bookmark)"
-                  class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
-                >
-                  <newspaper-icon class="h-4 w-4" />
-                </button>
-                <button
-                  @click="tools.open(1, bookmark)"
-                  class="m-1 rounded-full bg-gray-800 p-1.5 uppercase leading-tight text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-900 active:shadow-lg"
-                >
-                  <pencil-square-icon class="h-4 w-4" />
-                </button>
-              </div>
-            </template>
-          </component>
+          </bookmark-card>
         </bookmark-layout>
       </infinite-scroll>
     </div>
     <bookmark-tools ref="tools" />
   </div>
+    <NotificationGroup group="default" position="bottom">
+  <div
+    class="pointer-events-none fixed inset-0 flex items-end justify-end p-6 px-4"
+  >
+    <div class="w-full max-w-sm">
+      <Notification
+        v-slot="{ notifications }"
+        enter="transform ease-out duration-300 transition"
+        enter-from="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-4"
+        enter-to="translate-y-0 opacity-100 sm:translate-x-0"
+        leave="transition ease-in duration-500"
+        leave-from="opacity-100"
+        leave-to="opacity-0"
+        move="transition duration-500"
+        move-delay="delay-300"
+      >
+        <div
+          class="mx-auto mt-4 flex w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-md"
+          v-for="notification in notifications"
+          :key="notification.id"
+        >
+          <div class="flex w-12 items-center justify-center bg-green-500">
+            <svg class="h-6 w-6 fill-current text-white" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 3.33331C10.8 3.33331 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6666 20 36.6666C29.2 36.6666 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33331 20 3.33331ZM16.6667 28.3333L8.33337 20L10.6834 17.65L16.6667 23.6166L29.3167 10.9666L31.6667 13.3333L16.6667 28.3333Z" />
+            </svg>
+          </div>
+
+          <div class="-mx-3 px-4 py-2">
+            <div class="mx-3">
+              <span class="font-semibold text-green-500">{{ notification.title }}</span>
+              <p class="text-sm text-gray-600">{{ notification.text }}</p>
+            </div>
+          </div>
+        </div>
+      </Notification>
+    </div>
+  </div>
+</NotificationGroup>
 </template>
 <script setup>
 import {
-  toRaw, reactive, ref, watch, computed, onMounted,
+  toRaw, reactive, ref, watch, onMounted,
 } from 'vue';
-import {
-  NewspaperIcon,
-  TrashIcon,
-  FolderOpenIcon,
-  HashtagIcon,
-  GlobeAltIcon,
-  PencilSquareIcon,
-} from '@heroicons/vue/24/outline';
+import { FolderOpenIcon, HashtagIcon, GlobeAltIcon } from '@heroicons/vue/24/outline';
 import NavSidebar from '@/components/NavSidebar.vue';
 import FilterList from '@/components/FilterList.vue';
 import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
-import Bookmark from '@/storage/bookmark';
+import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import { getFolderList } from '@/helpers/folders';
 import SearchTerm from '@/components/search/SearchTerm.vue';
 import SortDirection from '@/components/search/SortDirection.vue';
-import FilterOptions from '@/components/search/FilterOptions.vue';
-import DisplayType from '@/components/search/DisplayType.vue';
-import BookmarkList from '@/components/bookmark/BookmarkList.vue';
-import BookmarkTools from '@/components/BookmarkTools.vue';
-import BookmarkMasonry from '@/components/bookmark/BookmarkMasonry.vue';
+import SearchConditions from '@/components/search/SearchConditions.vue';
+import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
+import BookmarkTools from '@/components/bookmark/BookmarkTools.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 import InfiniteScroll from '@/components/InfiniteScroll.vue';
+import { notify } from 'notiwind';
 
-const view = ref(localStorage.getItem('displayType') ?? 'masonry');
+await initStorage();
+const bookmarkStorage = new BookmarkStorage();
+const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
 const currentTab = ref('folders');
 const tabs = [
   { value: 'folders', icon: FolderOpenIcon },
@@ -101,9 +107,7 @@ const tabs = [
 ];
 const scroll = ref(null);
 const bookmarks = ref([]);
-await initStorage();
-const bookmark = new Bookmark();
-
+const tools = ref('');
 const defaultConditions = {
   tags: [],
   folders: [],
@@ -112,85 +116,68 @@ const defaultConditions = {
   term: '',
 };
 const conditions = reactive({ ...defaultConditions });
-const options = ref([]);
 const folders = ref([]);
 const tags = ref([]);
 const domains = ref([]);
 const filters = reactive({ folders, tags, domains });
-const handleDeleteOption = (option) => {
+const removeAllSearchOptions = () => {
+  conditions.tags = [];
+  conditions.domains = [];
+  conditions.folders = [];
+};
+const removeSearchOption = (option) => {
   const index = conditions[option.type].indexOf(option.name);
   if (index !== -1) {
     conditions[option.type].splice(index, 1);
   }
 };
-const deleteAllOptions = () => {
-  conditions.domains = [];
-  conditions.folders = [];
-  conditions.tags = [];
-};
-const displayComponent = computed({
-  get: () => {
-    switch (view.value) {
-      case 'card':
-        return BookmarkCard;
-      case 'list':
-        return BookmarkList;
-      case 'masonry':
-        return BookmarkMasonry;
-      default:
-        return BookmarkMasonry;
-    }
-  },
-});
-const tools = ref('');
-const toggleTheme = () => console.warn('toggle theme');
-const removeBookmark = async (id) => {
+const handleRemoveBookmark = async (bookmark) => {
   try {
-    await chrome.bookmarks.remove(String(id));
+    await chrome.bookmarks.remove(String(bookmark.id));
   } catch (e) {
-    await bookmark.remove(parseInt(id, 10));
+    await bookmarkStorage.remove(parseInt(bookmark.id, 10));
   } finally {
-    bookmarks.value = bookmarks.value.filter((item) => parseInt(item.id, 10) !== parseInt(id, 10));
+    bookmarks.value = bookmarks.value.filter(
+      (item) => parseInt(item.id, 10) !== parseInt(bookmark.id, 10),
+    );
+    notify({
+      group: 'default',
+      title: 'Success',
+      text: 'Boookmark sucefully removed!',
+    }, 2500);
   }
 };
 const paginate = async (skip) => {
   try {
     console.warn('load', skip);
-    bookmarks.value.push(...(await bookmark.search(toRaw(conditions), skip, 50)));
+    bookmarks.value.push(...(await bookmarkStorage.search(toRaw(conditions), skip, 50)));
   } catch (e) {
     console.warn(e);
   }
 };
-watch(view, () => localStorage.setItem('displayType', view.value));
+watch(displayType, () => localStorage.setItem('displayType', displayType.value));
 watch(
   conditions,
   async () => {
     scroll.value?.scrollUp();
-    options.value = Object.entries({
-      tags: conditions.tags,
-      domains: conditions.domains,
-      folders: conditions.folders,
-    })
-      .flatMap(([type, arr]) => arr.map((name) => ({ name, type })))
-      .sort((a, b) => a.name.localeCompare(b.name));
-    bookmarks.value = await bookmark.search(toRaw(conditions));
+    bookmarks.value = await bookmarkStorage.search(toRaw(conditions));
   },
   { immediate: true, deep: true },
 );
 
 onMounted(async () => {
-  tags.value = await bookmark.getTags();
-  domains.value = await bookmark.getDomains();
   folders.value = await getFolderList();
+  tags.value = await bookmarkStorage.getTags();
+  domains.value = await bookmarkStorage.getDomains();
 });
 
 chrome.runtime.onMessage.addListener(async (request) => {
   // handle updates from service worker
   if (request.type === 'swDbUpdated') {
-    bookmarks.value = await bookmark.search(toRaw(conditions));
-    tags.value = await bookmark.getTags();
-    domains.value = await bookmark.getDomains();
+    bookmarks.value = await bookmarkStorage.search(toRaw(conditions));
     folders.value = await getFolderList();
+    tags.value = await bookmarkStorage.getTags();
+    domains.value = await bookmarkStorage.getDomains();
   }
 });
 </script>

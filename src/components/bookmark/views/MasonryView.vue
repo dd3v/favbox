@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative mb-3 min-h-max w-full max-w-sm overflow-hidden border border-solid bg-white shadow-sm"
+    class="group relative mb-3 min-h-max w-full max-w-sm overflow-hidden rounded-md border border-solid bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
   >
     <a :href="bookmark.url" target="_blank">
       <v-lazy-image
@@ -14,10 +14,10 @@
         <span class="mx-3 text-xs font-semibold text-white">{{ bookmark.domain }}</span>
       </div>
       <div class="px-6 py-4">
-        <span class="break-words text-base font-semibold text-gray-900 dark:text-white"
+        <span class="break-words text-sm font-semibold text-gray-900 dark:text-neutral-100"
           >{{ bookmark.title }}
         </span>
-        <p class="py-2 text-sm text-gray-700 dark:text-gray-400">
+        <p class="py-2  text-gray-700 dark:text-neutral-300">
           {{ bookmark.description }}
         </p>
       </div>
@@ -28,8 +28,10 @@
 <script setup>
 import VLazyImage from 'v-lazy-image';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
-import { computed, onMounted } from 'vue';
-import placeholder from '@/assets/placeholder.svg';
+import { computed, ref, watch } from 'vue';
+import placeholderDark from '@/assets/placeholder_dark.svg';
+import placeholderLight from '@/assets/placeholder.svg';
+import { useDark } from '@vueuse/core';
 
 const props = defineProps({
   bookmark: {
@@ -38,17 +40,16 @@ const props = defineProps({
   },
 });
 
+const placeholder = ref(placeholderLight);
 const bookmark = computed({
   get: () => props.bookmark,
 });
-
 const errorHandler = () => {
   bookmark.value.image = placeholder;
 };
-
-onMounted(() => {
+watch(() => useDark().value, () => {
+  placeholder.value = useDark().value ? placeholderDark : placeholderLight;
 });
-
 </script>
 <style scoped>
 .v-lazy-image {

@@ -2,9 +2,9 @@
   <Menu as="div" class="relative inline-block text-left">
     <div>
       <MenuButton
-        class="inline-flex items-stretch rounded-md border bg-white p-2 shadow-sm hover:bg-gray-50 hover:text-gray-700"
+        class="inline-flex items-stretch rounded-md border bg-white p-2 text-gray-700 shadow-sm hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
       >
-        <component :is="icon" class="h-5 w-5 text-gray-600" aria-hidden="true" />
+        <component :is="icon" class="h-5 w-5 text-gray-700 dark:text-neutral-400" aria-hidden="true" />
       </MenuButton>
     </div>
     <transition
@@ -16,14 +16,16 @@
       leave-to-class="transform scale-95 opacity-0"
     >
       <MenuItems
-        class="absolute right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
+        class="absolute right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-neutral-900 dark:text-neutral-400"
       >
         <div class="p-1">
           <MenuItem v-slot="{ active }">
             <button
               @click="view = 'masonry'"
               :class="[
-                active ? 'bg-neutral-50 text-grey' : 'text-gray-900',
+                active
+                  ? 'bg-neutral-50 text-gray-700 dark:bg-neutral-800  dark:text-neutral-400'
+                  : 'dark:text-neutral-400 text-gray-700',
                 'group flex w-full items-center rounded-md px-2 py-2',
               ]"
             >
@@ -35,7 +37,9 @@
             <button
               @click="view = 'card'"
               :class="[
-                active ? 'bg-neutral-50 text-grey' : 'text-gray-900',
+                active
+                  ? 'bg-neutral-50 text-gray-700 dark:bg-neutral-800 dark:text-neutral-400'
+                  : 'dark:text-neutral-400 text-gray-700',
                 'group flex w-full items-center rounded-md px-2 py-2',
               ]"
             >
@@ -47,7 +51,9 @@
             <button
               @click="view = 'list'"
               :class="[
-                active ? 'bg-neutral-50 text-grey' : 'text-gray-900',
+                active
+                  ? 'bg-neutral-50 text-gray-700 dark:bg-neutral-800 dark:text-neutral-400'
+                  : 'dark:text-neutral-400 text-gray-700',
                 'group flex w-full items-center rounded-md px-2 py-2',
               ]"
             >
