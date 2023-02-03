@@ -2,13 +2,13 @@
   <Popover v-slot="{ open }" class="relative">
     <PopoverButton
       :class="open ? '' : 'text-opacity-90'"
-      class="inline-flex items-stretch rounded-md border bg-white p-2 hover:bg-gray-50 hover:text-gray-700 disabled:bg-gray-100 shadow-sm"
+      class="inline-flex items-stretch rounded-md border bg-white p-2 text-gray-700 shadow-sm hover:bg-gray-50  disabled:bg-gray-100 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:disabled:bg-neutral-800"
       :disabled="!options.length"
     >
-      <adjustments-horizontal-icon class="h-5 w-5 text-gray-600" />
+      <adjustments-horizontal-icon class="h-5 w-5 text-gray-700 dark:text-neutral-400" />
       <div
         v-if="options.length"
-        class="border-1 absolute -top-2 -right-2 inline-flex h-5 w-5 items-center justify-center rounded-full border-white bg-red-700 text-xs text-white dark:border-gray-900"
+        class="absolute -top-2 -right-2 inline-flex h-5 w-5 items-center justify-center rounded-full border-white bg-rose-400 text-xs text-white dark:border-gray-900"
       >
         {{ options.length }}
       </div>
@@ -23,12 +23,12 @@
     >
       <PopoverPanel
         v-slot="{ close }"
-        class="absolute right-0 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="absolute right-0 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-neutral-900"
       >
-        <div class="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+        <div class="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
           <div class="p-1">
             <div
-              class="relative flex flex-row rounded-md bg-white p-2 hover:bg-gray-50 hover:text-gray-700"
+              class="relative my-1 flex flex-row rounded-md p-2 text-gray-700 hover:bg-gray-50 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800"
               v-for="(option, key) in options"
               :key="key"
             >
@@ -36,21 +36,17 @@
                 <span
                   ><component :is="getIcon(option)" class="mr-2 h-4 w-4" aria-hidden="true"
                 /></span>
-                <span class="cursor-default truncate text-gray-900">{{ option.name }}</span>
+                <span class="cursor-default truncate">{{ option.name }}</span>
                 <button class="ml-auto" @click="remove(option, close)">
-                  <trash-icon class="h-4 w-4 text-red-700" />
+                  <x-mark-icon class="h-4 w-4 text-rose-400" />
                 </button>
               </div>
             </div>
           </div>
-          <div class="bg-gray-50">
+          <div class="bg-gray-50 dark:bg-neutral-800">
             <button
-              class="font-sm flex w-full items-center justify-center rounded-lg p-2 text-sm uppercase text-gray-900"
-              @click="
-                $emit('delete:all');
-                close();
-              "
-            >
+              class="flex w-full items-center justify-center rounded-lg p-2 text-sm uppercase text-gray-900 dark:text-white"
+              @click="$emit('removeAll'); close();">
               Clear all
             </button>
           </div>
@@ -62,31 +58,38 @@
 <script setup>
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import {
-  TrashIcon,
+  XMarkIcon,
   AdjustmentsHorizontalIcon,
   FolderOpenIcon,
   HashtagIcon,
   GlobeAltIcon,
   StopIcon,
 } from '@heroicons/vue/24/outline';
+import { computed } from 'vue';
 
-const emit = defineEmits(['delete:option', 'delete:all']);
-
+const emit = defineEmits(['remove', 'removeAll']);
 const props = defineProps({
-  options: {
-    type: Array,
+  modelValue: {
+    type: Object,
     required: true,
   },
 });
 
+const options = computed({
+  get: () => Object.entries({
+    tags: props.modelValue.tags,
+    domains: props.modelValue.domains,
+    folders: props.modelValue.folders,
+  })
+    .flatMap(([type, arr]) => arr.map((name) => ({ name, type })))
+    .sort((a, b) => a.name.localeCompare(b.name)),
+});
 const remove = (option, close) => {
-  emit('delete:option', option);
-  console.warn(props.options.length);
-  if (props.options.length === 1) {
+  emit('remove', option);
+  if (options.value.length === 0) {
     close();
   }
 };
-
 const getIcon = (option) => {
   switch (option.type) {
     case 'folders':

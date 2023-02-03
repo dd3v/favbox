@@ -17,7 +17,7 @@ const scroll = ref(null);
 const skip = ref(0);
 const onScroll = () => {
   const el = scroll.value;
-  if (Math.round(el.offsetHeight + el.scrollTop) >= el.scrollHeight) {
+  if (Math.round(el.offsetHeight + el.scrollTop) + 500 >= el.scrollHeight) {
     skip.value += parseInt(props.limit, 10);
     emit('scroll:end', skip.value);
   }

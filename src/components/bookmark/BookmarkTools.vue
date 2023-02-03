@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute top-0 right-0 z-50 h-screen w-0 overflow-hidden bg-white pl-0 transition-all"
+    class="absolute top-0 right-0 z-50 h-screen w-0 overflow-hidden bg-white pl-0 transition-all dark:bg-neutral-900 dark:text-neutral-400"
     :style="{
       width: drawerVisible ? '50vw' : '0',
       paddingLeft: drawerVisible ? '10px' : '0',
@@ -16,7 +16,7 @@
                   'w-full rounded-lg py-1 text-sm font-medium leading-5 text-gray-700',
                   ' focus:outline-none ',
                   selected
-                    ? 'bg-white shadow'
+                     ? 'bg-white shadow dark:bg-neutral-900 dark:text-neutral-400'
                     : 'text-gray-500 hover:bg-white/[0.12] hover:text-gray-700',
                 ]"
               >
@@ -29,7 +29,7 @@
                   'w-full rounded-lg py-1 text-sm font-medium leading-5 text-gray-700',
                   'focus:outline-none ',
                   selected
-                    ? 'bg-white shadow'
+                    ? 'bg-white shadow dark:bg-neutral-900 dark:text-white'
                     : 'text-gray-500 hover:bg-white/[0.12] hover:text-gray-700',
                 ]"
               >
@@ -44,7 +44,7 @@
       </div>
       <TabPanels class="flex h-screen w-full p-4">
         <TabPanel class="flex h-screen w-full overflow-y-auto">
-          <article class="prose prose-slate w-full max-w-none">
+          <article class="prose  w-full max-w-none dark:prose-invert">
             <app-spinner
               v-if="loading"
               class="flex h-screen w-full flex-col items-center justify-center"
@@ -54,7 +54,7 @@
               v-if="emptyState"
             >
               <img class="w-32" :src="empty" alt="error" />
-              <h4>Nothing to show</h4>
+              <h4 class="text-gray-700 dark:text-neutral-400">Nothing to show</h4>
             </div>
             <div v-else v-html="content"></div>
           </article>

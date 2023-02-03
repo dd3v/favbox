@@ -1,4 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@tailwindcss/forms;
+@tailwindcss /forms;
+
+
+::-webkit-scrollbar {
+    width: 4px;
+    cursor: pointer;
+
+}
+::-webkit-scrollbar-track {
+    background-color: rgba(23, 23, 23, var(--bg-opacity));
+    cursor: pointer;
+}
+::-webkit-scrollbar-thumb {
+    cursor: pointer;
+    background-color: #737373;
+}

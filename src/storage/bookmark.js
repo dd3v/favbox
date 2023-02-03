@@ -1,6 +1,6 @@
 import connection from './idb/connection';
 
-export default class Bookmark {
+export default class BookmarkStorage {
   constructor() {
     this.tableName = 'bookmarks';
   }

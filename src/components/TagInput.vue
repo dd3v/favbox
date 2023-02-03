@@ -3,12 +3,12 @@
     <transition-group name="list" tag="ul" class="inline-flex flex-wrap">
       <li v-for="(tag, key) in tags" :key="key">
         <span
-          class="m-1 mr-2 inline-flex items-center justify-center rounded-full  bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+          class="m-1 mr-2 inline-flex items-center justify-center rounded-full  bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-neutral-700 dark:text-neutral-300"
           :data-tag="tag"
         >
           <p class="flex-wrap whitespace-nowrap text-xs">{{ tag }}</p>
           <button
-            class="-mr-1 ml-1.5 inline-block rounded-full bg-gray-200 p-0.5 text-gray-700 transition hover:text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+            class="-mr-1 ml-1.5 inline-block rounded-full bg-gray-200 p-0.5 text-gray-700 transition hover:text-gray-600 dark:bg-neutral-800 dark:text-neutral-300"
             @click="remove(key)"
             @keypress="remove(key)"
           >
@@ -28,7 +28,7 @@
     </transition-group>
     <div class="relative">
       <input
-        class="border-none bg-transparent pl-8 text-xs outline-none focus:ring-0 dark:bg-gray-900 dark:text-white"
+        class="border-none bg-transparent pl-8 text-xs text-gray-700 outline-none focus:ring-0 dark:bg-neutral-900 dark:text-white"
         type="text"
         maxlength="25"
         v-model="tag"
@@ -42,7 +42,7 @@
       <span
         class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500"
       >
-        <hashtag-icon class="h-4 w-4 text-gray-400" />
+        <hashtag-icon class="h-4 w-4 text-gray-700" />
       </span>
     </div>
   </div>

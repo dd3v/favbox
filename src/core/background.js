@@ -1,4 +1,4 @@
-import Bookmark from '@/storage/bookmark';
+import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import makeHash from '@/helpers/hash';
 import Parser from '@/libs/parser';
@@ -7,12 +7,8 @@ import { parseHTML } from 'linkedom';
 import tagHelper from '@/helpers/tags';
 import { getFolderById, getBookmarkFolders } from '@/helpers/folders';
 
-try {
-  await initStorage();
-} catch (e) {
-  console.error('Storate error', e);
-}
-const bookmarkStorage = new Bookmark();
+await initStorage();
+const bookmarkStorage = new BookmarkStorage();
 const folders = await getBookmarkFolders();
 
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
@@ -32,7 +28,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
   console.log('🎉 Bookmark has been created..');
   const storageIndex = makeHash(bookmark.url);
-  let pageInfo = await chrome.storage.session.get(`${storageIndex}`);
+  let pageInfo = await chrome.storage.session.get(storageIndex);
   if (Object.keys(pageInfo).length === 0) {
     console.log('Cache is empty. Fetching data.. 🌎');
     try {

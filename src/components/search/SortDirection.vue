@@ -1,10 +1,10 @@
 <template>
   <div class="relative">
     <button
-      class="inline-flex items-stretch rounded-md border bg-white p-2 hover:bg-gray-50 hover:text-gray-700 shadow-sm"
+      class="inline-flex items-stretch rounded-md border bg-white p-2 text-gray-700 shadow-sm hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800"
       @click="$emit('update:modelValue', sort === 'desc' ? 'asc' : 'desc')"
     >
-      <component :is="icon" class="h-5 w-5 text-gray-600" />
+      <component :is="icon" class="h-5 w-5 text-gray-700 dark:text-neutral-400" />
     </button>
   </div>
 </template>
