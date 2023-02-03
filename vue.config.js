@@ -9,7 +9,7 @@ function getEntryFile(entryPath) {
   return files;
 }
 
-const chromeName = getEntryFile(path.resolve('src/core'));
+const chromeName = getEntryFile(path.resolve('src/extension'));
 
 function getFileExtension(filename) {
   return /[.]/.exec(filename) ? /[^.]+$/.exec(filename)[0] : undefined;
@@ -18,7 +18,7 @@ chromeName.forEach((name) => {
   const fileExtension = getFileExtension(name);
   const fileName = name.replace(`.${fileExtension}`, '');
   pages[fileName] = {
-    entry: `src/core/${name}`,
+    entry: `src/extension/${name}`,
     template: 'public/index.html',
     filename: `${fileName}.html`,
   };

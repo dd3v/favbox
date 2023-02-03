@@ -10,7 +10,7 @@
           <span
             class="ease absolute inset-0 flex h-full w-full -translate-x-full items-center justify-center bg-rose-400 text-white duration-300 group-hover:translate-x-0"
           >
-           <heart-icon class="h-4 w-4"/>
+           <star-icon class="h-4 w-4"/>
           </span>
           <span
             class="ease absolute flex h-full w-full items-center justify-center text-rose-400 transition-all duration-300 group-hover:translate-x-full"
@@ -29,7 +29,7 @@ import { ref } from 'vue';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 import { getBookmarkFolders } from '@/helpers/folders';
-import { HeartIcon } from '@heroicons/vue/24/solid';
+import { StarIcon } from '@heroicons/vue/24/solid';
 
 const folders = await getBookmarkFolders();
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

@@ -9,7 +9,7 @@
     "storage"
   ],
   "background": {
-    "service_worker": "/background.js"
+    "service_worker": "/sw.js"
   },
   "action": {
     "default_popup": "popup.html"
