@@ -53,7 +53,7 @@ export default class Parser {
         maxIcon = icon;
       }
     }
-    return maxIcon ?? null;
+    return maxIcon?.getAttribute('href') ?? null;
   }
 
   getDomain() {
@@ -70,6 +70,20 @@ export default class Parser {
     return this.#url;
   }
 
+  getType() {
+    return this.#html.querySelector('meta[property="og:type"]')?.getAttribute('content') ?? null;
+  }
+
+  getKeywords() {
+    const selectors = ['meta[name="keywords"]', 'meta[name="keynews_keywordswords"]'];
+    const keywords = this.#html.querySelector(selectors.join(','))?.getAttribute('content');
+    if (!keywords || keywords.length === 0) return null;
+    return keywords
+      .split(',')
+      .map((keyword) => keyword.trim())
+      .filter((keyword) => keyword.length > 0);
+  }
+
   getFullPageInfo() {
     return {
       title: this.getTitle(),
@@ -78,6 +92,8 @@ export default class Parser {
       domain: this.getDomain(),
       favicon: this.getFavicon(),
       url: this.getUrl(),
+      keywords: this.getKeywords(),
+      type: this.getType(),
     };
   }
 }

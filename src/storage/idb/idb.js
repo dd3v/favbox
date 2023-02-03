@@ -39,6 +39,16 @@ const getDb = () => {
         dataType: DATA_TYPE.String,
         enableSearch: false,
       },
+      type: {
+        dataType: DATA_TYPE.String,
+        enableSearch: true,
+      },
+      keywords: {
+        dataType: DATA_TYPE.Array,
+        multiEntry: true,
+        default: [],
+        enableSearch: true,
+      },
       image: {
         dataType: DATA_TYPE.String,
         enableSearch: false,
@@ -47,6 +57,7 @@ const getDb = () => {
         dataType: DATA_TYPE.Array,
         multiEntry: true,
         default: [],
+        enableSearch: true,
       },
       favorite: {
         notNull: true,
@@ -72,7 +83,7 @@ const getDb = () => {
   };
 
   const database = {
-    name: 'linkflow',
+    name: 'favbox',
     tables: [tblBookmarks],
   };
   return database;
