@@ -47,7 +47,7 @@ const handleSave = async () => {
       parentId: bookmark.value.folder.id,
       url: bookmark.value.url,
     });
-    window.close();
+    // window.close();
   } catch (e) {
     console.warn(e);
   }

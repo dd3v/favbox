@@ -6,8 +6,7 @@
     aria-label="tabs"
   >
     <div class="absolute top-0 m-1">
-      <img src="@/assets/icons/icon128.png" class="mt-2 h-6 w-6" alt="logo"
-      />
+      <button @click="refresh"><img src="@/assets/icons/icon128.png" class="mt-2 h-6 w-6" alt="logo"/></button>
     </div>
     <div
       class="absolute my-auto h-10 w-10 rounded-md bg-white shadow transition-[top] duration-[0.4s] dark:bg-neutral-800"
@@ -78,6 +77,7 @@ const handleTab = (tab) => {
   selected.value = tab.target.getAttribute('id');
 };
 const openGitHub = () => window.open('https://github.com/dd3v/favbox', '_blank');
+const refresh = () => window.location.reload();
 onMounted(() => {
   indicatorRef.value.style.width = `${tabRefs[0].getBoundingClientRect().width}px`;
   indicatorRef.value.style.top = `${

@@ -29,6 +29,7 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
   console.log('🎉 Bookmark has been created..');
   const storageIndex = makeHash(bookmark.url);
   let pageInfo = await chrome.storage.session.get(storageIndex);
+  console.warn(pageInfo);
   if (Object.keys(pageInfo).length === 0) {
     console.log('Cache is empty. Fetching data.. 🌎');
     try {
@@ -38,6 +39,8 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     } catch (e) {
       console.warn(e);
     }
+  } else {
+    pageInfo = pageInfo[storageIndex];
   }
   try {
     const folder = await getFolderById(bookmark.parentId);
@@ -180,6 +183,7 @@ chrome.bookmarks.getTree(async (bookmarkNodes) => {
         await bookmarkStorage.createMultiple(response);
         browserBookmarks = [];
         promises = [];
+        chrome.runtime.sendMessage({ type: 'swDbUpdated' });
       }
     }
   }
