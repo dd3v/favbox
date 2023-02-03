@@ -9,39 +9,51 @@ export default class Parser {
   }
 
   getTitle() {
-    const meta = this.#html.querySelector('meta[property="og:title"]')
-      ?? this.#html.querySelector('meta[name="twitter:title"]');
-    const title = meta?.getAttribute('content');
-    if (title) return title;
-    const documentTitle = this.#html?.title;
-    if (documentTitle) return documentTitle;
-    const heading = this.#html.querySelector('h1') ?? this.#html.querySelector('h2');
-    const headingTitle = heading?.textContent;
-    if (headingTitle) return headingTitle;
-    return null;
+    const title = this.#html
+      .querySelector('meta[property="og:title"], meta[name="twitter:title"]')
+      ?.getAttribute('content')
+      ?? this.#html.title
+      ?? this.#html.querySelector('h1')?.textContent
+      ?? this.#html.querySelector('h2')?.textContent;
+
+    return title || null;
   }
 
   getDescription() {
-    const meta = this.#html.querySelector('meta[property="og:description"]')
-      ?? this.#html.querySelector('meta[name="twitter:description"]');
-    const description = meta?.getAttribute('content');
-    if (description) return description;
-    const metaDescription = this.#html
-      .querySelector('meta[name="description"]')
-      ?.getAttribute('content');
-    if (metaDescription) return metaDescription;
-
-    return null;
+    const selectors = [
+      'meta[property="og:description"]',
+      'meta[name="twitter:description"]',
+      'meta[name="description"]',
+    ];
+    return this.#html.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
   }
 
   getImage() {
-    const meta = this.#html.querySelector('meta[property="og:image"]')
-      ?? this.#html.querySelector('meta[name="twitter:image"]');
-    const image = meta?.getAttribute('content');
-    if (image) return image;
-    const linkImage = this.#html.querySelector('link[rel="image_src"]')?.getAttribute('href');
-    if (linkImage) return linkImage;
-    return null;
+    const selectors = [
+      'meta[property="og:image"]',
+      'meta[name="twitter:image"]',
+      'meta[property="og:image:url"]',
+      'link[rel="image_src"]',
+      'meta[property="forem:logo"]',
+    ];
+    let image = this.#html.querySelector(selectors.join(','));
+    image = (image?.getAttribute('content') || image?.getAttribute('href')) ?? this.getAppleTouchIcon();
+    return image ? new URL(image, this.#url).href : null;
+  }
+
+  getAppleTouchIcon() {
+    let maxSize = 0;
+    let maxIcon = null;
+    const icons = this.#html.querySelectorAll('link[rel="apple-touch-icon"]');
+    // eslint-disable-next-line no-restricted-syntax
+    for (const icon of icons) {
+      const size = parseInt(icon.getAttribute('sizes').split('x')[0], 10);
+      if (size > maxSize) {
+        maxSize = size;
+        maxIcon = icon;
+      }
+    }
+    return maxIcon ?? null;
   }
 
   getDomain() {
@@ -49,12 +61,9 @@ export default class Parser {
   }
 
   getFavicon() {
-    const link = this.#html.querySelector('link[rel="shortcut icon"]')?.getAttribute('href')
-      ?? this.#html.querySelector('link[rel="icon"]')?.getAttribute('href');
-    if (link) {
-      return new URL(link, this.#url).href ?? null;
-    }
-    return null;
+    const selectors = ['link[rel="shortcut icon"]', 'link[rel="icon"]'];
+    const link = this.#html.querySelector(selectors.join(','))?.getAttribute('href');
+    return link ? new URL(link, this.#url).href : null;
   }
 
   getUrl() {

@@ -38,6 +38,7 @@
     "@vue/vue3-jest": "^27.0.0-alpha.1",
     "autoprefixer": "^10.4.13",
     "babel-jest": "^27.0.6",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^8.32.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-import": "^2.27.5",

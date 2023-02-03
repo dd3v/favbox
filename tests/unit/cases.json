@@ -24,7 +24,7 @@
     },
     "output": {
       "title": "Array.prototype.join() - JavaScript | MDN",
-      "description": "The join() method creates and returns a new string by concatenating all of the elements in an array (or an array-like object),separated by commas or a specified separator string.",
+      "description": "The join() method creates and returns a new string by concatenating all of the elements in an array (or an array-like object), separated by commas or a specified separator string.",
       "image": "https://developer.mozilla.org/mdn-social-share.cd6c4a5a.png",
       "favicon": "https://developer.mozilla.org/favicon-48x48.cbbd161b.png",
       "domain": "developer.mozilla.org",
@@ -47,7 +47,22 @@
       "url": "https://tailwindcomponents.com/component/property-card"
     }
   },
-
+  {
+    "title": "Max apple touch icon",
+    "input": {
+      "url": "https://twitter.com/madzadev/status/1593239582392606722",
+      "contentType": "text/html",
+      "text": "<!DOCTYPE html><html dir=\"ltr\" lang=\"en\"><head><meta charset=\"utf-8\" \/><title>Twitter<\/title><link rel=\"apple-touch-icon\" sizes=\"32x32\" href=\"32x32.png\" \/><link rel=\"apple-touch-icon\" sizes=\"192x192\" href=\"192x192.png\" \/><\/head><body><\/body><\/html>"
+    },
+    "output": {
+      "title": "Twitter",
+      "description": null,
+      "image": "https://twitter.com/192x192.png",
+      "favicon": null,
+      "domain": "twitter.com",
+      "url": "https://twitter.com/madzadev/status/1593239582392606722"
+    }
+  },
   {
     "title": "Empty",
     "input": {
