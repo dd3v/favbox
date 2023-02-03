@@ -9,7 +9,7 @@
       <button @click="refresh"><img src="@/assets/icons/icon128.png" class="mt-2 h-6 w-6" alt="logo"/></button>
     </div>
     <div
-      class="absolute my-auto h-10 w-10 rounded-md bg-white shadow transition-[top] duration-[0.4s] dark:bg-neutral-800"
+      class="absolute my-auto h-10 w-10 rounded-md bg-white shadow transition-[top] duration-[0.3s] dark:bg-neutral-800"
       ref="indicatorRef"
     ></div>
     <button
@@ -78,10 +78,17 @@ const handleTab = (tab) => {
 };
 const openGitHub = () => window.open('https://github.com/dd3v/favbox', '_blank');
 const refresh = () => window.location.reload();
-onMounted(() => {
+const moveButton = () => {
   indicatorRef.value.style.width = `${tabRefs[0].getBoundingClientRect().width}px`;
   indicatorRef.value.style.top = `${
     tabRefs[0].getBoundingClientRect().top - tabRefs[0].parentElement.getBoundingClientRect().top
   }px`;
+};
+window.addEventListener('resize', () => {
+  moveButton();
+});
+
+onMounted(() => {
+  moveButton();
 });
 </script>

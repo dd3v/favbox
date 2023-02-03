@@ -40,7 +40,7 @@ const props = defineProps({
   },
 });
 
-const placeholder = ref(placeholderLight);
+const placeholder = ref(useDark().value ? placeholderDark : placeholderLight);
 const bookmark = computed({
   get: () => props.bookmark,
 });
@@ -53,10 +53,11 @@ watch(() => useDark().value, () => {
 </script>
 <style scoped>
 .v-lazy-image {
-  opacity: 0;
-  transition: opacity 2s;
+  filter: blur(5px);
+  transition: filter 1.1s;
+  will-change: filter;
 }
 .v-lazy-image-loaded {
-  opacity: 1;
+  filter: blur(0);
 }
 </style>
