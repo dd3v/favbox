@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute top-0 right-0 z-50 h-screen w-0 overflow-hidden bg-white pl-0 transition-all dark:bg-neutral-900 dark:text-neutral-400"
+    class="absolute top-0 right-0 z-20 h-screen w-0 overflow-hidden bg-white pl-0 transition-all dark:bg-neutral-900 dark:text-neutral-400"
     :style="{
       width: drawerVisible ? '50vw' : '0',
       paddingLeft: drawerVisible ? '10px' : '0',
@@ -88,6 +88,7 @@ import { getBookmarkFolders } from '@/helpers/folders';
 import tagHelper from '@/helpers/tags';
 import AppSpinner from '@/components/AppSpinner.vue';
 import empty from '@/assets/empty.svg';
+import { notify } from 'notiwind';
 
 const bookmark = ref({});
 const selectedTab = ref(1);
@@ -103,12 +104,20 @@ function changeTab(index) {
 }
 
 const handleSave = async () => {
-  console.warn('save');
-  await chrome.bookmarks.update(String(bookmark.value.id), {
-    title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
-    url: bookmark.value.url,
-  });
-  await chrome.bookmarks.move(String(bookmark.value.id), { parentId: bookmark.value.folder.id });
+  try {
+    await chrome.bookmarks.update(String(bookmark.value.id), {
+      title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
+      url: bookmark.value.url,
+    });
+    await chrome.bookmarks.move(String(bookmark.value.id), { parentId: bookmark.value.folder.id });
+    notify({
+      group: 'default',
+      title: 'Success',
+      text: 'Boookmark sucefully saved!',
+    }, 2500);
+  } catch (e) {
+    console.err(e);
+  }
 };
 
 const close = () => {
