@@ -1,6 +1,10 @@
 import { createApp } from 'vue';
 import App from '@/App.vue';
-import Antd from 'ant-design-vue';
-import 'ant-design-vue/dist/antd.css';
+import '@/styles/app.css';
+import masonry from 'vue-next-masonry';
+import Notifications from 'notiwind';
 
-createApp(App).use(Antd).mount('#app');
+const app = createApp(App);
+app.use(masonry);
+app.use(Notifications);
+app.mount('#app');

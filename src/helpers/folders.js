@@ -20,4 +20,9 @@ const getFolderById = async (id) => {
   return folders.find((item) => item.id === id);
 };
 
-export { getBookmarkFolders, getFolderById };
+const getFolderList = async () => {
+  const folders = await getBookmarkFolders();
+  return folders.map((item) => item.title);
+};
+
+export { getFolderList, getBookmarkFolders, getFolderById };
