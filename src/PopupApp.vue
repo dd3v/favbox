@@ -9,8 +9,13 @@ import PopupView from '@/views/PopupView.vue';
 <style>
 html,
 body {
+  width: 18rem;
   padding: 0;
   margin: 0;
-  width: 400px;
+  background: #f9fafb;;
+}
+
+html.dark {
+   background: #171717;
 }
 </style>

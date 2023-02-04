@@ -2,7 +2,7 @@
   <div class="flex h-screen flex-col border-r border-neutral-100 bg-[#FBFBFB] dark:border-neutral-800 dark:bg-neutral-900">
     <div class="p-2">
       <div class="relative flex items-center rounded-md  border-none bg-neutral-100 p-0.5 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
-        <div class="grid place-items-center text-neutral-400 ">
+        <div class="grid place-items-center pl-1 text-neutral-400">
           <magnifying-glass-circle-icon class="h-6 w-6" />
         </div>
         <label for="searc">
