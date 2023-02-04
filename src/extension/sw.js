@@ -55,6 +55,8 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
       image: pageInfo.image ?? null,
       domain: pageInfo.domain ?? null,
       tags: tagHelper.getTags(bookmark.title),
+      type: pageInfo.type,
+      keywords: pageInfo.keywords,
       favorite: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -128,7 +130,7 @@ chrome.bookmarks.getTree(async (bookmarkNodes) => {
     if (node.url) {
       browserBookmarks.push(node);
       count += 1;
-      if (count % 20 === 0 || count === queue.length) {
+      if (count % 15 === 0 || count === queue.length) {
         // eslint-disable-next-line no-await-in-loop
         const syncedBookmarks = await bookmarkStorage.getByIds(
           browserBookmarks.map((item) => parseInt(item.id, 10)),

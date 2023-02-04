@@ -56,7 +56,7 @@
               <img class="w-32" :src="empty" alt="error" />
               <h4 class="text-gray-700 dark:text-neutral-400">Nothing to show</h4>
             </div>
-            <div v-else v-html="content"></div>
+            <div v-html="content"></div>
           </article>
         </TabPanel>
         <TabPanel class="flex h-screen w-full justify-center">
@@ -139,7 +139,7 @@ watch(
       loading.value = true;
       const response = await Parser.parse(bookmark.value.url);
       content.value = response?.content ?? '';
-      if (content.value.length <= 100) {
+      if (content.value.length <= 300) {
         throw new Error('Nothing to show');
       }
     } catch (e) {
