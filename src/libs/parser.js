@@ -44,7 +44,7 @@ export default class Parser {
   getAppleTouchIcon() {
     let maxSize = 0;
     let maxIcon = null;
-    const icons = this.#html.querySelectorAll('link[rel="apple-touch-icon"]');
+    const icons = this.#html.querySelectorAll('link[rel="apple-touch-icon"][sizes]');
     // eslint-disable-next-line no-restricted-syntax
     for (const icon of icons) {
       const size = parseInt(icon.getAttribute('sizes').split('x')[0], 10);

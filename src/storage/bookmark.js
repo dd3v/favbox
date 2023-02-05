@@ -90,6 +90,8 @@ export default class BookmarkStorage {
       into: this.tableName,
       values: data,
       validation: false,
+      skipDataCheck: true,
+      ignore: true,
     });
   }
 
@@ -101,6 +103,18 @@ export default class BookmarkStorage {
         id: {
           in: ids,
         },
+      },
+    });
+  }
+
+  updateFolders(id, folder) {
+    return connection.update({
+      in: this.tableName,
+      set: {
+        folderName: folder,
+      },
+      where: {
+        folderId: id,
       },
     });
   }

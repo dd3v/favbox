@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FavBox",
-  "description": "Browser bookmarks tool",
+  "description": "Clear and modern bookmarking tool.",
   "version": "0.0.1",
   "permissions": [
     "bookmarks",

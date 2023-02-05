@@ -10,9 +10,9 @@ const getDb = () => {
         autoIncrement: false,
         dataType: DATA_TYPE.Number,
       },
-      folder: {
-        dataType: DATA_TYPE.Object,
-        enableSearch: false,
+      folderId: {
+        dataType: DATA_TYPE.Null,
+        enableSearch: true,
       },
       folderName: {
         dataType: DATA_TYPE.String,

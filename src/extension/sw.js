@@ -46,7 +46,7 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     const folder = await getFolderById(bookmark.parentId);
     const entity = {
       id: parseInt(bookmark.id, 10),
-      folder,
+      folderId: parseInt(folder.id, 10),
       folderName: folder.title,
       title: tagHelper.getTitle(bookmark.title),
       url: bookmark.url,
@@ -77,6 +77,7 @@ chrome.bookmarks.onChanged.addListener(async (id, changeInfo) => {
       url: changeInfo.url,
       updatedAt: new Date().toISOString(),
     });
+    await bookmarkStorage.updateFolders(id, changeInfo.title);
     chrome.runtime.sendMessage({ type: 'swDbUpdated' });
   } catch (e) {
     console.error('🔄', e, id, changeInfo);
@@ -88,7 +89,7 @@ chrome.bookmarks.onMoved.addListener(async (id, moveInfo) => {
     console.log('🗂 Bookmark has been moved..', id, moveInfo);
     const folder = await getFolderById(moveInfo.parentId);
     await bookmarkStorage.update(id, {
-      folder,
+      folderId: parseInt(folder.id, 10),
       folderName: folder.title,
       updatedAt: new Date().toISOString(),
     });
@@ -110,10 +111,10 @@ chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
 });
 
 chrome.bookmarks.getTree(async (bookmarkNodes) => {
-  console.warn('check bookmarks..');
+  console.warn('Check bookmarks..');
   const storage = await chrome.storage.session.get('import');
   if (storage?.import === true) {
-    console.warn('already done..');
+    console.warn('Already done..');
     return;
   }
   console.time('execution time');
@@ -148,7 +149,7 @@ chrome.bookmarks.getTree(async (bookmarkNodes) => {
                 const folder = folders.find((item) => item.id === bookmark.parentId);
                 const entity = {
                   id: parseInt(bookmark.id, 10),
-                  folder,
+                  folderId: parseInt(folder.id, 10),
                   folderName: folder.title,
                   title: tagHelper.getTitle(bookmark.title),
                   description: null,
