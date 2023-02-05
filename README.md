@@ -14,3 +14,8 @@ FavBox - a clear and modern tool for your browser bookmarks. It does not try to 
 - advanced search, order, and filtering by tags, domains, and folders. 
 - nice page preview (read mode).
 - made with ❤️. Free and open source.
+
+## Building
+
+1. `npm run build` to build into `dist` 
+2.  Enable dev mode in `chrome://extensions/` and `Load unpacked` extension
