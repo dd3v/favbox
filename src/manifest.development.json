@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "permissions": [
     "bookmarks",
+    "activeTab",
     "storage"
   ],
   "background": {
