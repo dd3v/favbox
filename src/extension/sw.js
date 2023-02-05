@@ -44,6 +44,7 @@ chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
   }
   try {
     const folder = await getFolderById(bookmark.parentId);
+    console.warn(folder);
     const entity = {
       id: parseInt(bookmark.id, 10),
       folderId: parseInt(folder.id, 10),
@@ -88,6 +89,7 @@ chrome.bookmarks.onMoved.addListener(async (id, moveInfo) => {
   try {
     console.log('🗂 Bookmark has been moved..', id, moveInfo);
     const folder = await getFolderById(moveInfo.parentId);
+    console.warn(folder);
     await bookmarkStorage.update(id, {
       folderId: parseInt(folder.id, 10),
       folderName: folder.title,

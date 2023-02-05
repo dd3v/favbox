@@ -20,7 +20,7 @@
         </button>
       </div>
     </div>
-    <div><bookmark-form v-model="bookmark" :folders="folders" @save="handleSave" /></div>
+    <div><bookmark-form v-model="model" :folders="folders" @save="handleSave" /></div>
   </div>
 </template>
 
@@ -33,7 +33,7 @@ import { StarIcon } from '@heroicons/vue/24/solid';
 
 const folders = await getBookmarkFolders();
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-const bookmark = ref({
+const model = ref({
   title: tab.title,
   url: tab.url,
   favicon: tab.favIconUrl,
@@ -43,9 +43,9 @@ const bookmark = ref({
 const handleSave = async () => {
   try {
     await chrome.bookmarks.create({
-      title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
-      parentId: bookmark.value.folder.id,
-      url: bookmark.value.url,
+      title: tagHelper.toString(model.value.title, model.value.tags),
+      parentId: model.value.folderId,
+      url: model.value.url,
     });
     window.close();
   } catch (e) {

@@ -18,7 +18,7 @@
       </label>
     </div>
     <div class="relative">
-      <Combobox v-model="bookmark.folder">
+      <Combobox v-model="selectedFolder">
         <div class="relative mt-1">
           <div class="w-full">
             <ComboboxInput
@@ -91,7 +91,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import {
   Combobox,
   ComboboxInput,
@@ -103,6 +103,7 @@ import {
 import TagInput from '@/components/TagInput.vue';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
+import { getFolderById } from '@/helpers/folders';
 
 const props = defineProps({
   modelValue: {
@@ -122,6 +123,7 @@ const bookmark = computed({
 const folders = computed({
   get: () => props.folders,
 });
+const selectedFolder = ref(folders.value[0]);
 const query = ref('');
 const filteredFolders = computed(() => (query.value === ''
   ? folders.value
@@ -130,8 +132,13 @@ const filteredFolders = computed(() => (query.value === ''
     .replace(/\s+/g, '')
     .includes(query.value.toLowerCase().replace(/\s+/g, '')))));
 
-if (!bookmark.value.folder) {
-  // eslint-disable-next-line prefer-destructuring
-  bookmark.value.folder = folders.value[0];
-}
+watch(() => bookmark, async () => {
+  selectedFolder.value = bookmark.value?.folderId ? await getFolderById(bookmark.value.folderId) : folders.value[0];
+}, { deep: true, immediate: true });
+
+watch(() => selectedFolder, () => {
+  bookmark.value.folderId = selectedFolder.value.id;
+  bookmark.value.folderName = selectedFolder.value.title;
+}, { deep: true });
+
 </script>

@@ -17,7 +17,7 @@ const getBookmarkFolders = async () => {
 
 const getFolderById = async (id) => {
   const folders = await getBookmarkFolders();
-  return folders.find((item) => item.id === id);
+  return folders.find((item) => parseInt(item.id, 10) === parseInt(id, 10));
 };
 
 const getFolderList = async () => {
