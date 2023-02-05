@@ -5,7 +5,8 @@
     "version": "0.0.1",
     "permissions": [
       "bookmarks",
-      "storage"
+      "storage",
+      "activeTab"
     ],
     "background": {
       "service_worker": "/sw.js"
