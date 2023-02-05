@@ -7,7 +7,8 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
-    "build-watch": "vue-cli-service  --env.NODE_ENV=development build-watch --mode development"
+    "build-watch": "vue-cli-service  --env.NODE_ENV=development build-watch --mode development",
+    "zip": "npm-pack-zip"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.7",
@@ -49,6 +50,7 @@
     "eslint-plugin-vue": "^8.0.3",
     "eslint-plugin-vuejs-accessibility": "^1.1.0",
     "jest": "^27.0.5",
+    "npm-pack-zip": "^1.3.0",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.4",
     "vue-cli-plugin-chrome-extension-cli": "~1.1.4"
