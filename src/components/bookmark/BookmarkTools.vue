@@ -78,7 +78,7 @@
 
 <script setup>
 import Parser from '@postlight/parser';
-import { ref, watch } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { XCircleIcon } from '@heroicons/vue/24/outline';
 import {
   TabGroup, TabList, Tab, TabPanels, TabPanel,
@@ -104,19 +104,20 @@ function changeTab(index) {
 }
 
 const handleSave = async () => {
+  console.warn(bookmark);
   try {
     await chrome.bookmarks.update(String(bookmark.value.id), {
       title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
       url: bookmark.value.url,
     });
-    await chrome.bookmarks.move(String(bookmark.value.id), { parentId: bookmark.value.folder.id });
+    await chrome.bookmarks.move(String(bookmark.value.id), { parentId: String(bookmark.value.folderId) });
     notify({
       group: 'default',
       title: 'Success',
       text: 'Boookmark sucefully saved!',
     }, 2500);
   } catch (e) {
-    console.err(e);
+    console.error(e);
   }
 };
 
@@ -130,16 +131,18 @@ const open = (tabIndex, data) => {
   drawerVisible.value = true;
 };
 
-watch(
-  bookmark,
+watchEffect(
   async () => {
+    if (Object.keys(bookmark.value).length === 0) {
+      return;
+    }
     try {
       emptyState.value = false;
       content.value = '';
       loading.value = true;
-      const response = await Parser.parse(bookmark.value.url);
+      const response = await Parser.parse(bookmark.value.url, { contentType: 'text' });
       content.value = response?.content ?? '';
-      if (content.value.length <= 100 || !['article', 'blog'].some((word) => bookmark.value.type.includes(word))) {
+      if (['article', 'blog'].some((word) => bookmark.value.type.includes(word)) && content.value.length >= 250) {
         throw new Error('Nothing to show');
       }
     } catch (e) {
@@ -149,10 +152,6 @@ watch(
     } finally {
       loading.value = false;
     }
-  },
-  {
-    immediate: true,
-    deep: true,
   },
 );
 defineExpose({ open });

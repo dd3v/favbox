@@ -11,7 +11,7 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
       },
       folderId: {
-        dataType: DATA_TYPE.Null,
+        dataType: DATA_TYPE.Number,
         enableSearch: true,
       },
       folderName: {
