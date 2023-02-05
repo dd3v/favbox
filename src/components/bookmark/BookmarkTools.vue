@@ -139,10 +139,11 @@ watch(
       loading.value = true;
       const response = await Parser.parse(bookmark.value.url);
       content.value = response?.content ?? '';
-      if (content.value.length <= 300) {
+      if (content.value.length <= 100 || !['article', 'blog'].some((word) => bookmark.value.type.includes(word))) {
         throw new Error('Nothing to show');
       }
     } catch (e) {
+      console.warn(e);
       emptyState.value = true;
       content.value = '';
     } finally {
