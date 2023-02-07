@@ -104,7 +104,6 @@ function changeTab(index) {
 }
 
 const handleSave = async () => {
-  console.warn(bookmark);
   try {
     await chrome.bookmarks.update(String(bookmark.value.id), {
       title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
@@ -140,9 +139,9 @@ watchEffect(
       emptyState.value = false;
       content.value = '';
       loading.value = true;
-      const response = await Parser.parse(bookmark.value.url, { contentType: 'text' });
+      const response = await Parser.parse(bookmark.value.url);
       content.value = response?.content ?? '';
-      if (['article', 'blog'].some((word) => bookmark.value.type.includes(word)) && content.value.length >= 250) {
+      if (content.value.length >= 150) {
         throw new Error('Nothing to show');
       }
     } catch (e) {

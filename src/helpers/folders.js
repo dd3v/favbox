@@ -1,9 +1,14 @@
 const getList = (bookmarks) => {
   const folders = [];
-  // eslint-disable-next-line no-restricted-syntax
   for (const bookmark of bookmarks) {
     if (bookmark.children) {
-      folders.push(bookmark);
+      folders.push({
+        id: bookmark.id,
+        index: bookmark.index,
+        parentId: bookmark.parentId,
+        dateAdded: bookmark.dateAdded,
+        title: bookmark.title,
+      });
       folders.push(...getList(bookmark.children));
     }
   }
