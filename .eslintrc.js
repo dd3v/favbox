@@ -1,8 +1,6 @@
 module.exports = {
   root: true,
-  settings: {
-    'import/core-modules': ['windi.css'],
-  },
+  settings: {},
   env: {
     node: true,
     webextensions: true,
@@ -20,6 +18,7 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'max-len': 'off',
+    'no-restricted-syntax': ['error', 'ForInStatement', 'LabeledStatement', 'WithStatement'],
   },
   overrides: [
     {

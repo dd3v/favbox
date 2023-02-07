@@ -83,7 +83,7 @@
     <div class="relative my-4 flex w-full justify-between">
       <button
         @click="$emit('save', bookmark)"
-        class="inline-block w-full shrink-0 rounded-md border border-rose-400 bg-rose-400 px-12 py-2 text-white outline-none ring-0 transition hover:bg-transparent hover:text-rose-400 focus:ring-0 active:text-rose-400"
+        class="inline-block w-full shrink-0 rounded-md border border-rose-400 bg-rose-400 px-12 py-2 text-white shadow-sm outline-none ring-0 transition hover:bg-transparent hover:text-rose-400 focus:ring-0 active:text-rose-400"
       >
         Save bookmark
       </button>

@@ -2,12 +2,8 @@
   "manifest_version": 3,
   "name": "FavBox",
   "description": "Clear and modern bookmarking tool.",
-  "version": "0.0.1",
-  "permissions": [
-    "bookmarks",
-    "activeTab",
-    "storage"
-  ],
+  "version": "1.0.0",
+  "permissions": ["bookmarks", "activeTab", "storage"],
   "background": {
     "service_worker": "/sw.js"
   },

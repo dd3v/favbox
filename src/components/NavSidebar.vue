@@ -20,7 +20,7 @@
       @click="handleTab"
       :ref="setTabRef"
     >
-      <component :is="item.icon" class="pointer-events-none h-6 w-6 text-[#6A686F] dark:text-neutral-300" />
+      <component :is="item.icon" class="pointer-events-none h-6 w-6 text-gray-700 dark:text-neutral-300" />
     </button>
     <div class="absolute bottom-2 flex flex-col space-y-2">
       <button
