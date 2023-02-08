@@ -141,7 +141,8 @@ watchEffect(
       loading.value = true;
       const response = await Parser.parse(bookmark.value.url);
       content.value = response?.content ?? '';
-      if (content.value.length >= 150) {
+      console.warn(content.value.length);
+      if (content.value.length <= 150) {
         throw new Error('Nothing to show');
       }
     } catch (e) {
