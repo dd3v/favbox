@@ -47,7 +47,7 @@ const handleSave = async () => {
       parentId: model.value.folderId,
       url: model.value.url,
     });
-    // window.close();
+    window.close();
   } catch (e) {
     console.warn(e);
   }
