@@ -119,6 +119,18 @@ export default class BookmarkStorage {
     });
   }
 
+  async getById(id) {
+    const response = await connection.select({
+      from: this.tableName,
+      limit: 1,
+      where: {
+        id: parseInt(id, 10),
+      },
+    });
+
+    return response.length === 1 ? response.shift() : null;
+  }
+
   async getTags() {
     const response = await connection.select({
       from: this.tableName,
