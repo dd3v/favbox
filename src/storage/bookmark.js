@@ -35,6 +35,7 @@ export default class BookmarkStorage {
           keywords: {
             in: [conditions.term.trim()],
           },
+          domain: { like: `%${conditions.term}%` },
         },
 
       });
