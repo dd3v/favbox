@@ -11,6 +11,21 @@ await initStorage();
 const bookmarkStorage = new BookmarkStorage();
 const folders = await getBookmarkFolders();
 
+const updateExtensionIcon = async (url, defaultIcon = true) => {
+  const tabs = await chrome.tabs.query({ url });
+  for (const tab of tabs) {
+    chrome.action.setIcon({ tabId: tab.id, path: defaultIcon ? '/icon32.png' : '/icon32_saved.png' });
+  }
+};
+
+chrome.tabs.onUpdated.addListener(async (tabId, info) => {
+  if (info.status === 'loading') {
+    const tab = await chrome.tabs.get(parseInt(tabId, 10));
+    const bookmarkSearchResults = await chrome.bookmarks.search({ url: tab.url });
+    chrome.action.setIcon({ tabId, path: bookmarkSearchResults.length === 0 ? '/icon32.png' : '/icon32_saved.png' });
+  }
+});
+
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
 // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -27,6 +42,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
 chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
   console.log('🎉 Bookmark has been created..');
+  try {
+    updateExtensionIcon(bookmark.url, false);
+  } catch (e) {
+    console.warn(e);
+  }
   const storageIndex = makeHash(bookmark.url);
   let pageInfo = await chrome.storage.session.get(storageIndex);
   console.warn(pageInfo);
@@ -103,6 +123,17 @@ chrome.bookmarks.onMoved.addListener(async (id, moveInfo) => {
 
 // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onRemoved
 chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
+  try {
+    const bookmark = await bookmarkStorage.getById(id);
+    if (bookmark) {
+      const bookmarkSearchResults = await chrome.bookmarks.search({ url: bookmark.url });
+      if (bookmarkSearchResults.length === 0) {
+        updateExtensionIcon(bookmark.url, true);
+      }
+    }
+  } catch (e) {
+    console.warn(e);
+  }
   try {
     console.log('🗑️ Bookmark has been removed..', id, removeInfo);
     await bookmarkStorage.remove(id);
