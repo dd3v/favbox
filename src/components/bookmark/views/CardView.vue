@@ -17,7 +17,7 @@
         <span class="break-words text-sm font-semibold text-gray-900 dark:text-neutral-100"
           >{{ bookmark.title }}
         </span>
-        <p class="py-2 text-gray-700 dark:text-neutral-300">
+        <p class="break-words py-2 text-gray-700 dark:text-neutral-300">
           {{ bookmark.description }}
         </p>
       </div>
