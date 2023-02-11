@@ -7,7 +7,7 @@
       </div>
       <div class="flex flex-col">
         <span class="text-xs text-gray-900 dark:text-neutral-100">{{ bookmark.domain }}</span>
-        <p class="my-2 text-gray-700 dark:text-neutral-300">
+        <p class="my-2 break-words text-gray-700 dark:text-neutral-300">
           {{ bookmark.description }}
         </p>
         <div class="flex flex-wrap space-x-1 space-y-1">
