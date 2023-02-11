@@ -1,16 +1,16 @@
 # FavBox
 
-<center>
+<p align="center">
  <img src="https://img.shields.io/github/issues/dd3v/favbox" />
  <img src="https://img.shields.io/github/package-json/v/dd3v/favbox" />
- <img src="  https://img.shields.io/github/license/dd3v/favbox"/>
-</center>
+ <img src="https://img.shields.io/github/license/dd3v/favbox" />
+</p>
 
 ![image](app.png)
 
-<center>
+<p align="center">
 <a href="https://chrome.google.com/webstore/detail/favbox/eangbddipcghohfjefjmfihcjgjnnemj" target="_blank"><img src="https://img.shields.io/badge/Google%20Chrome-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white"/></a>
-</center>
+</p>
 
 ## About
 
