@@ -28,10 +28,10 @@
 import { onMounted, ref } from 'vue';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
-import { getBookmarkFolders } from '@/helpers/folders';
+import bookmarkHelper from '@/helpers/bookmarks';
 import { StarIcon } from '@heroicons/vue/24/solid';
 
-const folders = await getBookmarkFolders();
+const folders = await bookmarkHelper.getFolders();
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 const model = ref({
   title: tab.title,
@@ -47,9 +47,11 @@ const handleSave = async () => {
       parentId: model.value.folderId,
       url: model.value.url,
     });
-    window.close();
+    if (process.env.NODE_ENV === 'production') {
+      window.close();
+    }
   } catch (e) {
-    console.warn(e);
+    console.error(e);
   }
 };
 const openApp = () => chrome.tabs.create({ url: '/app.html', index: tab.index + 1 });

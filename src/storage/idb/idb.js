@@ -33,7 +33,7 @@ const getDb = () => {
       },
       url: {
         dataType: DATA_TYPE.String,
-        enableSearch: false,
+        enableSearch: true,
       },
       favicon: {
         dataType: DATA_TYPE.String,
@@ -69,6 +69,7 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
         default: 0,
       },
+      searchKeyPath: { keyPath: ['title', 'description', 'url'] },
       createdAt: {
         dataType: DATA_TYPE.String,
         notNull: true,
@@ -79,11 +80,16 @@ const getDb = () => {
         notNull: true,
         enableSearch: true,
       },
+      dateAdded: {
+        notNull: true,
+        dataType: DATA_TYPE.Number,
+        enableSearch: true,
+      },
     },
   };
 
   const database = {
-    name: 'favbox',
+    name: 'favbox_db',
     tables: [tblBookmarks],
   };
   return database;
