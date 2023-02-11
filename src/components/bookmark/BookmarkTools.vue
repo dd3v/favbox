@@ -84,7 +84,7 @@ import {
   TabGroup, TabList, Tab, TabPanels, TabPanel,
 } from '@headlessui/vue';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
-import { getBookmarkFolders } from '@/helpers/folders';
+import bookmarkHelper from '@/helpers/bookmarks';
 import tagHelper from '@/helpers/tags';
 import AppSpinner from '@/components/AppSpinner.vue';
 import empty from '@/assets/empty.svg';
@@ -97,7 +97,7 @@ const content = ref('');
 const drawerVisible = ref(false);
 const loading = ref(true);
 const emptyState = ref(false);
-folders.value = await getBookmarkFolders();
+folders.value = await bookmarkHelper.getFolders();
 
 function changeTab(index) {
   selectedTab.value = index;
@@ -141,12 +141,12 @@ watchEffect(
       loading.value = true;
       const response = await Parser.parse(bookmark.value.url);
       content.value = response?.content ?? '';
-      console.warn(content.value.length);
-      if (content.value.length <= 150) {
+      console.warn('page preview length', content.value.length);
+      if (content.value.length <= 200) {
         throw new Error('Nothing to show');
       }
     } catch (e) {
-      console.warn(e);
+      console.error(e);
       emptyState.value = true;
       content.value = '';
     } finally {

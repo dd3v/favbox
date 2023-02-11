@@ -28,16 +28,9 @@ export default class BookmarkStorage {
         },
       });
     }
-    if (conditions.term.trim().length) {
+    if (conditions.term.length) {
       Object.assign(whereConditions, {
-        title: { like: `%${conditions.term}%` },
-        or: {
-          keywords: {
-            in: [conditions.term.trim()],
-          },
-          domain: { like: `%${conditions.term}%` },
-        },
-
+        searchKeyPath: { like: `%${conditions.term}%` },
       });
     }
     return connection.select({

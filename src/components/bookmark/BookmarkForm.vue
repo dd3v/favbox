@@ -103,7 +103,6 @@ import {
 import TagInput from '@/components/TagInput.vue';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
-import { getFolderById } from '@/helpers/folders';
 
 const props = defineProps({
   modelValue: {
@@ -133,12 +132,13 @@ const filteredFolders = computed(() => (query.value === ''
     .includes(query.value.toLowerCase().replace(/\s+/g, '')))));
 
 watch(() => bookmark, async () => {
-  selectedFolder.value = bookmark.value?.folderId ? await getFolderById(bookmark.value.folderId) : folders.value[0];
+  selectedFolder.value = bookmark.value?.folderId
+    ? folders.value.find((item) => parseInt(item.id, 10) === parseInt(bookmark.value.folderId, 10))
+    : folders.value[0];
 }, { deep: true, immediate: true });
 
 watch(() => selectedFolder, () => {
   bookmark.value.folderId = selectedFolder.value.id;
   bookmark.value.folderName = selectedFolder.value.title;
 }, { deep: true });
-
 </script>

@@ -19,6 +19,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'max-len': 'off',
     'no-restricted-syntax': ['error', 'ForInStatement', 'LabeledStatement', 'WithStatement'],
+    'no-use-before-define': ['error', { functions: false }],
   },
   overrides: [
     {
