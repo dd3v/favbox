@@ -21,7 +21,12 @@
         <bookmark-display v-model="displayType" />
       </div>
       <infinite-scroll @scroll:end="paginate" :limit="50" ref="scroll">
-        <div class="flex h-5/6 items-center justify-center text-6xl font-black text-gray-200" v-if="empty">Empty</div>
+        <div
+          class="flex h-5/6 items-center justify-center text-6xl font-black text-gray-200"
+          v-if="empty"
+        >
+          Empty
+        </div>
         <bookmark-layout :displayType="displayType" class="p-2">
           <bookmark-card
             v-for="(bookmark, key) in bookmarks"
@@ -38,7 +43,7 @@
     </div>
     <bookmark-tools ref="tools" />
   </div>
-  <bookmarks-sync :progress="syncProgress" v-if="showSync"/>
+  <bookmarks-sync :progress="syncProgress" v-if="showSync" />
 </template>
 <script setup>
 import {
@@ -59,7 +64,6 @@ import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
 import BookmarkTools from '@/components/bookmark/BookmarkTools.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 import InfiniteScroll from '@/components/InfiniteScroll.vue';
-
 import { notify } from 'notiwind';
 
 await initStorage();
@@ -130,9 +134,13 @@ watch(
   },
   { immediate: true, deep: true },
 );
-watch(bookmarks, () => {
-  empty.value = bookmarks.value.length === 0;
-}, { immediate: true });
+watch(
+  bookmarks,
+  () => {
+    empty.value = bookmarks.value.length === 0;
+  },
+  { immediate: true },
+);
 
 onMounted(async () => {
   folders.value = await bookmarkHelper.getFoldersFlatten();
