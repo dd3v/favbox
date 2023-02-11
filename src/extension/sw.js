@@ -191,7 +191,10 @@ async function* traverseTreeRecursively(bookmarks) {
 }
 
 async function updateExtensionIcon(url, defaultIcon = true) {
-  const tabs = await chrome.tabs.query({ url });
+  const urlWithoutAnchor = url.replace(/#.*$/, '');
+  console.warn('Update icon by', url, urlWithoutAnchor);
+  const tabs = await chrome.tabs.query({ url: urlWithoutAnchor });
+  console.warn('Tabs to update', tabs);
   for (const tab of tabs) {
     chrome.action.setIcon({
       tabId: tab.id,
