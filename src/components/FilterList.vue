@@ -1,11 +1,15 @@
 <template>
-  <div class="flex h-screen flex-col border-r border-neutral-100 bg-[#FBFBFB] dark:border-neutral-800 dark:bg-neutral-900">
+  <div
+    class="flex h-screen flex-col border-r border-neutral-100 bg-[#FBFBFB] dark:border-neutral-800 dark:bg-neutral-900"
+  >
     <div class="p-2">
-      <div class="relative flex items-center rounded-md  border-none bg-neutral-100 p-0.5 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+      <div
+        class="relative flex items-center rounded-md border-none bg-neutral-100 p-0.5 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+      >
         <div class="grid place-items-center pl-1 text-neutral-400">
           <magnifying-glass-circle-icon class="h-6 w-6" />
         </div>
-        <label for="searc">
+        <label for="search">
           <input
             class="w-full border-none bg-neutral-100 text-xs text-gray-700 outline-none focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
             type="text"
@@ -16,16 +20,20 @@
           />
         </label>
       </div>
-      <transition-group tag="ul" name="fade" class="flex h-screen flex-col overflow-y-auto">
+      <transition-group tag="ul" name="fade" class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto">
         <li v-for="(item, key) in list" :key="key">
           <label
             :for="`${item + key}`"
-            class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100  dark:text-neutral-400 dark:hover:bg-neutral-800"
+            class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
             :key="key"
           >
             <span
-              class="m-1 h-2 w-2 rounded border border-solid border-gray-500 bg-white dark:border-neutral-700 dark:bg-neutral-800"
-              :class="selected.includes(item) ? 'bg-gray-500 dark:bg-neutral-500' : 'bg-white'"
+              class="m-1 h-2 w-2 rounded border border-solid border-gray-500 dark:border-neutral-700"
+              :class="
+                selected.includes(item)
+                  ? 'bg-gray-500  dark:bg-neutral-500'
+                  : 'bg-white dark:bg-neutral-700'
+              "
             ></span>
             <input
               type="checkbox"
