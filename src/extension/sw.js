@@ -150,6 +150,28 @@ chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
   }
 });
 
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== 'favbox') return;
+  port.onMessage.addListener(onMessage);
+  port.onDisconnect.addListener(deleteTimer);
+  port.timer = setTimeout(forceReconnect, 150000, port);
+});
+
+function onMessage(msg, port) {
+  console.log('received', msg, 'from', port.sender);
+}
+function forceReconnect(port) {
+  console.warn('Reconnect...');
+  deleteTimer(port);
+  port.disconnect();
+}
+function deleteTimer(port) {
+  if (port.timer) {
+    clearTimeout(port.timer);
+    delete port.timer;
+  }
+}
+
 const storage = await chrome.storage.session.get('import');
 if (storage?.import !== true) {
   console.time('Execution time');
