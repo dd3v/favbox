@@ -1,5 +1,8 @@
 # Change Log
 
+### v1.1.1
+- UI fixes 
+- SW improvements
 
 ### v1.1.0
 - a green icon is shown when a bookmark has already been created

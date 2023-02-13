@@ -13,11 +13,11 @@
             <Tab v-slot="{ selected }" as="template">
               <button
                 :class="[
-                  'w-full rounded-lg py-1 text-sm font-medium leading-5 text-gray-700',
+                  'w-full rounded-lg py-1 text-sm font-medium leading-5 text-gray-500',
                   ' focus:outline-none ',
                   selected
-                     ? 'bg-white shadow dark:bg-neutral-900 dark:text-neutral-400'
-                    : 'text-gray-500 hover:bg-white/[0.12] hover:text-gray-700',
+                    ? 'bg-white shadow dark:bg-neutral-900 dark:text-white'
+                    : 'text-gray-500 dark:text-white hover:bg-white/[0.12] hover:text-gray-700',
                 ]"
               >
                 Preview page
@@ -26,11 +26,11 @@
             <Tab v-slot="{ selected }" as="template">
               <button
                 :class="[
-                  'w-full rounded-lg py-1 text-sm font-medium leading-5 text-gray-700',
+                  'w-full rounded-lg py-1 text-sm font-medium leading-5 text-gray-500',
                   'focus:outline-none ',
                   selected
                     ? 'bg-white shadow dark:bg-neutral-900 dark:text-white'
-                    : 'text-gray-500 hover:bg-white/[0.12] hover:text-gray-700',
+                    : 'text-gray-500 dark:text-white hover:bg-white/[0.12] hover:text-gray-700',
                 ]"
               >
                 Edit bookmark
