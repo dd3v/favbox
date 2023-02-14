@@ -1,5 +1,6 @@
 import Parser from '@/libs/parser';
 
+console.warn('Content script..');
 let port;
 function connect() {
   port = chrome.runtime.connect({ name: 'favbox' });
@@ -12,7 +13,7 @@ try {
   connect();
   const parser = new Parser(document.location.href, document);
   const pageInfo = parser.getFullPageInfo();
-  await chrome.runtime.sendMessage({ action: 'cache', data: pageInfo });
+  port.postMessage({ action: 'cache', data: pageInfo });
 } catch (e) {
   console.error('Content script error', e);
 }
