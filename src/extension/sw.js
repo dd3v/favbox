@@ -30,15 +30,33 @@ chrome.tabs.onUpdated.addListener(async (tabId, info) => {
 
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
 // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'cache') {
-    (async () => {
-      const storageIndex = makeHash(message.data.url);
-      await chrome.storage.session.set({ [storageIndex]: message.data });
-      sendResponse({ success: true, storageIndex });
-    })();
+const onMessage = (msg, port) => {
+  console.warn('Received', msg, 'from', port.sender);
+  if (msg.action === 'cache') {
+    console.warn('Caching page...');
+    const storageIndex = makeHash(msg.data.url);
+    chrome.storage.session.set({ [storageIndex]: msg.data });
   }
-  return true;
+};
+
+const deleteTimer = (port) => {
+  if (port.timer) {
+    clearTimeout(port.timer);
+    delete port.timer;
+  }
+};
+
+const forceReconnect = (port) => {
+  console.warn('Reconnect...');
+  deleteTimer(port);
+  port.disconnect();
+};
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== 'favbox') return;
+  port.onMessage.addListener(onMessage);
+  port.onDisconnect.addListener(deleteTimer);
+  port.timer = setTimeout(forceReconnect, 150000, port);
 });
 
 // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
@@ -149,28 +167,6 @@ chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
     console.error('🗑️', e, id, removeInfo);
   }
 });
-
-chrome.runtime.onConnect.addListener((port) => {
-  if (port.name !== 'favbox') return;
-  port.onMessage.addListener(onMessage);
-  port.onDisconnect.addListener(deleteTimer);
-  port.timer = setTimeout(forceReconnect, 150000, port);
-});
-
-function onMessage(msg, port) {
-  console.log('received', msg, 'from', port.sender);
-}
-function forceReconnect(port) {
-  console.warn('Reconnect...');
-  deleteTimer(port);
-  port.disconnect();
-}
-function deleteTimer(port) {
-  if (port.timer) {
-    clearTimeout(port.timer);
-    delete port.timer;
-  }
-}
 
 const storage = await chrome.storage.session.get('import');
 if (storage?.import !== true) {
