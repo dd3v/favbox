@@ -2,8 +2,8 @@
 
 <p align="center">
  <img src="https://img.shields.io/github/issues/dd3v/favbox" />
- <img src="https://img.shields.io/github/package-json/v/dd3v/favbox" />
- <img src="https://img.shields.io/github/license/dd3v/favbox" />
+ <img src="https://img.shields.io/github/package-json/v/dd3v/favbox" /> 
+ <img src="https://img.shields.io/badge/License-MIT-yellow.svg"/>
 </p>
 
 ![image](app.png)
