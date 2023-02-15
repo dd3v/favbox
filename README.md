@@ -7,7 +7,7 @@
 <a href="https://github.com/dd3v/favbox"><img src="https://img.shields.io/badge/Made%20With-Love-orange.svg" alt="love"></a>
 </p>
 
-![image](app.png)
+![image](app_demo.png)
 
 <p align="center">
 <a href="https://chrome.google.com/webstore/detail/favbox/eangbddipcghohfjefjmfihcjgjnnemj">
@@ -31,6 +31,5 @@ Key features:
 ❤️ free and open source;
 
 ### Building
-
 1. `npm run build` to build into `dist`
 2. Enable dev mode in `chrome://extensions/` and `Load unpacked` extension
