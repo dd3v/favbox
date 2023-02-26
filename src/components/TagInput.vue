@@ -1,9 +1,16 @@
 <template>
   <div class="flex flex-col">
-    <transition-group name="list" tag="ul" class="inline-flex flex-wrap">
-      <li v-for="(tag, key) in tags" :key="key">
+    <transition-group
+      name="list"
+      tag="ul"
+      class="inline-flex flex-wrap"
+    >
+      <li
+        v-for="(tag, key) in tags"
+        :key="key"
+      >
         <span
-          class="m-1 mr-2 inline-flex items-center justify-center rounded-full  bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-neutral-700 dark:text-neutral-300"
+          class="m-1 mr-2 inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-neutral-700 dark:text-neutral-300"
           :data-tag="tag"
         >
           <p class="flex-wrap whitespace-nowrap text-xs">{{ tag }}</p>
@@ -20,7 +27,11 @@
               stroke="currentColor"
               class="h-3 w-3"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </span>
@@ -28,17 +39,17 @@
     </transition-group>
     <div class="relative">
       <input
+        v-model="tag"
         class="border-none bg-transparent pl-8 text-xs text-gray-700 outline-none focus:ring-0 dark:bg-neutral-900 dark:text-white"
         type="text"
         maxlength="25"
-        v-model="tag"
         :placeholder="placeholder"
         aria-label="Tag input"
         @keydown.enter="add"
         @keydown.,.prevent="add"
         @keydown.tab.prevent="add"
         @keydown.delete="removeLast"
-      />
+      >
       <span
         class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500"
       >
@@ -79,7 +90,11 @@ const removeLast = () => {
   }
 };
 const add = () => {
-  if (!tags.value.includes(tag.value) && tag.value.length > 0 && tags.value.length < props.max) {
+  if (
+    !tags.value.includes(tag.value)
+    && tag.value.length > 0
+    && tags.value.length < props.max
+  ) {
     tags.value.push(tag.value);
   }
   tag.value = '';

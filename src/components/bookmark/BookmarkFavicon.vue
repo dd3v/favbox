@@ -1,5 +1,10 @@
 <template>
-  <img :src="favicon" alt="favicon" v-if="favicon"  @error="handleError"/>
+  <img
+    v-if="favicon"
+    :src="favicon"
+    alt="favicon"
+    @error="handleError"
+  >
   <globe-alt-icon v-else />
 </template>
 <script setup>
@@ -11,7 +16,12 @@ const props = defineProps({
     required: true,
   },
 });
-const favicon = ref(((props.favicon && (props.favicon.includes('http') || props.favicon.includes('data:image'))) ? props.favicon : false));
+const favicon = ref(
+  props.favicon
+    && (props.favicon.includes('http') || props.favicon.includes('data:image'))
+    ? props.favicon
+    : false,
+);
 const handleError = () => {
   favicon.value = false;
 };

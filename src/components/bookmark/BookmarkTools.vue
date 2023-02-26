@@ -10,27 +10,33 @@
       <div class="flex w-full">
         <div class="flex w-full justify-center py-1">
           <TabList class="flex w-72 space-x-1 rounded-xl bg-gray-300/20 p-1">
-            <Tab v-slot="{ selected }" as="template">
+            <Tab
+              v-slot="{ selected }"
+              as="template"
+            >
               <button
                 :class="[
                   'w-full rounded-lg py-1 text-sm font-medium leading-5 text-gray-500',
                   ' focus:outline-none ',
                   selected
                     ? 'bg-white shadow dark:bg-neutral-900 dark:text-white'
-                    : 'text-gray-500 dark:text-white hover:bg-white/[0.12] hover:text-gray-700',
+                    : 'text-gray-500 hover:bg-white/[0.12] hover:text-gray-700 dark:text-white',
                 ]"
               >
                 Preview page
               </button>
             </Tab>
-            <Tab v-slot="{ selected }" as="template">
+            <Tab
+              v-slot="{ selected }"
+              as="template"
+            >
               <button
                 :class="[
                   'w-full rounded-lg py-1 text-sm font-medium leading-5 text-gray-500',
                   'focus:outline-none ',
                   selected
                     ? 'bg-white shadow dark:bg-neutral-900 dark:text-white'
-                    : 'text-gray-500 dark:text-white hover:bg-white/[0.12] hover:text-gray-700',
+                    : 'text-gray-500 hover:bg-white/[0.12] hover:text-gray-700 dark:text-white',
                 ]"
               >
                 Edit bookmark
@@ -38,29 +44,43 @@
             </Tab>
           </TabList>
         </div>
-        <button @click="close" class="mr-2">
+        <button
+          class="mr-2"
+          @click="close"
+        >
           <x-circle-icon class="h-5 w-5" />
         </button>
       </div>
       <TabPanels class="flex h-screen w-full p-4">
         <TabPanel class="flex h-screen w-full overflow-y-auto">
-          <article class="prose  w-full max-w-none dark:prose-invert">
+          <article class="prose dark:prose-invert w-full max-w-none">
             <app-spinner
               v-if="loading"
               class="flex h-screen w-full flex-col items-center justify-center"
             />
             <div
-              class="flex h-screen w-full flex-col items-center justify-center"
               v-if="emptyState"
+              class="flex h-screen w-full flex-col items-center justify-center"
             >
-              <img class="w-32" :src="empty" alt="error" />
-              <h4 class="text-gray-700 dark:text-neutral-400">Nothing to show</h4>
+              <img
+                class="w-32"
+                :src="empty"
+                alt="error"
+              >
+              <h4 class="text-gray-700 dark:text-neutral-400">
+                Nothing to show
+              </h4>
             </div>
-            <div v-html="content"></div>
+            <div v-html="content" />
           </article>
         </TabPanel>
         <TabPanel class="flex h-screen w-full justify-center">
-          <bookmark-form v-model="bookmark" :folders="folders" @save="handleSave" class="w-4/6" />
+          <bookmark-form
+            v-model="bookmark"
+            :folders="folders"
+            class="w-4/6"
+            @save="handleSave"
+          />
         </TabPanel>
       </TabPanels>
     </TabGroup>
@@ -73,22 +93,21 @@
     }"
     @keydown="close"
     @click="close"
-  ></div>
+  />
 </template>
 
 <script setup>
-import Parser from '@postlight/parser';
 import { ref, watchEffect } from 'vue';
 import { XCircleIcon } from '@heroicons/vue/24/outline';
 import {
   TabGroup, TabList, Tab, TabPanels, TabPanel,
 } from '@headlessui/vue';
+import { notify } from 'notiwind';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import bookmarkHelper from '@/helpers/bookmarks';
 import tagHelper from '@/helpers/tags';
 import AppSpinner from '@/components/AppSpinner.vue';
 import empty from '@/assets/empty.svg';
-import { notify } from 'notiwind';
 
 const bookmark = ref({});
 const selectedTab = ref(1);
@@ -109,12 +128,17 @@ const handleSave = async () => {
       title: tagHelper.toString(bookmark.value.title, bookmark.value.tags),
       url: bookmark.value.url,
     });
-    await chrome.bookmarks.move(String(bookmark.value.id), { parentId: String(bookmark.value.folderId) });
-    notify({
-      group: 'default',
-      title: 'Success',
-      text: 'Boookmark sucefully saved!',
-    }, 2500);
+    await chrome.bookmarks.move(String(bookmark.value.id), {
+      parentId: String(bookmark.value.folderId),
+    });
+    notify(
+      {
+        group: 'default',
+        title: 'Success',
+        text: 'Boookmark sucefully saved!',
+      },
+      2500,
+    );
   } catch (e) {
     console.error(e);
   }
@@ -130,29 +154,27 @@ const open = (tabIndex, data) => {
   drawerVisible.value = true;
 };
 
-watchEffect(
-  async () => {
-    if (Object.keys(bookmark.value).length === 0) {
-      return;
+watchEffect(async () => {
+  if (Object.keys(bookmark.value).length === 0) {
+    return;
+  }
+  try {
+    emptyState.value = false;
+    content.value = '';
+    loading.value = true;
+    const response = '';
+    content.value = response?.content ?? '';
+    console.warn('page preview length', content.value.length);
+    if (content.value.length <= 200) {
+      throw new Error('Nothing to show');
     }
-    try {
-      emptyState.value = false;
-      content.value = '';
-      loading.value = true;
-      const response = await Parser.parse(bookmark.value.url);
-      content.value = response?.content ?? '';
-      console.warn('page preview length', content.value.length);
-      if (content.value.length <= 200) {
-        throw new Error('Nothing to show');
-      }
-    } catch (e) {
-      console.error(e);
-      emptyState.value = true;
-      content.value = '';
-    } finally {
-      loading.value = false;
-    }
-  },
-);
+  } catch (e) {
+    console.error(e);
+    emptyState.value = true;
+    content.value = '';
+  } finally {
+    loading.value = false;
+  }
+});
 defineExpose({ open });
 </script>

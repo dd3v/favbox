@@ -11,21 +11,28 @@
         </div>
         <label for="search">
           <input
+            id="search"
+            v-model="term"
             class="w-full border-none bg-neutral-100 text-xs text-gray-700 outline-none focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
             type="text"
-            id="search"
             placeholder="Search something.."
-            v-model="term"
             autocomplete="off"
-          />
+          >
         </label>
       </div>
-      <transition-group tag="ul" name="fade" class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto">
-        <li v-for="(item, key) in list" :key="key">
+      <transition-group
+        tag="ul"
+        name="fade"
+        class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto"
+      >
+        <li
+          v-for="(item, key) in list"
+          :key="key"
+        >
           <label
+            :key="key"
             :for="`${item + key}`"
             class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
-            :key="key"
           >
             <span
               class="m-1 h-2 w-2 rounded border border-solid border-gray-500 dark:border-neutral-700"
@@ -34,15 +41,15 @@
                   ? 'bg-gray-500  dark:bg-neutral-500'
                   : 'bg-white dark:bg-neutral-700'
               "
-            ></span>
+            />
             <input
+              :id="`${item + key}`"
+              v-model="selected"
               type="checkbox"
               class="hidden"
               name="item"
-              :id="`${item + key}`"
               :value="item"
-              v-model="selected"
-            />
+            >
             <span class="truncate">{{ item }}</span>
           </label>
         </li>

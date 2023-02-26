@@ -1,6 +1,14 @@
 <template>
-  <TransitionRoot appear :show="isOpen" as="template">
-    <Dialog as="div" @close="close" class="relative z-10">
+  <TransitionRoot
+    appear
+    :show="isOpen"
+    as="template"
+  >
+    <Dialog
+      as="div"
+      class="relative z-10"
+      @close="close"
+    >
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -13,7 +21,9 @@
         <div class="fixed inset-0 bg-black/25" />
       </TransitionChild>
       <div class="fixed inset-0 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center">
+        <div
+          class="flex min-h-full items-center justify-center p-4 text-center"
+        >
           <TransitionChild
             as="template"
             enter="duration-300 ease-out"
@@ -34,10 +44,13 @@
               </DialogTitle>
               <div class="mt-2">
                 <p class="text-sm text-gray-500">
-                  We're scanning your existing bookmarks and gathering information about the pages
-                  for more efficient performance. It will take a while...
+                  We're scanning your existing bookmarks and gathering
+                  information about the pages for more efficient performance. It
+                  will take a while...
                 </p>
-                <div class="my-5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  class="my-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"
+                >
                   <div
                     class="rounded-full bg-rose-400 p-0.5 text-center text-xs font-medium leading-none text-white"
                     :style="{ width: `${progress}%` }"
@@ -65,7 +78,11 @@
 <script setup>
 import { ref, watch } from 'vue';
 import {
-  TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle,
+  TransitionRoot,
+  TransitionChild,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
 } from '@headlessui/vue';
 
 const props = defineProps({
@@ -79,9 +96,12 @@ const isOpen = ref(true);
 const close = () => {
   isOpen.value = false;
 };
-watch(() => props.progress, (newValue) => {
-  if (parseInt(newValue, 10) >= 100) {
-    isOpen.value = false;
-  }
-});
+watch(
+  () => props.progress,
+  (newValue) => {
+    if (parseInt(newValue, 10) >= 100) {
+      isOpen.value = false;
+    }
+  },
+);
 </script>

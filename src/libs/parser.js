@@ -25,7 +25,10 @@ export default class Parser {
       'meta[name="twitter:description"]',
       'meta[name="description"]',
     ];
-    return this.#html.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
+    return (
+      this.#html.querySelector(selectors.join(','))?.getAttribute('content')
+      ?? null
+    );
   }
 
   getImage() {
@@ -37,14 +40,17 @@ export default class Parser {
       'meta[property="forem:logo"]',
     ];
     let image = this.#html.querySelector(selectors.join(','));
-    image = (image?.getAttribute('content') || image?.getAttribute('href')) ?? this.getAppleTouchIcon();
+    image = (image?.getAttribute('content') || image?.getAttribute('href'))
+      ?? this.getAppleTouchIcon();
     return image ? new URL(image, this.#url).href : null;
   }
 
   getAppleTouchIcon() {
     let maxSize = 0;
     let maxIcon = null;
-    const icons = this.#html.querySelectorAll('link[rel="apple-touch-icon"][sizes]');
+    const icons = this.#html.querySelectorAll(
+      'link[rel="apple-touch-icon"][sizes]',
+    );
     // eslint-disable-next-line no-restricted-syntax
     for (const icon of icons) {
       const size = parseInt(icon.getAttribute('sizes').split('x')[0], 10);
@@ -62,7 +68,9 @@ export default class Parser {
 
   getFavicon() {
     const selectors = ['link[rel="shortcut icon"]', 'link[rel="icon"]'];
-    const link = this.#html.querySelector(selectors.join(','))?.getAttribute('href');
+    const link = this.#html
+      .querySelector(selectors.join(','))
+      ?.getAttribute('href');
     return link ? new URL(link, this.#url).href : null;
   }
 
@@ -71,12 +79,21 @@ export default class Parser {
   }
 
   getType() {
-    return this.#html.querySelector('meta[property="og:type"]')?.getAttribute('content') ?? null;
+    return (
+      this.#html
+        .querySelector('meta[property="og:type"]')
+        ?.getAttribute('content') ?? null
+    );
   }
 
   getKeywords() {
-    const selectors = ['meta[name="keywords"]', 'meta[name="keynews_keywordswords"]'];
-    const keywords = this.#html.querySelector(selectors.join(','))?.getAttribute('content');
+    const selectors = [
+      'meta[name="keywords"]',
+      'meta[name="keynews_keywordswords"]',
+    ];
+    const keywords = this.#html
+      .querySelector(selectors.join(','))
+      ?.getAttribute('content');
     if (!keywords || keywords.length === 0) return null;
     return keywords
       .split(',')
