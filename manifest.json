@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "FavBox",
+  "description": "Clear and modern bookmarking tool.",
+  "version": "1.2.0",
+  "permissions": ["bookmarks", "activeTab", "tabs", "storage"],
+  "action": {
+    "default_popup": "src/ext/popup/index.html"
+  },
+  "background": {
+    "service_worker": "src/ext/background/index.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "icons/icon32.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*"],
+      "js": ["src/ext/content/content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}

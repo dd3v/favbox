@@ -1,5 +1,7 @@
+import { describe, expect, it } from 'vitest';
+
 import { parseHTML } from 'linkedom';
-import Parser from '../../src/libs/parser';
+import Parser from '@/libs/parser';
 import cases from './cases.json';
 
 describe('Test cases for DOM parsing', () => {

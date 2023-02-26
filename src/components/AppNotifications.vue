@@ -1,6 +1,8 @@
 <template>
   <NotificationGroup group="error">
-    <div class="pointer-events-none fixed inset-0 z-50 flex items-end justify-end p-6 px-4">
+    <div
+      class="pointer-events-none fixed inset-0 z-50 flex items-end justify-end p-6 px-4"
+    >
       <div class="w-full max-w-sm">
         <Notification
           v-slot="{ notifications }"
@@ -14,9 +16,9 @@
           move-delay="delay-300"
         >
           <div
-            class="mx-auto mt-4 flex w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-md"
             v-for="notification in notifications"
             :key="notification.id"
+            class="mx-auto mt-4 flex w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-md"
           >
             <div class="flex w-12 items-center justify-center bg-red-500">
               <svg
@@ -32,8 +34,12 @@
 
             <div class="-mx-3 px-4 py-2">
               <div class="mx-3">
-                <span class="font-semibold text-red-500">{{ notification.title }}</span>
-                <p class="text-sm text-gray-600 dark:text-white">{{ notification.text }}</p>
+                <span class="font-semibold text-red-500">{{
+                  notification.title
+                }}</span>
+                <p class="text-sm text-gray-600 dark:text-white">
+                  {{ notification.text }}
+                </p>
               </div>
             </div>
           </div>
@@ -43,7 +49,9 @@
   </NotificationGroup>
 
   <NotificationGroup group="default">
-    <div class="pointer-events-none fixed inset-0 z-50 flex items-end justify-end p-6 px-4">
+    <div
+      class="pointer-events-none fixed inset-0 z-50 flex items-end justify-end p-6 px-4"
+    >
       <div class="w-full max-w-sm">
         <Notification
           v-slot="{ notifications }"
@@ -57,9 +65,9 @@
           move-delay="delay-300"
         >
           <div
-            class="mx-auto mt-4 flex w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-md"
             v-for="notification in notifications"
             :key="notification.id"
+            class="mx-auto mt-4 flex w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-md"
           >
             <div class="flex w-12 items-center justify-center bg-blue-500">
               <svg
@@ -75,8 +83,12 @@
 
             <div class="-mx-3 px-4 py-2">
               <div class="mx-3">
-                <span class="font-semibold text-blue-500">{{ notification.title }}</span>
-                <p class="text-sm text-gray-600 dark:text-white">{{ notification.text }}</p>
+                <span class="font-semibold text-blue-500">{{
+                  notification.title
+                }}</span>
+                <p class="text-sm text-gray-600 dark:text-white">
+                  {{ notification.text }}
+                </p>
               </div>
             </div>
           </div>

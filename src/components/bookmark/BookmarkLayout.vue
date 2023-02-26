@@ -7,7 +7,10 @@
   >
     <slot />
   </masonry>
-  <div :class="layout" v-else>
+  <div
+    v-else
+    :class="layout"
+  >
     <slot />
   </div>
 </template>
