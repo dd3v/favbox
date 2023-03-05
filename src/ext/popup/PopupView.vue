@@ -53,7 +53,7 @@ const handleSave = async () => {
       parentId: model.value.folderId,
       url: model.value.url,
     });
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.NODE_ENV === 'production') {
       window.close();
     }
   } catch (e) {

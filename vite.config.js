@@ -1,7 +1,7 @@
-import { crx } from '@crxjs/vite-plugin';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
+import { crx } from '@crxjs/vite-plugin';
 import manifest from './manifest.json';
 
 export default defineConfig({
@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   build: {
-    // sourcemap: isDev ? 'inline' : false,
+    sourcemap: false,
     // https://developer.chrome.com/docs/webstore/program_policies/#:~:text=Code%20Readability%20Requirements
     terserOptions: {
       mangle: false,
