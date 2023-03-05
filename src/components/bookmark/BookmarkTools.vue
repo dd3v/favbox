@@ -86,7 +86,7 @@ import {
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import bookmarkHelper from '@/helpers/bookmarks';
 import tagHelper from '@/helpers/tags';
-import AppSpinner from '@/components/AppSpinner.vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
 import empty from '@/assets/empty.svg';
 import { notify } from 'notiwind';
 
