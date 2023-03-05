@@ -78,7 +78,7 @@
       </Combobox>
     </div>
     <div class="relative">
-      <tag-input :max="5" placeholder="Enter a tag" v-model="bookmark.tags" />
+      <app-tag-input :max="5" placeholder="Enter a tag" v-model="bookmark.tags" />
     </div>
     <div class="relative my-4 flex w-full justify-between">
       <button
@@ -100,7 +100,7 @@ import {
   ComboboxOption,
   TransitionRoot,
 } from '@headlessui/vue';
-import TagInput from '@/components/TagInput.vue';
+import AppTagInput from '@/components/app/AppTagInput.vue';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 
