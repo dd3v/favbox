@@ -6,6 +6,8 @@ import Parser from '@/libs/parser';
 import PageRequest from '@/libs/pageRequest';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmarks';
+import saved from '@/assets/icons/icon32_saved.png';
+import notSaved from '@/assets/icons/icon32.png';
 
 (async () => {
   let installed = true;
@@ -28,8 +30,8 @@ import bookmarkHelper from '@/helpers/bookmarks';
         tabId,
         path:
           bookmarkSearchResults.length === 0
-            ? '/icons/icon32.png'
-            : '/icons/icon32_saved.png',
+            ? notSaved
+            : saved,
       });
     }
   });
@@ -229,7 +231,7 @@ import bookmarkHelper from '@/helpers/bookmarks';
     for (const tab of tabs) {
       chrome.action.setIcon({
         tabId: tab.id,
-        path: defaultIcon ? '/icons/icon32.png' : '/icons/icon32_saved.png',
+        path: defaultIcon ? notSaved : saved,
       });
     }
   }

@@ -8,10 +8,18 @@ export default defineConfig({
   plugins: [vue(), crx({ manifest })],
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
+      '@': resolve(__dirname, 'src'),
     },
   },
+  root: resolve(__dirname, 'src'),
+  publicDir: resolve(__dirname, 'public'),
   build: {
+    outDir: resolve(__dirname, 'dist'),
+    rollupOptions: {
+      input: {
+        app: '/ext/browser/index.html',
+      },
+    },
     sourcemap: false,
     // https://developer.chrome.com/docs/webstore/program_policies/#:~:text=Code%20Readability%20Requirements
     terserOptions: {
