@@ -60,7 +60,7 @@ const handleSave = async () => {
     console.error(e);
   }
 };
-const openApp = () => chrome.tabs.create({ url: '/app.html', index: tab.index + 1 });
+const openApp = () => chrome.tabs.create({ url: '/ext/browser/index.html', index: tab.index + 1 });
 onMounted(() => {
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     document.documentElement.classList.add('dark');

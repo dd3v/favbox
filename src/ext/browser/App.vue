@@ -7,7 +7,7 @@
 <script setup>
 import { onErrorCaptured } from 'vue';
 import { notify } from 'notiwind';
-import AppView from '@/AppView.vue';
+import AppView from '@/ext/browser/AppView.vue';
 import AppNotifications from '@/components/AppNotifications.vue';
 
 onErrorCaptured((e) => {
