@@ -1,21 +1,21 @@
 <template>
   <div class="flex w-full overflow-y-hidden">
-    <nav-sidebar
-      v-model="currentTab"
-      :items="tabs"
-    />
-    <div
-      v-for="(items, key) in filters"
-      :key="key"
-      class="sticky top-0 flex h-full"
-    >
-      <filter-list
-        v-if="currentTab === key"
-        v-model="conditions[key]"
-        class="w-52"
-        :items="items"
-      />
-    </div>
+    <nav-sidebar v-if="visible" v-model="currentTab" :items="tabs" />
+    <nav v-if="visible">
+      <div
+        v-for="(items, key) in filters"
+        :key="key"
+        class="sticky top-0 flex h-full"
+      >
+        <filter-list
+          v-if="currentTab === key"
+          v-model="conditions[key]"
+          class="w-52"
+          :items="items"
+        />
+      </div>
+    </nav>
+
     <div
       class="flex h-screen w-full flex-col overflow-hidden bg-gray-50 dark:bg-neutral-900"
     >
@@ -29,21 +29,14 @@
         />
         <bookmark-display v-model="displayType" />
       </div>
-      <infinite-scroll
-        ref="scroll"
-        :limit="50"
-        @scroll:end="paginate"
-      >
+      <infinite-scroll ref="scroll" :limit="50" @scroll:end="paginate">
         <div
           v-if="empty"
           class="flex h-5/6 items-center justify-center text-6xl font-black text-gray-200"
         >
           Empty
         </div>
-        <bookmark-layout
-          :display-type="displayType"
-          class="p-2"
-        >
+        <bookmark-layout :display-type="displayType" class="p-2">
           <bookmark-card
             v-for="(bookmark, key) in bookmarks"
             :key="key"
@@ -58,54 +51,52 @@
     </div>
     <bookmark-tools ref="tools" />
   </div>
-  <bookmarks-sync
-    v-if="showSync"
-    :progress="syncProgress"
-  />
+  <bookmarks-sync v-if="showSync" :progress="syncProgress" />
 </template>
 <script setup>
-import {
-  toRaw, reactive, ref, watch, onMounted,
-} from 'vue';
+import { toRaw, reactive, ref, watch, onMounted } from "vue";
 import {
   FolderOpenIcon,
   HashtagIcon,
   GlobeAltIcon,
-} from '@heroicons/vue/24/outline';
-import { notify } from 'notiwind';
-import NavSidebar from '@/components/NavSidebar.vue';
-import FilterList from '@/components/FilterList.vue';
-import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
-import BookmarkStorage from '@/storage/bookmark';
-import initStorage from '@/storage/idb/idb';
-import bookmarkHelper from '@/helpers/bookmarks';
-import BookmarksSync from '@/components/BookmarksSync.vue';
-import SearchTerm from '@/components/search/SearchTerm.vue';
-import SortDirection from '@/components/search/SortDirection.vue';
-import SearchConditions from '@/components/search/SearchConditions.vue';
-import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
-import BookmarkTools from '@/components/bookmark/BookmarkTools.vue';
-import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
-import InfiniteScroll from '@/components/InfiniteScroll.vue';
+} from "@heroicons/vue/24/outline";
+import { notify } from "notiwind";
+import NavSidebar from "@/components/NavSidebar.vue";
+import FilterList from "@/components/FilterList.vue";
+import BookmarkCard from "@/components/bookmark/BookmarkCard.vue";
+import BookmarkStorage from "@/storage/bookmark";
+import initStorage from "@/storage/idb/idb";
+import bookmarkHelper from "@/helpers/bookmarks";
+import BookmarksSync from "@/components/BookmarksSync.vue";
+import SearchTerm from "@/components/search/SearchTerm.vue";
+import SortDirection from "@/components/search/SortDirection.vue";
+import SearchConditions from "@/components/search/SearchConditions.vue";
+import BookmarkDisplay from "@/components/search/BookmarkDisplay.vue";
+import BookmarkTools from "@/components/bookmark/BookmarkTools.vue";
+import BookmarkLayout from "@/components/bookmark/BookmarkLayout.vue";
+import InfiniteScroll from "@/components/InfiniteScroll.vue";
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
-const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
-const currentTab = ref('folders');
+
+const visible = window === window.parent;
+
+const displayType = ref(localStorage.getItem("displayType") ?? "masonry");
+const currentTab = ref("folders");
 const tabs = [
-  { value: 'folders', icon: FolderOpenIcon },
-  { value: 'tags', icon: HashtagIcon },
-  { value: 'domains', icon: GlobeAltIcon },
+  { value: "folders", icon: FolderOpenIcon },
+  { value: "tags", icon: HashtagIcon },
+  { value: "domains", icon: GlobeAltIcon },
 ];
 const scroll = ref(null);
 const bookmarks = ref([]);
-const tools = ref('');
+const tools = ref("");
 const defaultConditions = {
   tags: [],
   folders: [],
   domains: [],
-  sort: 'desc',
-  term: '',
+  sort: "desc",
+  term: "",
 };
 const showSync = ref(false);
 const syncProgress = ref(0);
@@ -134,43 +125,45 @@ const handleRemoveBookmark = async (bookmark) => {
     await bookmarkStorage.remove(parseInt(bookmark.id, 10));
   } finally {
     bookmarks.value = bookmarks.value.filter(
-      (item) => parseInt(item.id, 10) !== parseInt(bookmark.id, 10),
+      (item) => parseInt(item.id, 10) !== parseInt(bookmark.id, 10)
     );
     notify(
       {
-        group: 'default',
-        title: 'Success',
-        text: 'Boookmark sucefully removed!',
+        group: "default",
+        title: "Success",
+        text: "Boookmark sucefully removed!",
       },
-      2500,
+      2500
     );
   }
 };
 const paginate = async (skip) => {
   try {
-    console.warn('load', skip);
+    console.warn("load", skip);
     bookmarks.value.push(
-      ...(await bookmarkStorage.search(toRaw(conditions), skip, 50)),
+      ...(await bookmarkStorage.search(toRaw(conditions), skip, 50))
     );
   } catch (e) {
     console.error(e);
   }
 };
-watch(displayType, () => localStorage.setItem('displayType', displayType.value));
+watch(displayType, () =>
+  localStorage.setItem("displayType", displayType.value)
+);
 watch(
   conditions,
   async () => {
     scroll.value?.scrollUp();
     bookmarks.value = await bookmarkStorage.search(toRaw(conditions));
   },
-  { immediate: true, deep: true },
+  { immediate: true, deep: true }
 );
 watch(
   bookmarks,
   () => {
     empty.value = bookmarks.value.length === 0;
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 onMounted(async () => {
@@ -181,7 +174,7 @@ onMounted(async () => {
 
 chrome.runtime.onMessage.addListener(async (message) => {
   // handle updates from service worker
-  if (message.type === 'swDbUpdated') {
+  if (message.type === "swDbUpdated") {
     if (message.data.installed === true && message.data.progress <= 100) {
       showSync.value = true;
       syncProgress.value = message.data.progress;

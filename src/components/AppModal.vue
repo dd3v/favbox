@@ -67,14 +67,19 @@ defineExpose({
   .modal {
     color: inherit;
     font-size: inherit;
-    width: 400px;
+    width: auto;
+    height: auto;
+    min-width: 80%;
+    min-height: 80%;
     margin: 30px auto;
-    padding: 5px 10px;
     box-shadow: #f1f1f1;
     background: #fff;
     border-radius: 5px;
     transition: all 0.3s ease;
-    padding: 10px;
+  }
+
+  .modal-body {
+    height: 100%;
   }
   .modal-header {
     display: flex;

@@ -20,7 +20,7 @@
   "options_page": "ext/options/index.html",
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "matches": ["<all_urls>"],
       "js": ["ext/content/content.js"],
       "run_at": "document_end"
     }
