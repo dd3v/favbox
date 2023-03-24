@@ -38,33 +38,27 @@ import notSaved from '@/assets/icons/icon32.png';
 
   // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
   // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
-  const onMessage = (msg, port) => {
-    console.warn('Received', msg, 'from', port.sender);
-    if (msg.action === 'cache') {
-      console.warn('Caching page...');
-      const storageIndex = makeHash(msg.data.url);
-      chrome.storage.session.set({ [storageIndex]: msg.data });
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'getBookmark') {
+      (async () => {
+        console.warn(sender);
+        const [bookmark] = await chrome.bookmarks.search({
+          url: message.data.url,
+        });
+        const data = {
+          id: bookmark?.id,
+          title: sender.tab.title,
+          url: sender.tab.url,
+          favicon: sender.tab.favIconUrl,
+        };
+        console.warn(data);
+        sendResponse({
+          success: true,
+          data,
+        });
+      })();
     }
-  };
-
-  const deleteTimer = (port) => {
-    if (port.timer) {
-      clearTimeout(port.timer);
-      delete port.timer;
-    }
-  };
-
-  const forceReconnect = (port) => {
-    console.warn('Reconnect...');
-    deleteTimer(port);
-    port.disconnect();
-  };
-
-  chrome.runtime.onConnect.addListener((port) => {
-    if (port.name !== 'favbox') return;
-    port.onMessage.addListener(onMessage);
-    port.onDisconnect.addListener(deleteTimer);
-    port.timer = setTimeout(forceReconnect, 150000, port);
+    return true;
   });
 
   // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
