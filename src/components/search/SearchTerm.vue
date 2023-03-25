@@ -3,6 +3,7 @@
     <label for="term">
       <input
         id="term"
+        ref="input"
         type="search"
         :value="term"
         autocomplete="off"
@@ -14,7 +15,7 @@
   </div>
 </template>
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps({
   modelValue: {
@@ -28,6 +29,8 @@ const term = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
+const input = ref(null);
+
 let timer = null;
 const debouncedEmit = (value) => {
   if (timer) {
@@ -38,4 +41,6 @@ const debouncedEmit = (value) => {
     timer = null;
   }, 300);
 };
+
+onMounted(() => input.value.focus());
 </script>
