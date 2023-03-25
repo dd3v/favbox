@@ -21,9 +21,9 @@ const props = defineProps({
   modelValue: {
     type: String,
     require: true,
+    default: '',
   },
 });
-
 const emit = defineEmits(['update:modelValue']);
 const term = computed({
   get: () => props.modelValue,
@@ -41,6 +41,8 @@ const debouncedEmit = (value) => {
     timer = null;
   }, 300);
 };
+
+defineExpose({ input });
 
 onMounted(() => input.value.focus());
 </script>
