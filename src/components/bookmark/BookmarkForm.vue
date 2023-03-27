@@ -95,7 +95,7 @@
       </Combobox>
     </div>
     <div class="relative">
-      <tag-input
+      <app-tag-input
         v-model="bookmark.tags"
         :max="5"
         placeholder="Enter a tag"
@@ -122,7 +122,7 @@ import {
   TransitionRoot,
 } from '@headlessui/vue';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
-import TagInput from '@/components/TagInput.vue';
+import AppTagInput from '@/components/app/AppTagInput.vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 
 const props = defineProps({

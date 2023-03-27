@@ -39,6 +39,7 @@
     </transition-group>
     <div class="relative">
       <input
+        ref="inputRef"
         v-model="tag"
         class="border-none bg-transparent pl-8 text-xs text-gray-700 outline-none focus:ring-0 dark:bg-neutral-900 dark:text-white"
         type="text"
@@ -49,6 +50,8 @@
         @keydown.,.prevent="add"
         @keydown.tab.prevent="add"
         @keydown.delete="removeLast"
+        @keydown.arrow-up.prevent="arrowUp"
+        @keydown.arrow-down.prevent="arrowDown"
       >
       <span
         class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500"
@@ -56,10 +59,28 @@
         <hashtag-icon class="h-4 w-4 text-gray-700" />
       </span>
     </div>
+    <div
+      v-if="filteredSuggestions.length"
+      class="z-10 mt-2 max-h-48 w-full overflow-y-auto rounded-md border bg-white py-1 shadow-lg"
+    >
+      <ul>
+        <li
+          v-for="(suggest, index) in filteredSuggestions"
+          :key="suggest"
+          class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+          :class="{ 'bg-gray-100': highlightedSuggestionIndex === index }"
+          role="option"
+          aria-selected="true"
+          @click="setTag"
+        >
+          <span>{{ suggest }}</span>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { HashtagIcon } from '@heroicons/vue/20/solid';
 
 const props = defineProps({
@@ -73,8 +94,16 @@ const props = defineProps({
   },
   modelValue: {
     type: Array,
+    default: () => [],
+  },
+  suggestions: {
+    type: Array,
+    default: () => [],
   },
 });
+
+const highlightedSuggestionIndex = ref(-1);
+const inputRef = ref(null);
 const emit = defineEmits(['update:modelValue']);
 const tag = ref('');
 const tags = computed({
@@ -89,16 +118,44 @@ const removeLast = () => {
     tags.value.pop();
   }
 };
+const filteredSuggestions = computed({
+  get: () => (tag.value === ''
+    ? []
+    : props.suggestions.filter((suggestion) => suggestion.toLowerCase().includes(tag.value.toLowerCase()))),
+});
 const add = () => {
-  if (
-    !tags.value.includes(tag.value)
-    && tag.value.length > 0
-    && tags.value.length < props.max
-  ) {
-    tags.value.push(tag.value);
+  let value = null;
+  console.warn('INDEX', highlightedSuggestionIndex.value);
+  console.warn('SUGGESIONS', filteredSuggestions.value);
+  if (highlightedSuggestionIndex.value !== -1) {
+    value = filteredSuggestions.value[highlightedSuggestionIndex.value];
+    console.warn(
+      'value',
+      filteredSuggestions.value[highlightedSuggestionIndex.value],
+    );
+  } else {
+    value = tag.value;
+  }
+  console.warn(value);
+  if (value && !tags.value.includes(value) && tags.value.length < props.max) {
+    tags.value.push(value);
   }
   tag.value = '';
 };
+
+const arrowUp = () => {
+  if (highlightedSuggestionIndex.value !== 0) {
+    highlightedSuggestionIndex.value -= 1;
+  }
+};
+const arrowDown = () => {
+  if (filteredSuggestions.value.length > highlightedSuggestionIndex.value + 1) {
+    highlightedSuggestionIndex.value += 1;
+  }
+};
+watch(tag, () => {
+  highlightedSuggestionIndex.value = -1;
+});
 </script>
 <style scoped>
 .list-enter-active,

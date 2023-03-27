@@ -37,7 +37,7 @@
         />
         <bookmark-display v-model="displayType" />
       </div>
-      <infinite-scroll
+      <app-infinite-scroll
         ref="scroll"
         :limit="50"
         @scroll:end="paginate"
@@ -58,18 +58,29 @@
             :display-type="displayType"
             :bookmark="bookmark"
             @remove="handleRemoveBookmark"
-            @preview="tools.open(0, bookmark)"
-            @edit="tools.open(1, bookmark)"
+            @preview="bookmarkDrawer"
+            @edit="bookmarkDrawer"
           />
         </bookmark-layout>
-      </infinite-scroll>
+      </app-infinite-scroll>
     </div>
-    <bookmark-tools ref="tools" />
+    <bookmark-toolbar ref="drawer">
+      <template #preview>
+        <app-readability :url="currentBookmark.url">
+          <template #spinner>
+            <app-spinner class="flex h-screen w-full flex-col items-center justify-center" />
+          </template>
+        </app-readability>
+      </template>
+      <template #edit>
+        sfsdfsdf
+      </template>
+    </bookmark-toolbar>
+    <bookmarks-sync
+      v-if="showSync"
+      :progress="syncProgress"
+    />
   </div>
-  <bookmarks-sync
-    v-if="showSync"
-    :progress="syncProgress"
-  />
 </template>
 <script setup>
 import {
@@ -81,6 +92,7 @@ import {
   GlobeAltIcon,
 } from '@heroicons/vue/24/outline';
 import { notify } from 'notiwind';
+import BookmarkToolbar from '@/components/bookmark/BookmarkToolbar.vue';
 import NavSidebar from '@/components/NavSidebar.vue';
 import FilterList from '@/components/FilterList.vue';
 import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
@@ -92,14 +104,18 @@ import SearchTerm from '@/components/search/SearchTerm.vue';
 import SortDirection from '@/components/search/SortDirection.vue';
 import SearchConditions from '@/components/search/SearchConditions.vue';
 import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
-import BookmarkTools from '@/components/bookmark/BookmarkTools.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
-import InfiniteScroll from '@/components/InfiniteScroll.vue';
+import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
+import AppReadability from '@/components/app/AppReadability.vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
 
 const visible = ref(true);
+
+const currentBookmark = ref(null);
+const drawer = ref(null);
 
 const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
 const currentTab = ref('folders');
@@ -110,7 +126,7 @@ const tabs = [
 ];
 const scroll = ref(null);
 const bookmarks = ref([]);
-const tools = ref('');
+
 const defaultConditions = {
   tags: [],
   folders: [],
@@ -158,6 +174,13 @@ const handleRemoveBookmark = async (bookmark) => {
     );
   }
 };
+
+const bookmarkDrawer = (e) => {
+  currentBookmark.value = e;
+  console.warn('refs', drawer.value);
+  drawer.value.preview();
+};
+
 const paginate = async (skip) => {
   try {
     console.warn('load', skip);
