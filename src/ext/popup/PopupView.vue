@@ -23,9 +23,10 @@
     </div>
     <div>
       <bookmark-form
-        v-model="model"
+        v-model="bookmark"
         :folders="folders"
-        @save="handleSave"
+        :tags="tags"
+        @submit="handleSubmit"
       />
     </div>
   </div>
@@ -36,23 +37,46 @@ import { StarIcon } from '@heroicons/vue/24/solid';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmarks';
+import initStorage from '@/storage/idb/idb';
+import BookmarkStorage from '@/storage/bookmark';
 
+await initStorage();
+const storage = new BookmarkStorage();
+
+const tags = await storage.getTags();
 const folders = await bookmarkHelper.getFolders();
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-const model = ref({
-  title: tab.title,
-  url: tab.url,
-  favicon: tab.favIconUrl,
-  folder: null,
-  tags: [],
-});
-const handleSave = async () => {
+const bookmark = ref({});
+bookmark.value = await storage.getByUrl(tab.url);
+
+if (bookmark.value === null) {
+  bookmark.value = {
+    id: null,
+    title: tab.title,
+    url: tab.url,
+    favicon: tab.favIconUrl,
+    folder: folders[0],
+    tags: [],
+  };
+}
+
+console.warn(bookmark);
+
+const handleSubmit = async (data) => {
   try {
-    await chrome.bookmarks.create({
-      title: tagHelper.toString(model.value.title, model.value.tags),
-      parentId: model.value.folderId,
-      url: model.value.url,
-    });
+    if (data.id === null) {
+      await chrome.bookmarks.create({
+        title: tagHelper.toString(data.title, data.tags),
+        parentId: data.folder.id,
+        url: data.url,
+      });
+    } else {
+      await chrome.bookmarks.update(String(data.id), {
+        title: tagHelper.toString(data.title, data.tags),
+        url: data.url,
+      });
+      await chrome.bookmarks.move(String(data.id), { parentId: data.folder.id });
+    }
     if (import.meta.env.NODE_ENV === 'production') {
       window.close();
     }
@@ -61,7 +85,7 @@ const handleSave = async () => {
   }
 };
 const openApp = () => chrome.tabs.create({ url: '/ext/browser/index.html', index: tab.index + 1 });
-onMounted(() => {
+onMounted(async () => {
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     document.documentElement.classList.add('dark');
   } else {

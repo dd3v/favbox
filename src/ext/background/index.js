@@ -41,21 +41,7 @@ import notSaved from '@/assets/icons/icon32.png';
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'getBookmark') {
       (async () => {
-        console.warn(sender);
-        const [bookmark] = await chrome.bookmarks.search({
-          url: message.data.url,
-        });
-        const data = {
-          id: bookmark?.id,
-          title: sender.tab.title,
-          url: sender.tab.url,
-          favicon: sender.tab.favIconUrl,
-        };
-        console.warn(data);
-        sendResponse({
-          success: true,
-          data,
-        });
+        sendResponse({ success: true });
       })();
     }
     return true;
@@ -90,8 +76,8 @@ import notSaved from '@/assets/icons/icon32.png';
       );
       const entity = {
         id: parseInt(bookmark.id, 10),
-        folderId: parseInt(folder.id, 10),
         folderName: folder.title,
+        folder,
         title: tagHelper.getTitle(bookmark.title),
         url: bookmark.url,
         description: pageInfo.description ?? null,
@@ -138,8 +124,8 @@ import notSaved from '@/assets/icons/icon32.png';
       const folder = folders.find((item) => item.id === moveInfo.parentId);
       console.warn(folder);
       await bookmarkStorage.update(id, {
-        folderId: parseInt(folder.id, 10),
         folderName: folder.title,
+        folder,
         updatedAt: new Date().toISOString(),
       });
       chrome.runtime.sendMessage({ type: 'swDbUpdated', data: { installed } });
@@ -211,6 +197,7 @@ import notSaved from '@/assets/icons/icon32.png';
       } else {
         // eslint-disable-next-line no-await-in-loop
         yield* traverseTreeRecursively(
+          // eslint-disable-next-line no-await-in-loop
           await chrome.bookmarks.getChildren(String(bookmark.id)),
         );
       }
@@ -263,7 +250,7 @@ import notSaved from '@/assets/icons/icon32.png';
     const folder = folders.find((item) => item.id === bookmark.parentId);
     let entity = {
       id: parseInt(bookmark.id, 10),
-      folderId: parseInt(folder.id, 10),
+      folder,
       folderName: folder.title,
       title: tagHelper.getTitle(bookmark.title),
       description: null,
