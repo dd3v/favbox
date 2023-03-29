@@ -58,8 +58,8 @@
             :display-type="displayType"
             :bookmark="bookmark"
             @remove="handleRemoveBookmark"
-            @preview="bookmarkDrawer"
-            @edit="bookmarkDrawer"
+            @preview="preview"
+            @edit="edit"
           />
         </bookmark-layout>
       </app-infinite-scroll>
@@ -68,12 +68,20 @@
       <template #preview>
         <app-readability :url="currentBookmark.url">
           <template #spinner>
-            <app-spinner class="flex h-screen w-full flex-col items-center justify-center" />
+            <app-spinner
+              class="flex h-screen w-full flex-col items-center justify-center"
+            />
           </template>
         </app-readability>
       </template>
       <template #edit>
-        sfsdfsdf
+        <bookmark-form
+          v-model="currentBookmark"
+          :folders="bookmarkFolders"
+          :tags="tags"
+          class="w-3/5"
+          @submit="handleSubmit"
+        />
       </template>
     </bookmark-toolbar>
     <bookmarks-sync
@@ -108,13 +116,17 @@ import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import AppReadability from '@/components/app/AppReadability.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
+import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
+import tagHelper from '@/helpers/tags';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
 
 const visible = ref(true);
 
-const currentBookmark = ref(null);
+const bookmarkFolders = ref(await bookmarkHelper.getFolders());
+
+const currentBookmark = ref({});
 const drawer = ref(null);
 
 const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
@@ -175,10 +187,39 @@ const handleRemoveBookmark = async (bookmark) => {
   }
 };
 
-const bookmarkDrawer = (e) => {
+const preview = (e) => {
+  console.warn('preview', e);
   currentBookmark.value = e;
-  console.warn('refs', drawer.value);
   drawer.value.preview();
+};
+
+const edit = (e) => {
+  currentBookmark.value = e;
+  console.warn('edit', e);
+  drawer.value.edit();
+};
+
+const handleSubmit = async (bookmark) => {
+  try {
+    console.warn(bookmark.id);
+    await chrome.bookmarks.update(String(bookmark.id), {
+      title: tagHelper.toString(bookmark.title, bookmark.tags),
+      url: bookmark.url,
+    });
+    await chrome.bookmarks.move(String(bookmark.id), {
+      parentId: String(bookmark.folder.id),
+    });
+    notify(
+      {
+        group: 'default',
+        title: 'Success',
+        text: 'Boookmark sucefully saved!',
+      },
+      2500,
+    );
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 const paginate = async (skip) => {

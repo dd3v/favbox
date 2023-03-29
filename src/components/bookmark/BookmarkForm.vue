@@ -21,12 +21,15 @@
       </label>
     </div>
     <div class="relative">
-      <Combobox v-model="selectedFolder">
+      <Combobox
+        v-model="bookmark.folder"
+        :default-value="folders[0]"
+      >
         <div class="relative mt-1">
           <div class="w-full">
             <ComboboxInput
               class="w-full rounded-md border-gray-200 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600"
-              :display-value="(folder) => folder.title"
+              :display-value="(folder) => folder?.title"
               @change="query = $event.target.value"
             />
             <ComboboxButton
@@ -49,7 +52,7 @@
             >
               <div
                 v-if="filteredFolders.length === 0 && query !== ''"
-                class="relative cursor-default select-none py-2 px-4"
+                class="relative cursor-default select-none px-4 py-2"
               >
                 Nothing found.
               </div>
@@ -62,7 +65,7 @@
                 :value="folder"
               >
                 <li
-                  class="relative cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:bg-neutral-800 dark:text-neutral-400"
+                  class="relative cursor-pointer select-none py-2 pl-10 pr-4 text-gray-700 dark:text-neutral-400"
                   :class="{ 'bg-neutral-50 dark:bg-neutral-700': active }"
                 >
                   <span
@@ -98,13 +101,14 @@
       <app-tag-input
         v-model="bookmark.tags"
         :max="5"
+        :suggestions="tags"
         placeholder="Enter a tag"
       />
     </div>
     <div class="relative my-4 flex w-full justify-between">
       <button
         class="inline-block w-full shrink-0 rounded-md border border-rose-400 bg-rose-400 px-12 py-2 text-white shadow-sm outline-none ring-0 transition hover:bg-transparent hover:text-rose-400 focus:ring-0 active:text-rose-400"
-        @click="$emit('save', bookmark)"
+        @click="$emit('submit', bookmark)"
       >
         Save bookmark
       </button>
@@ -112,7 +116,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import {
   Combobox,
   ComboboxInput,
@@ -128,14 +132,28 @@ import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 const props = defineProps({
   modelValue: {
     type: Object,
+    default: () => ({
+      id: null,
+      title: null,
+      url: null,
+      favicon: null,
+      folder: {},
+      tags: [],
+    }),
     required: true,
   },
   folders: {
     type: Array,
     required: true,
+    default: () => [],
+  },
+  tags: {
+    type: Array,
+    required: true,
+    default: () => [],
   },
 });
-const emit = defineEmits(['update:modelValue', 'save']);
+const emit = defineEmits(['update:modelValue', 'submit']);
 const bookmark = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
@@ -143,7 +161,7 @@ const bookmark = computed({
 const folders = computed({
   get: () => props.folders,
 });
-const selectedFolder = ref(folders.value[0]);
+console.warn('FOLDERS', folders);
 const query = ref('');
 const filteredFolders = computed(() => (query.value === ''
   ? folders.value
@@ -151,25 +169,4 @@ const filteredFolders = computed(() => (query.value === ''
     .toLowerCase()
     .replace(/\s+/g, '')
     .includes(query.value.toLowerCase().replace(/\s+/g, '')))));
-
-watch(
-  () => bookmark,
-  async () => {
-    selectedFolder.value = bookmark.value?.folderId
-      ? folders.value.find(
-        (item) => parseInt(item.id, 10) === parseInt(bookmark.value.folderId, 10),
-      )
-      : folders.value[0];
-  },
-  { deep: true, immediate: true },
-);
-
-watch(
-  () => selectedFolder,
-  () => {
-    bookmark.value.folderId = selectedFolder.value.id;
-    bookmark.value.folderName = selectedFolder.value.title;
-  },
-  { deep: true },
-);
 </script>

@@ -125,6 +125,18 @@ export default class BookmarkStorage {
     return response.length === 1 ? response.shift() : null;
   }
 
+  async getByUrl(url) {
+    const response = await connection.select({
+      from: this.tableName,
+      limit: 1,
+      where: {
+        url: String(url),
+      },
+    });
+
+    return response.length === 1 ? response.shift() : null;
+  }
+
   async getTags() {
     const response = await connection.select({
       from: this.tableName,

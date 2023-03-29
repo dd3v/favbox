@@ -10,8 +10,8 @@ const getDb = () => {
         autoIncrement: false,
         dataType: DATA_TYPE.Number,
       },
-      folderId: {
-        dataType: DATA_TYPE.Number,
+      folder: {
+        dataType: DATA_TYPE.Object,
         enableSearch: true,
       },
       folderName: {
@@ -89,7 +89,7 @@ const getDb = () => {
   };
 
   const database = {
-    name: 'favbox_db',
+    name: 'favbox_database',
     tables: [tblBookmarks],
   };
   return database;
