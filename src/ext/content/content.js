@@ -56,7 +56,7 @@ const close = () => {
 document.body.appendChild(backdrop);
 
 document.addEventListener('keydown', (event) => {
-  if (event.ctrlKey && event.shiftKey && event.keyCode === 66) {
+  if (event.ctrlKey && event.shiftKey && event.keyCode === 75) {
     open();
   } else if (event.keyCode === 27) {
     close();
