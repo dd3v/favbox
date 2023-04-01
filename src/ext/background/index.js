@@ -6,8 +6,9 @@ import Parser from '@/libs/parser';
 import PageRequest from '@/libs/pageRequest';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmarks';
-import saved from '@/assets/icons/icon32_saved.png';
-import notSaved from '@/assets/icons/icon32.png';
+
+const saved = '/icons/icon32_saved.png';
+const notSaved = '/icons/icon32.png';
 
 (async () => {
   let installed = true;
