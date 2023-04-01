@@ -4,6 +4,13 @@
       v-if="loading"
       name="spinner"
     />
+    <div
+      v-if="readabilityResult === null"
+      class="border-l-4 border-orange-500 bg-orange-100 p-1 text-sm text-orange-700"
+      role="alert"
+    >
+      Unfortunately, it looks like this content cannot be displayed in a readable format. This depends on the website and not all websites allow for it.
+    </div>
     <iframe
       v-if="readabilityResult === null"
       :src="url"
