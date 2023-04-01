@@ -8,7 +8,7 @@
     <div class="absolute top-0 m-1">
       <button @click="refresh">
         <img
-          src="@/assets/icons/icon128.png"
+          src="/icons/icon128.png"
           class="mt-2 h-9 w-9"
           alt="logo"
         >

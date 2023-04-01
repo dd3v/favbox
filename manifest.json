@@ -5,10 +5,18 @@
   "version": "2.0.0",
   "permissions": ["bookmarks", "activeTab", "tabs", "storage"],
   "icons": {
-    "16": "assets/icons/icon16.png",
-    "32": "assets/icons/icon32.png",
-    "48": "assets/icons/icon48.png",
-    "128": "assets/icons/icon128.png"
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+D",
+        "mac": "Ctrl+Shift+D"
+      }
+    }
   },
   "action": {
     "default_popup": "ext/popup/index.html"
