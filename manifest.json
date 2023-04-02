@@ -10,14 +10,6 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "commands": {
-    "_execute_action": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+E",
-        "mac": "Ctrl+Shift+E"
-      }
-    }
-  },
   "action": {
     "default_popup": "ext/popup/index.html"
   },
@@ -30,6 +22,12 @@
       "matches": ["<all_urls>"],
       "js": ["ext/content/content.js"],
       "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["ext/browser/index.html"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
