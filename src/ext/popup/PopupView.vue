@@ -12,7 +12,7 @@
           <span
             class="ease absolute inset-0 flex h-full w-full -translate-x-full items-center justify-center bg-rose-400 text-white duration-300 group-hover:translate-x-0"
           >
-            <star-icon class="h-4 w-4" />
+            <heart-icon class="h-4 w-4" />
           </span>
           <span
             class="ease absolute flex h-full w-full items-center justify-center text-rose-400 transition-all duration-300 group-hover:translate-x-full"
@@ -33,7 +33,7 @@
 </template>
 <script setup>
 import { onMounted, ref } from 'vue';
-import { StarIcon } from '@heroicons/vue/24/solid';
+import { HeartIcon } from '@heroicons/vue/24/solid';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmarks';
@@ -77,7 +77,7 @@ const handleSubmit = async (data) => {
       });
       await chrome.bookmarks.move(String(data.id), { parentId: data.folder.id });
     }
-    if (import.meta.env.NODE_ENV === 'production') {
+    if (import.meta.env.MODE === 'production') {
       window.close();
     }
   } catch (e) {
