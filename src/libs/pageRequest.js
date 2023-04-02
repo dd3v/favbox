@@ -8,8 +8,9 @@ export default class PageRequest {
   async getData() {
     const response = await fetch(this.#url);
     if (!response.ok) {
-      const message = `An error has occurred: ${response.status}`;
-      throw new Error(message);
+      const error = new Error(`An error has occurred: ${response.status}`);
+      error.code = response.status;
+      throw error;
     }
     const text = await response.text();
     return {

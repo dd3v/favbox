@@ -1,18 +1,30 @@
 <template>
-  <img :src="favicon" alt="favicon" v-if="favicon"  @error="handleError"/>
+  <img
+    v-if="favicon"
+    :src="favicon"
+    alt="favicon"
+    @error="handleError"
+  >
   <globe-alt-icon v-else />
 </template>
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { GlobeAltIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
   favicon: {
-    required: true,
+    type: String,
+    required: false,
+    default: '',
   },
 });
-const favicon = ref(((props.favicon && (props.favicon.includes('http') || props.favicon.includes('data:image'))) ? props.favicon : false));
+const emit = defineEmits(['update:modelValue']);
+const favicon = computed({
+  get: () => props.favicon,
+  set: (value) => emit('update:modelValue', value),
+});
+
 const handleError = () => {
-  favicon.value = false;
+  favicon.value = '';
 };
 </script>
