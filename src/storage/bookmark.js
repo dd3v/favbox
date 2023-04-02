@@ -21,6 +21,14 @@ export default class BookmarkStorage {
         },
       });
     }
+    if (conditions.error === 1) {
+      console.warn('GOOGOGOGO');
+      Object.assign(whereConditions, {
+        error: {
+          in: [404, 410],
+        },
+      });
+    }
     if (conditions.domains.length) {
       Object.assign(whereConditions, {
         domain: {
@@ -101,14 +109,14 @@ export default class BookmarkStorage {
     });
   }
 
-  updateFolders(id, folder) {
+  updateFolders(oldTitle, newTitle) {
     return connection.update({
       in: this.tableName,
       set: {
-        folderName: folder,
+        folderName: newTitle,
       },
       where: {
-        folderId: id,
+        folderName: oldTitle,
       },
     });
   }
@@ -119,6 +127,18 @@ export default class BookmarkStorage {
       limit: 1,
       where: {
         id: parseInt(id, 10),
+      },
+    });
+
+    return response.length === 1 ? response.shift() : null;
+  }
+
+  async getByUrl(url) {
+    const response = await connection.select({
+      from: this.tableName,
+      limit: 1,
+      where: {
+        url: String(url),
       },
     });
 

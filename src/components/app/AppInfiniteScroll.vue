@@ -1,5 +1,8 @@
 <template>
-  <div class="h-full overflow-y-auto " ref="scroll">
+  <div
+    ref="scroll"
+    class="h-full overflow-y-auto"
+  >
     <slot />
   </div>
 </template>

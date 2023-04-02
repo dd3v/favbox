@@ -2,8 +2,9 @@ import { Connection } from 'jsstore';
 import workerInjector from 'jsstore/dist/worker_injector';
 
 const connection = new Connection();
-if (process.env.NODE_ENV !== 'production') {
+connection.addPlugin(workerInjector);
+if (import.meta.env.MODE !== 'production') {
   connection.logStatus = true;
 }
-connection.addPlugin(workerInjector);
+
 export default connection;
