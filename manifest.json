@@ -14,8 +14,7 @@
     "default_popup": "ext/popup/index.html"
   },
   "background": {
-    "service_worker": "ext/background/index.js",
-    "type": "module"
+    "service_worker": "ext/background/index.js"
   },
   "content_scripts": [
     {

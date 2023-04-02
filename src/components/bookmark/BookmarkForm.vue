@@ -161,7 +161,6 @@ const bookmark = computed({
 const folders = computed({
   get: () => props.folders,
 });
-console.warn('FOLDERS', folders);
 const query = ref('');
 const filteredFolders = computed(() => (query.value === ''
   ? folders.value

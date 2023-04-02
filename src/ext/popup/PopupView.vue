@@ -60,8 +60,6 @@ if (bookmark.value === null) {
   };
 }
 
-console.warn(bookmark);
-
 const handleSubmit = async (data) => {
   try {
     if (data.id === null) {
@@ -72,6 +70,10 @@ const handleSubmit = async (data) => {
       });
     } else {
       await chrome.bookmarks.update(String(data.id), {
+        title: tagHelper.toString(data.title, data.tags),
+        url: data.url,
+      });
+      console.warn({
         title: tagHelper.toString(data.title, data.tags),
         url: data.url,
       });
