@@ -23,11 +23,11 @@
         <p class="my-2 break-words text-gray-700 dark:text-neutral-300">
           {{ bookmark.description }}
         </p>
-        <div class="flex flex-wrap space-x-1 space-y-1">
-          <bookmark-tag
-            v-for="(tag, key) in bookmark.tags"
+        <div class="flex space-x-2">
+          <app-badge
+            v-for="(value, key) in bookmark.tags"
             :key="key"
-            :value="tag"
+            :badge="value"
           />
         </div>
       </div>
@@ -36,13 +36,18 @@
   </div>
 </template>
 <script setup>
-import BookmarkTag from '@/components/bookmark/BookmarkTag.vue';
+import { computed } from 'vue';
+import AppBadge from '@/components/app/AppBadge.vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 
-defineProps({
+const props = defineProps({
   bookmark: {
     type: Object,
     required: true,
   },
+});
+
+const bookmark = computed({
+  get: () => props.bookmark,
 });
 </script>

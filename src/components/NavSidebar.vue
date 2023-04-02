@@ -68,6 +68,7 @@ const toggleTheme = useToggle(isDark);
 const props = defineProps({
   modelValue: {
     type: String,
+    default: 'folders',
   },
   items: {
     type: Array,

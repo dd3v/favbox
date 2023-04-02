@@ -44,10 +44,12 @@ const props = defineProps({
   bookmark: {
     type: Object,
     requred: true,
+    default: () => {},
   },
   displayType: {
     type: String,
     requred: true,
+    default: 'masonry',
   },
 });
 defineEmits(['remove', 'preview', 'edit']);

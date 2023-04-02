@@ -26,7 +26,7 @@ export default class BookmarkStorage {
       Object.assign(whereConditions, {
         error: {
           in: [404, 410],
-        }
+        },
       });
     }
     if (conditions.domains.length) {
@@ -109,14 +109,14 @@ export default class BookmarkStorage {
     });
   }
 
-  updateFolders(id, folder) {
+  updateFolders(oldTitle, newTitle) {
     return connection.update({
       in: this.tableName,
       set: {
-        folderName: folder,
+        folderName: newTitle,
       },
       where: {
-        folderId: id,
+        folderName: oldTitle,
       },
     });
   }

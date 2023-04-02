@@ -64,6 +64,7 @@ import { ref, computed } from 'vue';
 const props = defineProps({
   modelValue: {
     type: Array,
+    default: () => [],
   },
   items: {
     type: Array,

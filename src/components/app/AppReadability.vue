@@ -24,10 +24,10 @@
 </template>
 <script setup>
 import DOMPurify from 'dompurify';
-import PageRequest from '@/libs/pageRequest';
 import { parseHTML } from 'linkedom';
 import { Readability, isProbablyReaderable } from '@mozilla/readability';
 import { computed, ref, watchEffect } from 'vue';
+import PageRequest from '@/libs/pageRequest';
 
 const props = defineProps({
   url: {
