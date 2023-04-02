@@ -29,7 +29,7 @@ Key features:
 📖 offers page previews for quick reference;\
 🟢 lets you know if a bookmark already exists, to avoid creating duplicates;\
 🗑️ provides a feature to detect broken URLs;\
-⌨️ provides quick access to search with hotkeys "Ctrl + Shift + K; \
+⌨️ provides quick access to search with hotkeys "Ctrl + Shift + K"; \
 ❤️ free and open source;
 
 ### Building
