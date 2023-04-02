@@ -36,7 +36,7 @@
           @removeAll="removeAllSearchOptions"
         />
         <bookmark-display v-model="displayType" />
-        <error-condition v-model="conditions.error" />
+        <broken-bookmarks v-model="conditions.error" />
       </div>
       <app-infinite-scroll
         ref="scroll"
@@ -109,7 +109,7 @@ import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import bookmarkHelper from '@/helpers/bookmarks';
 import BookmarksSync from '@/components/BookmarksSync.vue';
-import ErrorCondition from '@/components/search/ErrorCondition.vue';
+import BrokenBookmarks from '@/components/search/BrokenBookmarks.vue';
 import SearchTerm from '@/components/search/SearchTerm.vue';
 import SortDirection from '@/components/search/SortDirection.vue';
 import SearchConditions from '@/components/search/SearchConditions.vue';
