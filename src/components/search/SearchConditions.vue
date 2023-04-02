@@ -13,7 +13,7 @@
       />
       <div
         v-if="options.length"
-        class="absolute -top-2 -right-2 inline-flex h-5 w-5 items-center justify-center rounded-full border-white bg-rose-400 text-xs text-white dark:border-gray-900"
+        class="absolute -right-2 -top-2 inline-flex h-5 w-5 items-center justify-center rounded-full border-white bg-rose-400 text-xs text-white dark:border-gray-900"
       >
         {{ options.length }}
       </div>

@@ -105,13 +105,17 @@ const notSaved = '/icons/icon32.png';
   chrome.bookmarks.onChanged.addListener(async (id, changeInfo) => {
     try {
       console.log('🔄 Bookmark has been updated..', id, changeInfo);
-      await bookmarkStorage.update(id, {
-        title: tagHelper.getTitle(changeInfo.title),
-        tags: tagHelper.getTags(changeInfo.title),
-        url: changeInfo.url,
-        updatedAt: new Date().toISOString(),
-      });
-      await bookmarkStorage.updateFolders(id, changeInfo.title);
+      const isFolder = bookmarkStorage.getById(id);
+      if (isFolder === null) {
+        await bookmarkStorage.update(id, {
+          title: tagHelper.getTitle(changeInfo.title),
+          tags: tagHelper.getTags(changeInfo.title),
+          url: changeInfo.url,
+          updatedAt: new Date().toISOString(),
+        });
+      } else {
+        await bookmarkStorage.updateFolders(isFolder.title, changeInfo.title);
+      }
       chrome.runtime.sendMessage({ type: 'swDbUpdated', data: { installed } });
     } catch (e) {
       console.error('🔄', e, id, changeInfo);

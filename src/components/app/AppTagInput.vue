@@ -28,14 +28,14 @@
       class="mt-2 inline-flex flex-wrap"
     >
       <li
-        v-for="(tag, key) in tags"
+        v-for="(value, key) in tags"
         :key="key"
       >
         <span
           class="m-1 mr-2 inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-neutral-700 dark:text-neutral-300"
-          :data-tag="tag"
+          :data-tag="value"
         >
-          <p class="flex-wrap whitespace-nowrap text-xs">{{ tag }}</p>
+          <p class="flex-wrap whitespace-nowrap text-xs">{{ value }}</p>
           <button
             class="-mr-1 ml-1.5 inline-block rounded-full bg-gray-200 p-0.5 text-gray-700 transition hover:text-gray-600 dark:bg-neutral-800 dark:text-neutral-300"
             @click="remove(key)"

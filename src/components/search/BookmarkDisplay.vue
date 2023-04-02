@@ -101,6 +101,7 @@ const props = defineProps({
   modelValue: {
     type: String,
     requred: true,
+    default: 'masonry',
   },
 });
 const emit = defineEmits(['update:modelValue']);

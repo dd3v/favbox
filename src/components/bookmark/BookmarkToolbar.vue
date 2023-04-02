@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="absolute top-0 right-0 z-20 h-screen w-0 overflow-hidden bg-white pl-0 transition-all dark:bg-neutral-900 dark:text-neutral-400"
+      class="absolute right-0 top-0 z-20 h-screen w-0 overflow-hidden bg-white pl-0 transition-all dark:bg-neutral-900 dark:text-neutral-400"
       :style="{
         width: drawerVisible ? '50vw' : '0',
         paddingLeft: drawerVisible ? '10px' : '0',
