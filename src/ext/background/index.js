@@ -275,8 +275,8 @@ const notSaved = '/icons/icon32.png';
       entity = { ...entity, ...pageInfo };
       return entity;
     } catch (e) {
-      console.error(e);
-      entity.error = 1;
+      entity.error = e?.code ?? 0;
+      console.warn(e);
       return entity;
     }
   }
