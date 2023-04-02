@@ -3,6 +3,7 @@
     :is="displayComponent"
     :key="bookmark.id"
     :bookmark="bookmark"
+    :class="{ 'border-rose-400': bookmark.error }"
   >
     <template #actions>
       <div class="invisible absolute right-2 top-2 group-hover:visible">

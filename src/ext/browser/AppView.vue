@@ -36,6 +36,7 @@
           @removeAll="removeAllSearchOptions"
         />
         <bookmark-display v-model="displayType" />
+        <error-condition v-model="conditions.error" />
       </div>
       <app-infinite-scroll
         ref="scroll"
@@ -108,6 +109,7 @@ import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import bookmarkHelper from '@/helpers/bookmarks';
 import BookmarksSync from '@/components/BookmarksSync.vue';
+import ErrorCondition from '@/components/search/ErrorCondition.vue';
 import SearchTerm from '@/components/search/SearchTerm.vue';
 import SortDirection from '@/components/search/SortDirection.vue';
 import SearchConditions from '@/components/search/SearchConditions.vue';
@@ -145,6 +147,7 @@ const defaultConditions = {
   domains: [],
   sort: 'desc',
   term: '',
+  error: 0,
 };
 const searchInputRef = ref(null);
 const showSync = ref(false);
@@ -236,6 +239,7 @@ watch(displayType, () => localStorage.setItem('displayType', displayType.value))
 watch(
   conditions,
   async () => {
+    console.warn(conditions);
     scroll.value?.scrollUp();
     bookmarks.value = await bookmarkStorage.search(toRaw(conditions));
   },
