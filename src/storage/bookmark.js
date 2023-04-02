@@ -22,7 +22,6 @@ export default class BookmarkStorage {
       });
     }
     if (conditions.error === 1) {
-      console.warn('GOOGOGOGO');
       Object.assign(whereConditions, {
         error: {
           in: [404, 410],

@@ -204,7 +204,7 @@ const edit = (e) => {
 
 const handleSubmit = async (bookmark) => {
   try {
-    console.warn(bookmark.id);
+    console.warn(bookmark);
     await chrome.bookmarks.update(String(bookmark.id), {
       title: tagHelper.toString(bookmark.title, bookmark.tags),
       url: bookmark.url,
