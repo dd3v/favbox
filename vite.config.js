@@ -20,10 +20,15 @@ export default defineConfig({
         app: '/ext/browser/index.html',
       },
     },
+    minify: 'terser',
     sourcemap: false,
     // https://developer.chrome.com/docs/webstore/program_policies/#:~:text=Code%20Readability%20Requirements
     terserOptions: {
       mangle: false,
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      },
     },
   },
 });
