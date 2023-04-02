@@ -54,6 +54,7 @@ const content = computed({
 
 watchEffect(async () => {
   try {
+    readabilityResult.value = null;
     loading.value = true;
     readabilityResult.value = await getReadability(props.url);
   } catch (e) {

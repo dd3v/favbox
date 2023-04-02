@@ -25,7 +25,6 @@
     "service_worker": "ext/background/index.js",
     "type": "module"
   },
-  "options_page": "ext/options/index.html",
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
