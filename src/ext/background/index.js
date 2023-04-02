@@ -1,7 +1,6 @@
 import { parseHTML } from 'linkedom';
 import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
-import makeHash from '@/helpers/hash';
 import Parser from '@/libs/parser';
 import PageRequest from '@/libs/pageRequest';
 import tagHelper from '@/helpers/tags';
@@ -29,10 +28,7 @@ const notSaved = '/icons/icon32.png';
       });
       chrome.action.setIcon({
         tabId,
-        path:
-          bookmarkSearchResults.length === 0
-            ? notSaved
-            : saved,
+        path: bookmarkSearchResults.length === 0 ? notSaved : saved,
       });
     }
   });
@@ -56,22 +52,11 @@ const notSaved = '/icons/icon32.png';
     } catch (e) {
       console.error(e);
     }
-    const storageIndex = makeHash(bookmark.url);
-    let pageInfo = await chrome.storage.session.get(storageIndex);
-    console.warn(pageInfo);
-    if (Object.keys(pageInfo).length === 0) {
-      console.log('Cache is empty. Fetching data.. 🌎');
-      try {
-        const page = await new PageRequest(bookmark.url).getData();
-        const { document } = parseHTML(page.text);
-        pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      pageInfo = pageInfo[storageIndex];
-    }
+    console.log('Cache is empty. Fetching data.. 🌎');
     try {
+      const page = await new PageRequest(bookmark.url).getData();
+      const { document } = parseHTML(page.text);
+      const pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
       const folder = folders.find(
         (item) => parseInt(item.id, 10) === parseInt(bookmark.parentId, 10),
       );
@@ -282,6 +267,31 @@ const notSaved = '/icons/icon32.png';
       entity.error = e?.code ?? 0;
       console.warn(e);
       return entity;
+    }
+  }
+
+  // https://developer.chrome.com/blog/longer-esw-lifetimes/
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=1152255
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=1189678
+  chrome.runtime.onConnect.addListener((port) => {
+    if (port.name !== 'favbox') return;
+    port.onMessage.addListener(onMessage);
+    port.onDisconnect.addListener(deleteTimer);
+    port.timer = setTimeout(forceReconnect, 150000, port);
+  });
+
+  function onMessage(msg, port) {
+    console.log('received', msg, 'from', port.sender);
+  }
+  function forceReconnect(port) {
+    console.warn('Reconnect...');
+    deleteTimer(port);
+    port.disconnect();
+  }
+  function deleteTimer(port) {
+    if (port.timer) {
+      clearTimeout(port.timer);
+      delete port.timer;
     }
   }
 })();

@@ -27,7 +27,7 @@ export default defineConfig({
       mangle: false,
       compress: {
         drop_console: true,
-        drop_debugger: true
+        drop_debugger: true,
       },
     },
   },
