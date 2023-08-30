@@ -46,16 +46,25 @@ const notSaved = '/icons/icon32.png';
 
   // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
   chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
-    console.log('🎉 Bookmark has been created..');
     try {
-      updateExtensionIcon(bookmark.url, false);
+      await updateExtensionIcon(bookmark.url, false);
     } catch (e) {
       console.error(e);
     }
-    console.log('Cache is empty. Fetching data.. 🌎');
     try {
-      const page = await new PageRequest(bookmark.url).getData();
-      const { document } = parseHTML(page.text);
+      let page = '';
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tabs.length === 0) {
+        console.log('No tabs. Fetching data.. 🌎');
+        const response = await new PageRequest(bookmark.url).getData();
+        page = response.text;
+      } else {
+        const tab = tabs[0];
+        const response = await chrome.tabs.sendMessage(tab.id, { action: 'getHTML' });
+        page = response.html;
+      }
+      console.warn(page);
+      const { document } = parseHTML(page);
       const pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
       const folder = folders.find(
         (item) => parseInt(item.id, 10) === parseInt(bookmark.parentId, 10),
@@ -80,6 +89,7 @@ const notSaved = '/icons/icon32.png';
         updatedAt: new Date().toISOString(),
       };
       await bookmarkStorage.create(entity);
+      console.log('🎉 Bookmark has been created..');
       chrome.runtime.sendMessage({ type: 'swDbUpdated', data: { installed } });
     } catch (e) {
       console.error('🎉', e, id, bookmark);
@@ -129,12 +139,14 @@ const notSaved = '/icons/icon32.png';
   chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
     try {
       const bookmark = await bookmarkStorage.getById(id);
+      console.warn(bookmark);
       if (bookmark) {
         const bookmarkSearchResults = await chrome.bookmarks.search({
           url: bookmark.url,
         });
+        console.table('Tabs with icon', bookmarkSearchResults);
         if (bookmarkSearchResults.length === 0) {
-          updateExtensionIcon(bookmark.url, true);
+          await updateExtensionIcon(bookmark.url, true);
         }
       }
     } catch (e) {

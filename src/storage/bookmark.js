@@ -56,7 +56,6 @@ export default class BookmarkStorage {
     return connection.insert({
       into: this.tableName,
       values: [entity],
-      return: true,
     });
   }
 

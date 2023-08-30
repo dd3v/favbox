@@ -61,7 +61,7 @@
     </transition-group>
     <div
       v-if="showSuggestions"
-      class="z-10 mt-2 max-h-48 w-full overflow-y-auto rounded-md border-none bg-white py-1 shadow-lg dark:bg-neutral-800"
+      class="z-10 mt-2 max-h-48 w-full overflow-y-auto rounded-md border-none bg-white shadow-lg dark:bg-neutral-800"
     >
       <ul>
         <li
@@ -73,7 +73,7 @@
           aria-selected="true"
           @click="highlightedSuggestionIndex = index; add();"
         >
-          <span>{{ suggest }}</span>
+          <span class="dark:text-white">{{ suggest }}</span>
         </li>
       </ul>
     </div>
