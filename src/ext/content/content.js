@@ -31,7 +31,6 @@ container.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
 container.style.overflow = 'hidden';
 
 const iframe = document.createElement('iframe');
-iframe.src = chrome.runtime.getURL('/ext/browser/index.html');
 iframe.style.width = '100%';
 iframe.style.height = '100%';
 iframe.style.border = 'none';
@@ -57,10 +56,10 @@ backdrop.addEventListener('click', () => {
 document.body.appendChild(backdrop);
 
 const open = () => {
+  iframe.src = chrome.runtime.getURL('/ext/browser/index.html');
+  iframe.contentWindow.postMessage({ type: 'favbox', name: 'iframe' }, '*');
   backdrop.style.display = 'block';
   container.style.display = 'block';
-
-  iframe.contentWindow.postMessage({ type: 'favbox', name: 'iframe' }, '*');
 };
 
 const close = () => {
