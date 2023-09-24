@@ -6,12 +6,14 @@
       :href="bookmark.url"
       target="_blank"
     >
-      <v-lazy-image
-        class="w-full object-cover object-center"
-        :src="bookmark.image ?? placeholder"
-        :alt="bookmark.title"
-        @error="errorHandler"
-      />
+      <div class="flex min-h-[160px] items-center justify-center">
+        <v-lazy-image
+          :src="bookmark.image ?? placeholder"
+          :alt="bookmark.title"
+          class="object-cover object-center"
+          @error="errorHandler"
+        />
+      </div>
       <div class="flex items-center bg-gray-900 p-1">
         <bookmark-favicon
           :favicon="bookmark.favicon"
@@ -22,9 +24,7 @@
         }}</span>
       </div>
       <div class="px-6 py-4">
-        <span
-          class="break-words text-sm font-semibold text-gray-900 dark:text-neutral-100"
-        >{{ bookmark.title }}
+        <span class="break-words text-sm font-semibold text-gray-900 dark:text-neutral-100">{{ bookmark.title }}
         </span>
         <p class="break-words py-2 text-gray-700 dark:text-neutral-300">
           {{ bookmark.description }}
@@ -69,6 +69,7 @@ watch(
   transition: filter 1.1s;
   will-change: filter;
 }
+
 .v-lazy-image-loaded {
   filter: blur(0);
 }

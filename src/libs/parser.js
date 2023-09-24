@@ -36,12 +36,18 @@ export default class Parser {
       'meta[property="og:image"]',
       'meta[name="twitter:image"]',
       'meta[property="og:image:url"]',
+      'meta[name="image"]',
+      'meta[name="og:image"]',
       'link[rel="image_src"]',
       'meta[property="forem:logo"]',
     ];
     let image = this.#html.querySelector(selectors.join(','));
     image = (image?.getAttribute('content') || image?.getAttribute('href'))
       ?? this.getAppleTouchIcon();
+
+    if (image === null) {
+      image = this.#html.querySelector('img')?.getAttribute('src');
+    }
     return image ? new URL(image, this.#url).href : null;
   }
 

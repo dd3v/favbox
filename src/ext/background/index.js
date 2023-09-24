@@ -8,6 +8,7 @@ import bookmarkHelper from '@/helpers/bookmarks';
 
 const saved = '/icons/icon32_saved.png';
 const notSaved = '/icons/icon32.png';
+const requestTimeout = 4000;
 
 (async () => {
   let installed = true;
@@ -56,7 +57,7 @@ const notSaved = '/icons/icon32.png';
       const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tabs.length === 0) {
         console.log('No tabs. Fetching data.. 🌎');
-        const response = await new PageRequest(bookmark.url).getData();
+        const response = await new PageRequest(bookmark.url, requestTimeout).getData();
         page = response.text;
       } else {
         const tab = tabs[0];
@@ -64,8 +65,13 @@ const notSaved = '/icons/icon32.png';
         page = response.html;
       }
       console.warn(page);
-      const { document } = parseHTML(page);
-      const pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
+      let pageInfo = {};
+      try {
+        const { document } = parseHTML(page);
+        pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
+      } catch (e) {
+        console.error('🎉', 'Parsing error..', e);
+      }
       const folder = folders.find(
         (item) => parseInt(item.id, 10) === parseInt(bookmark.parentId, 10),
       );
@@ -271,7 +277,7 @@ const notSaved = '/icons/icon32.png';
       updatedAt: new Date().toISOString(),
     };
     try {
-      const page = await new PageRequest(bookmark.url).getData();
+      const page = await new PageRequest(bookmark.url, requestTimeout).getData();
       const { document } = parseHTML(page.text);
       const pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
       entity = { ...entity, ...pageInfo };

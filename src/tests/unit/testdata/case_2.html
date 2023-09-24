@@ -1,0 +1,1048 @@
+
+<!DOCTYPE html>
+<html lang="en-us"><head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="generator" content="Hugo 0.57.2" />
+	
+	<title>Advanced Encoding and Decoding Techniques in Go | Gopher Academy Blog</title>
+	
+	
+
+	<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Advanced Encoding and Decoding Techniques in Go"/>
+<meta name="twitter:description" content="Advanced Encoding and Decoding Techniques Go&rsquo;s standard library comes packed with some great encoding and decoding packages covering a wide array of encoding schemes. Everything from CSV, XML, JSON, and even gob - a Go specific encoding format - is covered, and all of these packages are incredibly easy to get started with."/>
+
+	<meta property="og:title" content="Advanced Encoding and Decoding Techniques in Go" />
+<meta property="og:description" content="Advanced Encoding and Decoding Techniques Go&rsquo;s standard library comes packed with some great encoding and decoding packages covering a wide array of encoding schemes. Everything from CSV, XML, JSON, and even gob - a Go specific encoding format - is covered, and all of these packages are incredibly easy to get started with." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://blog.gopheracademy.com/advent-2016/advanced-encoding-decoding/" />
+<meta property="article:published_time" content="2016-12-18T00:00:00+00:00" />
+<meta property="article:modified_time" content="2016-12-18T18:40:46+01:00" />
+
+
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+	 crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i" rel="stylesheet">
+	<link href="https://blog.gopheracademy.com/css/medium.css" rel="stylesheet">
+	<link href="https://blog.gopheracademy.com/css/additional.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top mediumnavigation nav-down">
+    <div class="container pr-0">
+        
+        <a class="navbar-brand" href="https://blog.gopheracademy.com/">
+
+            
+            <span style="font-family:Righteous;">Gopher Academy Blog</span>
+            
+        </a>
+        
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMediumish" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        
+        <div class="collapse navbar-collapse" id="navbarMediumish">
+            
+            <ul class="navbar-nav ml-auto">
+                 
+                <li class="nav-item ">
+                    <a class="nav-link" href="https://blog.gopheracademy.com/series">Series</a>
+                </li>
+                 
+                <li class="nav-item ">
+                    <a class="nav-link" href="https://blog.gopheracademy.com/tags">Tags</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</nav>
+
+
+        <div class="site-content">   
+            <div class="container">
+<div class="mainheading">
+    <h1 class="sitetitle">Gopher Academy Blog</h1>
+    <p class="lead">
+         
+    </p>
+</div><div class="main-content">
+        
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-md-2 pl-0"><div class="share sticky-top sticky-top-offset">
+    <p>Share</p>
+    <ul>
+        <li class="ml-1 mr-1">
+        <a target="_blank" href="https://twitter.com/intent/tweet?text=Advanced%20Encoding%20and%20Decoding%20Techniques%20in%20Go&url=https%3a%2f%2fblog.gopheracademy.com%2fadvent-2016%2fadvanced-encoding-decoding%2f" onclick="window.open(this.href, 'twitter-share', 'width=550,height=435');return false;">
+        <i class="fab fa-twitter"></i>
+        </a>
+        </li>
+        
+        <li class="ml-1 mr-1">
+        <a target="_blank" href="https://facebook.com/sharer.php?u=https%3a%2f%2fblog.gopheracademy.com%2fadvent-2016%2fadvanced-encoding-decoding%2f" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+        <i class="fab fa-facebook-f"></i>
+        </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+        <a target="_blank" href="https://www.xing.com/spi/shares/new?url=https%3a%2f%2fblog.gopheracademy.com%2fadvent-2016%2fadvanced-encoding-decoding%2f" onclick="window.open(this.href, 'xing-share', 'width=550,height=435');return false;">
+        <i class="fab fa-xing"></i>
+        </a>
+        </li>        
+    </ul>
+
+    
+</div>
+</div>
+                                
+                <div class="col-md-9 flex-first flex-md-unordered">
+                    <div class="mainheading">
+                        	
+                        <div class="row post-top-meta">
+                            <div class="col-xs-12 col-md-3 col-lg-2 text-center text-md-left mb-4 mb-md-0 md-nopad-right">
+                                <img class="author-thumb" src="https://blog.gopheracademy.com/images/galogo16.png" alt="GopherAcademy">
+                            </div>
+                            <div class="col-xs-12 col-md-9 col-lg-10 text-center text-md-left md-nopad-left">
+                                
+                                <a target="_blank" class="link-dark">Jon Calhoun</a><br>
+                                
+                                <span class="author-description">
+                                    <i class="far fa-star"></i>
+                                    Dec 18, 2016
+                                    <i class="far fa-clock clock"></i>
+                                    19 min read
+                                </span>					
+                            </div>
+                        </div>			
+                        
+                        <h1 class="posttitle">Advanced Encoding and Decoding Techniques in Go</h1> 
+                    </div>
+
+                    
+                    
+                    
+                    
+
+                    
+                    <div class="article-post">
+                        
+
+<h1 id="advanced-encoding-and-decoding-techniques">Advanced Encoding and Decoding Techniques</h1>
+
+<p>Go&rsquo;s standard library comes packed with some great encoding and decoding packages covering a wide array of encoding schemes. Everything from CSV, XML, JSON, and even gob - a Go specific encoding format - is covered, and all of these packages are incredibly easy to get started with. In fact, most of them don&rsquo;t require you to add any code at all; You simply plug in your data and it spits out encoded data.</p>
+
+<p>Unfortunately, not all applications have the pleasure of working with data that maps one-to-one to its JSON representation. Struct tags help cover most of these use cases, but if you work with enough APIs you are bound to eventually come across a case where it just isn&rsquo;t enough.</p>
+
+<p>For example, you might run into an API that outputs different objects to the same key, making it a prime candidate for generics, but Go doesn&rsquo;t have those. Or you might be using an API that accepts and returns <a href="https://en.wikipedia.org/wiki/Unix_time">Unix time</a> instead of RFC 3339; Sure, we could leave it as an int in our code, but it would be much nicer if we could work directly with the <a href="https://golang.org/pkg/time/">time</a> package&rsquo;s <a href="https://golang.org/pkg/time/#Time">Time</a> type.</p>
+
+<p>In this post we are going to review a few techniques that help turn what might seem like a troublesome encoding problem into some fairly easy to follow code. We will be doing this using the <a href="https://golang.org/pkg/encoding/json/">encoding/json</a> package, but it is worth noting that Go provides a <code>Marshaler</code> and <code>Unmarshaler</code> interface for most encoding types, allowing you to customize how your data is encoded and decoded in multiple encoding schemes.</p>
+
+<h2 id="the-always-faithful-new-type-approach">The always-faithful new type approach</h2>
+
+<p>The first technique we are going to examine is to create a new type and convert our data to/from that type before encoding and decoding it. While this isn&rsquo;t technically an encoding specific solution, it is one that works reliably, and is fairly easy to follow. It is also a basic technique that we will be building upon in the next few sections, so it is worth taking some time to look at.</p>
+
+<p>Let&rsquo;s imagine that our application is starting off with a simple <code>Dog</code> type like below.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Dog</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">ID</span>      <span class="kt">int</span>
+  <span class="nx">Name</span>    <span class="kt">string</span>
+  <span class="nx">Breed</span>   <span class="kt">string</span>
+  <span class="nx">BornAt</span>  <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>By default, the <a href="https://golang.org/pkg/time/#Time">time.Time</a> type will be marshaled as RFC 3339. That is, it will turn into a string that looks something like <code>2016-12-07T17:47:35.099008045-05:00</code>.</p>
+
+<p>While there is nothing particularly wrong with this format, we might have a reason to want to encode and decode this field differently. For example, we might be working with an API that sends us a Unix time and expects the same in return.</p>
+
+<p>Regardless of the reason, we need a way to change how this is turned into JSON, along with how it is parsed from JSON. One approach to solving this problem is to simply create a new type, let&rsquo;s call it the <code>JSONDog</code> type, and use that to encode and decode our JSON.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">JSONDog</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">ID</span>     <span class="kt">int</span>    <span class="s">`json:&#34;id&#34;`</span>
+  <span class="nx">Name</span>   <span class="kt">string</span> <span class="s">`json:&#34;name&#34;`</span>
+  <span class="nx">Breed</span>  <span class="kt">string</span> <span class="s">`json:&#34;breed&#34;`</span>
+  <span class="nx">BornAt</span> <span class="kt">int64</span>  <span class="s">`json:&#34;born_at&#34;`</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Now if we want to encode our original <code>Dog</code> type in JSON, all we need to do is convert it into a <code>JSONDog</code> and then marshal that using the <code>encoding/json</code> package.</p>
+
+<p>Starting with a constructor that takes in a <code>Dog</code> and returns a <code>JSONDog</code> we get the following code.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">NewJSONDog</span><span class="p">(</span><span class="nx">dog</span> <span class="nx">Dog</span><span class="p">)</span> <span class="nx">JSONDog</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">JSONDog</span><span class="p">{</span>
+    <span class="nx">dog</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span>
+    <span class="nx">dog</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+    <span class="nx">dog</span><span class="p">.</span><span class="nx">Breed</span><span class="p">,</span>
+    <span class="nx">dog</span><span class="p">.</span><span class="nx">BornAt</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(),</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Putting that together with the <code>encoding/json</code> package we get the following sample.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">dog</span> <span class="o">:=</span> <span class="nx">Dog</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;bowser&#34;</span><span class="p">,</span> <span class="s">&#34;husky&#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">()}</span>
+  <span class="nx">b</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nf">NewJSONDog</span><span class="p">(</span><span class="nx">dog</span><span class="p">))</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Decoding a JSON object into a <code>Dog</code> works very similar to this. We first start by decoding into a <code>JSONDog</code> instance, and then we convert that back to our <code>Dog</code> type using a <code>Dog()</code> method on the <code>JSONDog</code> type.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">jd</span> <span class="nx">JSONDog</span><span class="p">)</span> <span class="nf">Dog</span><span class="p">()</span> <span class="nx">Dog</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">Dog</span><span class="p">{</span>
+    <span class="nx">jd</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span>
+    <span class="nx">jd</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+    <span class="nx">jd</span><span class="p">.</span><span class="nx">Breed</span><span class="p">,</span>
+    <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">jd</span><span class="p">.</span><span class="nx">BornAt</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">b</span> <span class="o">:=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">`{
+</span><span class="s">    &#34;id&#34;:1,
+</span><span class="s">    &#34;name&#34;:&#34;bowser&#34;,
+</span><span class="s">    &#34;breed&#34;:&#34;husky&#34;,
+</span><span class="s">    &#34;born_at&#34;:1480979203}`</span><span class="p">)</span>
+  <span class="kd">var</span> <span class="nx">jsonDog</span> <span class="nx">JSONDog</span>
+  <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">jsonDog</span><span class="p">)</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">jsonDog</span><span class="p">.</span><span class="nf">Dog</span><span class="p">())</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p><em>You can see the full code sample and run it on the Go Playground here: <a href="https://play.golang.org/p/0hEhCL0ltW">https://play.golang.org/p/0hEhCL0ltW</a></em></p>
+
+<p>The primary benefit to this approach is that it will always work because we can always build that translation layer. It doesn&rsquo;t matter if the JSON representation looks nothing like our Go code, so long as we have a way to convert between the two.</p>
+
+<p>In addition to always working, the code is incredibly easy to follow. A new teammate could jump right into this code without missing a beat because there isn&rsquo;t any magic happening. We are just converting data between two types.</p>
+
+<p>Despite the benefits of this technique, there are a few cons. The two biggest are:</p>
+
+<ol>
+<li>It is easy for a developer to forget to convert a <code>Dog</code> into a <code>JSONDog</code>, and</li>
+<li>It takes a lot of extra code, especially if we have a large struct and only a couple fields need customized</li>
+</ol>
+
+<p>Rather than throw this technique out the window, let&rsquo;s take a look at how to tackle both of these problems without sacrificing much code clarity.</p>
+
+<h3 id="implementing-the-marshaler-and-unmarshaler-interfaces">Implementing the <code>Marshaler</code> and <code>Unmarshaler</code> interfaces</h3>
+
+<p>The first problem we saw with the last approach is that it is pretty easy to forget to convert a <code>Dog</code> into a <code>JSONDog</code>, so in this section we are going to discuss how you can implement the <a href="https://golang.org/pkg/encoding/json/#Marshaler">Marshaler</a> and <a href="https://golang.org/pkg/encoding/json/#Unmarshaler">Unmarshaler</a> interfaces in the <code>encoding/json</code> package to make the conversion automatic.</p>
+
+<p>The way these two interfaces work is pretty straight forward; When the <code>encoding/json</code> package runs into a type that implements the <code>Marshaler</code> interface, it uses that type&rsquo;s <code>MarshalJSON()</code> method instead of the default marshaling code to turn the object into JSON. Similarly, when decoding a JSON object it will test to see if the object implements the <code>Unmarshaler</code> interface, and if so it will use the <code>UnmarshalJSON()</code> method instead of the default unmarshaling behavior. That means that all we need to do to ensure our <code>Dog</code> type is always encoded and decoded as a <code>JSONDog</code> is to implement these two methods and do the conversion there.</p>
+
+<p>Once again, we are going to start with encoding first, which means we will be implementing the <code>MarshalJSON() ([]byte, error)</code> method on our <code>Dog</code> type.</p>
+
+<p>While this might feel like a large undertaking at first, we can actually utilize a lot of our existing code to minimize what we need to write. All we really need to do in this method is return the results from calling <code>json.Marshal()</code> on a <code>JSONDog</code> representation of our current <code>Dog</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">d</span> <span class="nx">Dog</span><span class="p">)</span> <span class="nf">MarshalJSON</span><span class="p">()</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nf">NewJSONDog</span><span class="p">(</span><span class="nx">d</span><span class="p">))</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Now it doesn&rsquo;t matter if a developer forgets to convert our <code>Dog</code> type to the <code>JSONDog</code> type; This will happen by default when the <code>Dog</code> is encoded into JSON.</p>
+
+<p>The <code>Unmarshaler</code> implementation ends up being pretty similar. We are going to implement the <code>UnmarshalJSON([]byte) error</code> method, and once again we are going to utilize our existing <code>JSONDog</code> type.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">d</span> <span class="o">*</span><span class="nx">Dog</span><span class="p">)</span> <span class="nf">UnmarshalJSON</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">jd</span> <span class="nx">JSONDog</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">jd</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">err</span>
+  <span class="p">}</span>
+  <span class="o">*</span><span class="nx">d</span> <span class="p">=</span> <span class="nx">jd</span><span class="p">.</span><span class="nf">Dog</span><span class="p">()</span>
+  <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Finally, we update our <code>main()</code> function to use the <code>Dog</code> type for both decoding and encoding instead of the <code>JSONDog</code> type.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">dog</span> <span class="o">:=</span> <span class="nx">Dog</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;bowser&#34;</span><span class="p">,</span> <span class="s">&#34;husky&#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">()}</span>
+  <span class="nx">b</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">dog</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
+
+  <span class="nx">b</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">`{
+</span><span class="s">    &#34;id&#34;:1,
+</span><span class="s">    &#34;name&#34;:&#34;bowser&#34;,
+</span><span class="s">    &#34;breed&#34;:&#34;husky&#34;,
+</span><span class="s">    &#34;born_at&#34;:1480979203}`</span><span class="p">)</span>
+  <span class="nx">dog</span> <span class="p">=</span> <span class="nx">Dog</span><span class="p">{}</span>
+  <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">dog</span><span class="p">)</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">dog</span><span class="p">)</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p><em>You can find a working sample of the code up until this point on the Go Playground here: <a href="https://play.golang.org/p/GR6ckydMxF">https://play.golang.org/p/GR6ckydMxF</a></em></p>
+
+<p>With about 10 lines of code we have overridden the default JSON encoding for our <code>Dog</code> type. Pretty neat, right?</p>
+
+<p>Next we will tackle the other problem we had with our initial approach using embedded data and an alias type.</p>
+
+<h3 id="using-embedded-data-and-an-alias-type-to-reduce-code">Using embedded data and an alias type to reduce code</h3>
+
+<p><em>NOTE: The term &ldquo;alias&rdquo; here is NOT the same as the alias proposed for Go 1.9. This is simply referring to a new type that has the same data as another type, but has its own set of methods.</em></p>
+
+<p>As we saw before, copying all of the data from one type to another just to customize a single field can be pretty tedious. This is amplified even further when we start to work with objects with 10 or 20 fields. Keeping both a <code>JSONDog</code> and a <code>Dog</code> type in sync is just annoying to do.</p>
+
+<p>Luckily, there is another way to tackle this problem that will reduce the fields we need to customize to just those that need custom encoding and decoding. We are going to embed our <code>Dog</code> object inside of our <code>JSONDog</code> and customize the fields that need customizing.</p>
+
+<p>To get started, we first need to update the <code>Dog</code> type and add the JSON struct tags back for fields we won&rsquo;t be customizing, and we will tell the <code>encoding/json</code> package to ignore fields we will be customizing by using the struct tag <code>json:&quot;-&quot;</code> which signifies that the JSON encoder should ignore this field even though it is exported.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Dog</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">ID</span>     <span class="kt">int</span>       <span class="s">`json:&#34;id&#34;`</span>
+  <span class="nx">Name</span>   <span class="kt">string</span>    <span class="s">`json:&#34;name&#34;`</span>
+  <span class="nx">Breed</span>  <span class="kt">string</span>    <span class="s">`json:&#34;breed&#34;`</span>
+  <span class="nx">BornAt</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span> <span class="s">`json:&#34;-&#34;`</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Next, we are going to embed the <code>Dog</code> type inside of our <code>JSONDog</code> type, and update the <code>NewJSONDog()</code> function along with the <code>Dog()</code> method on the <code>JSONDog</code> type. We will also be temporarily renaming the <code>Dog()</code> method to <code>ToDog()</code> so it doesn&rsquo;t collide with the embedded <code>Dog</code> object.</p>
+
+<p><em>Warning: This code will not work just yet, but I am showing this intermediate step to illustrate why it won&rsquo;t work.</em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">NewJSONDog</span><span class="p">(</span><span class="nx">dog</span> <span class="nx">Dog</span><span class="p">)</span> <span class="nx">JSONDog</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">JSONDog</span><span class="p">{</span>
+    <span class="nx">dog</span><span class="p">,</span>
+    <span class="nx">dog</span><span class="p">.</span><span class="nx">BornAt</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(),</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">JSONDog</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">Dog</span>
+  <span class="nx">BornAt</span> <span class="kt">int64</span> <span class="s">`json:&#34;born_at&#34;`</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">jd</span> <span class="nx">JSONDog</span><span class="p">)</span> <span class="nf">ToDog</span><span class="p">()</span> <span class="nx">Dog</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">Dog</span><span class="p">{</span>
+    <span class="nx">jd</span><span class="p">.</span><span class="nx">Dog</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span>
+    <span class="nx">jd</span><span class="p">.</span><span class="nx">Dog</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+    <span class="nx">jd</span><span class="p">.</span><span class="nx">Dog</span><span class="p">.</span><span class="nx">Breed</span><span class="p">,</span>
+    <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">jd</span><span class="p">.</span><span class="nx">BornAt</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Unfortunately, this code won&rsquo;t work. It will compile, but if you try to run it you will run into a <code>fatal error: stack overflow</code> error. This happens when we call the <code>MarshalJSON()</code> method on the <code>Dog</code> type. When this happens, it will construct a <code>JSONDog</code>, but this object has a nested <code>Dog</code> inside of it, which will construct a new <code>JSONDog</code>, and this cycle will repeat infinitely until our application crashes.</p>
+
+<p>To avoid this, we need to create an alias dog type that doesn&rsquo;t have the <code>MarshalJSON()</code> and <code>UnmarsshalJSON()</code> methods.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">DogAlias</span> <span class="nx">Dog</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Once we have our alias type, we can update our <code>JSONDog</code> type to embed this instead of the <code>Dog</code> type. We will also need to update our <code>NewJSONDog()</code> function to convert our <code>Dog</code> into a <code>DogAlias</code>, and we can clean up our <code>Dog()</code> method on the <code>JSONDog</code> type a bit by utilizing the nested <code>Dog</code> as our return value.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">NewJSONDog</span><span class="p">(</span><span class="nx">dog</span> <span class="nx">Dog</span><span class="p">)</span> <span class="nx">JSONDog</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">JSONDog</span><span class="p">{</span>
+    <span class="nf">DogAlias</span><span class="p">(</span><span class="nx">dog</span><span class="p">),</span>
+    <span class="nx">dog</span><span class="p">.</span><span class="nx">BornAt</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(),</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">JSONDog</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">DogAlias</span>
+  <span class="nx">BornAt</span> <span class="kt">int64</span> <span class="s">`json:&#34;born_at&#34;`</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">jd</span> <span class="nx">JSONDog</span><span class="p">)</span> <span class="nf">Dog</span><span class="p">()</span> <span class="nx">Dog</span> <span class="p">{</span>
+  <span class="nx">dog</span> <span class="o">:=</span> <span class="nf">Dog</span><span class="p">(</span><span class="nx">jd</span><span class="p">.</span><span class="nx">DogAlias</span><span class="p">)</span>
+  <span class="nx">dog</span><span class="p">.</span><span class="nx">BornAt</span> <span class="p">=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">jd</span><span class="p">.</span><span class="nx">BornAt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nx">dog</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>As you can see, the initial setup for this took around 30 lines of code, but now that we have it set up, it really doesn&rsquo;t matter how many fields are in the <code>Dog</code> type. Our JSON code will only grow if we increase the number of fields with custom JSON.</p>
+
+<p><em>You can find all of the code from this section on the Go Playground here: <a href="https://play.golang.org/p/N0rweY-cD0">https://play.golang.org/p/N0rweY-cD0</a></em></p>
+
+<h2 id="custom-types-for-specific-fields">Custom types for specific fields</h2>
+
+<p>The approach we looked at in the last section focused heavily on converting our entire object into another type before encoding and decoding it, but even with the embedded alias, we would need to repeat this code for every different type of object that has a <code>time.Time</code> field.</p>
+
+<p>In this section we are going to be looking at an approach that allows us to define how we want a type to encode and decode just once, and then we will reuse that type across our application. Going back to our original example, we are again going to start with the <code>Dog</code> type with a <code>BornAt</code> field that needs custom JSON.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Dog</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">ID</span>     <span class="kt">int</span>       <span class="s">`json:&#34;id&#34;`</span>
+  <span class="nx">Name</span>   <span class="kt">string</span>    <span class="s">`json:&#34;name&#34;`</span>
+  <span class="nx">Breed</span>  <span class="kt">string</span>    <span class="s">`json:&#34;breed&#34;`</span>
+  <span class="nx">BornAt</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span> <span class="s">`json:&#34;born_at&#34;`</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>We already know that this won&rsquo;t work, so rather than using the <code>time.Time</code> type, we are going to create our own <code>Time</code> type, embed the <code>time.Time</code> inside of the new type, and then update our <code>Dog</code> type to use our new <code>Time</code> type.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Dog</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">ID</span>     <span class="kt">int</span>    <span class="s">`json:&#34;id&#34;`</span>
+  <span class="nx">Name</span>   <span class="kt">string</span> <span class="s">`json:&#34;name&#34;`</span>
+  <span class="nx">Breed</span>  <span class="kt">string</span> <span class="s">`json:&#34;breed&#34;`</span>
+  <span class="nx">BornAt</span> <span class="nx">Time</span>   <span class="s">`json:&#34;born_at&#34;`</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Time</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Next, we are going to write a custom <code>MarshalJSON()</code> and <code>UnmarshalJSON()</code> method for our <code>Time</code> type. These will output a Unix time, and parse a Unix time respectively.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="nx">Time</span><span class="p">)</span> <span class="nf">MarshalJSON</span><span class="p">()</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">Time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">Time</span><span class="p">)</span> <span class="nf">UnmarshalJSON</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">i</span> <span class="kt">int64</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">i</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">err</span>
+  <span class="p">}</span>
+  <span class="nx">t</span><span class="p">.</span><span class="nx">Time</span> <span class="p">=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>And that&rsquo;s it! We can now freely use our new <code>Time</code> type in all of our structs and it will be encoded and decoded as a Unix time. On top of that, because we embedded the <code>time.Time</code> object, we can even freely use methods like <code>Day()</code> on our own <code>Time</code> type, meaning a good portion of our code won&rsquo;t need to be rewritten.</p>
+
+<p>That does bring up one of the downsides to this approach; By using a new type, we do stand the chance of breaking some of our code that expects the <code>time.Time</code> type rather than our new <code>Time</code> type. You can update all of your code to use the new type, or you can even access the embedded <code>time.Time</code> object, so it isn&rsquo;t impossible to fix this, but it may require a little bit of refactoring.</p>
+
+<p>Another solution to this problem is to merge this approach with the first one we looked at. That way we get the best of both worlds - our <code>Dog</code> type has a <code>time.Time</code> object, but our <code>JSONDog</code> doesn&rsquo;t need to worry itself with as many specifics for converting between the two types; The conversion logic is all contained within the new <code>Time</code> type.</p>
+
+<p><em>A full example of this can be seen on the Go Playground here: <a href="https://play.golang.org/p/C272eojwTh">https://play.golang.org/p/C272eojwTh</a></em></p>
+
+<h2 id="encoding-and-decoding-generics">Encoding and decoding generics</h2>
+
+<p>The last technique we are going to look at is a little different than the first two we examined, and is meant to solve an entirely different problem - the problem of dynamic types being stored in nested JSON.</p>
+
+<p>For example, imagine you could get the following JSON responses from a server:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="p">{</span>
+  <span class="s">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#34;object&#34;</span><span class="p">:</span> <span class="s">&#34;bank_account&#34;</span><span class="p">,</span>
+    <span class="s">&#34;id&#34;</span><span class="p">:</span> <span class="s">&#34;ba_123&#34;</span><span class="p">,</span>
+    <span class="s">&#34;routing_number&#34;</span><span class="p">:</span> <span class="s">&#34;110000000&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>And from the same endpoint you might also receive the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="p">{</span>
+  <span class="s">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#34;object&#34;</span><span class="p">:</span> <span class="s">&#34;card&#34;</span><span class="p">,</span>
+    <span class="s">&#34;id&#34;</span><span class="p">:</span> <span class="s">&#34;card_123&#34;</span><span class="p">,</span>
+    <span class="s">&#34;last4&#34;</span><span class="p">:</span> <span class="s">&#34;4242&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>At first glance these might look like similar responses with optional data, but they are in fact completely different objects. What you can do with a bank account is different from what you can do with a card, and while I haven&rsquo;t shown them all here, each of these would likely have very different fields.</p>
+
+<p>One solution to this problem would be to use generics, and to set the type of the nested data when decoding the JSON. You have to use the reflect library a bit, but it <em>is possible</em> in a language like Java, and you would end up with some classes like those below.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">class</span> <span class="nf">Data</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="kd">public</span> <span class="nf">T</span> <span class="n">t</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kd">class</span> <span class="nf">Card</span> <span class="p">{...}</span>
+<span class="kd">class</span> <span class="nf">BankAccount</span> <span class="p">{...}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Go, on the other hand, doesn&rsquo;t have generics, so how are we supposed to parse this JSON?</p>
+
+<p>One option is to use a map with our keys being strings, but what data type should we use for our values? Even if we assume it is a nested map, what happens if the card object has an integer value, or a nested JSON object inside of it?</p>
+
+<p>That really limits our options, and we are essentially stuck using the empty interface (<code>interface{}</code>).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">jsonStr</span> <span class="o">:=</span> <span class="s">`
+</span><span class="s">{
+</span><span class="s">  &#34;data&#34;: {
+</span><span class="s">    &#34;object&#34;: &#34;card&#34;,
+</span><span class="s">    &#34;id&#34;: &#34;card_123&#34;,
+</span><span class="s">    &#34;last4&#34;: &#34;4242&#34;
+</span><span class="s">  }
+</span><span class="s">}
+</span><span class="s">`</span>
+  <span class="kd">var</span> <span class="nx">m</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">jsonStr</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">m</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+
+  <span class="nx">b</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Using the empty interface type comes with its own unique set of problems, the most notable being that the empty interface literally tells us nothing about the data. If we want to know anything about the data stored at any key, we are going to need to do a type assertion, and that sucks. Thankfully, there are other ways to approach this problem!</p>
+
+<p>This approach is going to once again take advantage of the <code>Marshaler</code> and <code>Unmarshaler</code> interfaces, but this time we are going to add a bit of conditional logic to our code, and we are going to use a type that has both a pointer to a <code>Card</code>, and a pointer to a <code>BankAccount</code> in it. When we start to decode our JSON, we will first decode the <code>object</code> key to determine which of these two fields we should fill, and then we will fill the corresponding field.</p>
+
+<p>We will start by declaring our types. The <code>BankAccount</code> and <code>Card</code> types are pretty easy - we are mapping the JSON direct to a Go struct.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">BankAccount</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">ID</span>            <span class="kt">string</span> <span class="s">`json:&#34;id&#34;`</span>
+  <span class="nx">Object</span>        <span class="kt">string</span> <span class="s">`json:&#34;object&#34;`</span>
+  <span class="nx">RoutingNumber</span> <span class="kt">string</span> <span class="s">`json:&#34;routing_number&#34;`</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Card</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">ID</span>     <span class="kt">string</span> <span class="s">`json:&#34;id&#34;`</span>
+  <span class="nx">Object</span> <span class="kt">string</span> <span class="s">`json:&#34;object&#34;`</span>
+  <span class="nx">Last4</span>  <span class="kt">string</span> <span class="s">`json:&#34;last4&#34;`</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Next we have our <code>Data</code> type. You are welcome to name this whatever you want, and it might make sense to use something like <code>Source</code> or <code>CardOrBankAccount</code>, but that tends to vary from case to case, so I am sticking with <code>Data</code> for now.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Data</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="o">*</span><span class="nx">Card</span>
+  <span class="o">*</span><span class="nx">BankAccount</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p><em>We are using pointers here because we won&rsquo;t ever be initializing both of these. Instead, we will determine which one needs to be used, and initialize that one. That means in your code that does use this type, you might need to write something like <code>if data.Card != nil { ... }</code> to determine if it is a card. Alternatively, you could also store the <code>Object</code> attribute on the <code>Data</code> type itself. That choice is ultimately up to you, and it may require some minor code tweaks, but the overall approach discussed here should still work.</em></p>
+
+<p>Now that we have a <code>Data</code> type, we are going to update our <code>main()</code> function so it is clear how this object will map to our JSON.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">jsonStr</span> <span class="o">:=</span> <span class="s">`
+</span><span class="s">{
+</span><span class="s">  &#34;data&#34;: {
+</span><span class="s">    &#34;object&#34;: &#34;card&#34;,
+</span><span class="s">    &#34;id&#34;: &#34;card_123&#34;,
+</span><span class="s">    &#34;last4&#34;: &#34;4242&#34;
+</span><span class="s">  }
+</span><span class="s">}
+</span><span class="s">`</span>
+  <span class="kd">var</span> <span class="nx">m</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">Data</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">jsonStr</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">m</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+  <span class="nx">data</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">[</span><span class="s">&#34;data&#34;</span><span class="p">]</span>
+  <span class="k">if</span> <span class="nx">data</span><span class="p">.</span><span class="nx">Card</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">Card</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="nx">data</span><span class="p">.</span><span class="nx">BankAccount</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">BankAccount</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">b</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p><code>Data</code> isn&rsquo;t meant to be the entire JSON structure, but is instead meant to represent everything stored inside the <code>data</code> key in the JSON object. This is important to note, because in our code our <code>Data</code> type has both <code>Card</code> and <code>BankAccount</code> pointers, but in the JSON these won&rsquo;t be nested objects. That means the first thing we need to do is write a <code>MarshalJSON()</code> method to reflect this.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">d</span> <span class="nx">Data</span><span class="p">)</span> <span class="nf">MarshalJSON</span><span class="p">()</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="nx">d</span><span class="p">.</span><span class="nx">Card</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">Card</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nx">d</span><span class="p">.</span><span class="nx">BankAccount</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">BankAccount</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>This code is first checking to see if we have a <code>Card</code> or <code>BankAccount</code> object. If either is present, it will output the JSON for that corresponding object. If neither is present, it will instead output the JSON for <code>nil</code>, which is <code>null</code> in JSON.</p>
+
+<p><em>The last bit of the <code>MarshalJSON()</code> method might vary in your own code. You may want to return an error in cases like this, or you may want to encode an empty map, but for this example we are using <code>nil</code>.</em></p>
+
+<p><code>MarshalJSON()</code> wasn&rsquo;t a big departure from what we have done so far, but the <code>UnmarshalJSON()</code> method is going to be a bit different. In this method we are going to end up parsing the data twice. The first time we are going to parse using a struct that only has an <code>Object</code> field simply so we can determine what type we should be using to decode our JSON, and then we will use that type to decode the JSON.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">d</span> <span class="o">*</span><span class="nx">Data</span><span class="p">)</span> <span class="nf">UnmarshalJSON</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+  <span class="nx">temp</span> <span class="o">:=</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">Object</span> <span class="kt">string</span> <span class="s">`json:&#34;object&#34;`</span>
+  <span class="p">}{}</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">temp</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">err</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="nx">temp</span><span class="p">.</span><span class="nx">Object</span> <span class="o">==</span> <span class="s">&#34;card&#34;</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">c</span> <span class="nx">Card</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">c</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="nx">d</span><span class="p">.</span><span class="nx">Card</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">c</span>
+    <span class="nx">d</span><span class="p">.</span><span class="nx">BankAccount</span> <span class="p">=</span> <span class="kc">nil</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nx">temp</span><span class="p">.</span><span class="nx">Object</span> <span class="o">==</span> <span class="s">&#34;bank_account&#34;</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">ba</span> <span class="nx">BankAccount</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">ba</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="nx">d</span><span class="p">.</span><span class="nx">BankAccount</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">ba</span>
+    <span class="nx">d</span><span class="p">.</span><span class="nx">Card</span> <span class="p">=</span> <span class="kc">nil</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;Invalid object value&#34;</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>There are also a few other minor things going on here, like setting the unused field to nil after decoding the data. I am doing this to ensure that our <code>Data</code> object is cleared of old data, and our encoding code doesn&rsquo;t run into any bugs. This works well in this case because it isn&rsquo;t ever really valid to have both a <code>Card</code> and a <code>BankAccount</code> in our <code>Data</code> type; Only one should ever be set.</p>
+
+<p>I also define the struct with the <code>Object</code> field dynamically, but you could just as easily declare the type elsewhere and use it here.</p>
+
+<p><em>You can find a runnable version of the code from this section on the Go Playground here: <a href="https://play.golang.org/p/gLAgLQv9Et">https://play.golang.org/p/gLAgLQv9Et</a></em></p>
+
+<h2 id="wrapping-up">Wrapping up</h2>
+
+<p>While it is impossible to cover every treacherous way that someone might structure their JSON output, I hope that this post has prepared you for handling any other snags you may find along the way. Just remember, you can always start with two separate types using tools like <a href="https://mholt.github.io/json-to-go/">JSON-to-Go</a> and convert data to/from each type.</p>
+
+<p>I often find that starting with two types can help shed some light on better ways to handle the incoming JSON, and even if it doesn&rsquo;t, always remember that <a href="http://lifehacker.com/5870379/done-is-better-than-perfect">&ldquo;done is better than perfect&rdquo;</a>, and you can always come back and refactor your code when you do come up with a better solution.</p>
+
+                    </div>
+                    
+                    
+                    <div class="after-post-tags">
+                        <ul class="tags">
+                        
+                        </ul>
+                    </div>
+                    
+                    
+                    
+                    <div class="row PageNavigation d-flex justify-content-between font-weight-bold">
+                    
+                        <a class="d-block col-md-6" href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/"> &laquo; So you want to expose Go on the Internet</a>
+                    
+                    
+                        <a class="d-block col-md-6 text-lg-right" href="https://blog.gopheracademy.com/advent-2016/go-syntax-for-dsls/">Abusing Go Syntax to Create a Domain-Specific Language &raquo;</a>
+                    
+                    <div class="clearfix"></div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+    </div>
+
+
+            </div>
+<div class="jumbotron fortags">
+	<div class="d-md-flex h-100">
+		<div class="col-md-4 transpdark align-self-center text-center h-100">
+			<div class="d-md-flex align-items-center justify-content-center h-100">
+				<h2 class="d-md-block d-none align-self-center py-1 font-weight-light">Explore <span class="d-none d-md-inline">→</span></h2>
+			</div>
+		</div>
+		<div class="col-md-8 p-5 align-self-center text-center">
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/bleve">bleve</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/blog">blog</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/community">community</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/deployment">deployment</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/git">git</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/go">go</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/gopher-academy">gopher-academy</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/gophercon">gophercon</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/meta">meta</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/releases">releases</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/revel">revel</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/search">search</a>
+			
+			<a class="mt-1 mb-1" href="https://blog.gopheracademy.com/tags/text">text</a>
+			
+		</div>
+	</div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 text-center text-lg-left">
+                &copy; Copyright Copyright © 2019, GopherAcademy; all rights reserved.
+            </div>
+            <div class="col-md-6 col-sm-6 text-center text-lg-right">    
+                <a target="_blank" rel="noopener" href="https://www.wowthemes.net">Mediumish Theme</a> by WowThemes.net
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+        </div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+<script src="https://blog.gopheracademy.com/js/mediumish.js"></script>
+
+    </body>
+</html>
