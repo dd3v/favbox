@@ -15,6 +15,7 @@
         >
           <bookmark-favicon
             :favicon="bookmark.favicon"
+            :domain="bookmark.domain"
             class="h-4 w-4"
           />
         </span>

@@ -16,6 +16,7 @@
         <bookmark-favicon
           :key="bookmark.id"
           :favicon="bookmark.favicon"
+          :domain="bookmark.domain"
           class="h-3 w-3"
         />
         <span class="mx-3 text-xs font-semibold text-white">{{

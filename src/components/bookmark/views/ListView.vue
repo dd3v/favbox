@@ -12,6 +12,7 @@
       >
         <bookmark-favicon
           :favicon="bookmark.favicon"
+          :domain="bookmark.domain"
           class="h-0 w-0 md:mr-1 md:h-4 md:w-4"
         />
         {{ bookmark.title }}

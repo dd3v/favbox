@@ -6,7 +6,6 @@
       :href="bookmark.url"
       target="_blank"
     >
-    {{ bookmark.favicon }}
       <div class="flex min-h-[160px] items-center justify-center">
         <v-lazy-image
           :src="String(bookmark.image)"
@@ -18,6 +17,7 @@
       <div class="flex items-center bg-gray-900 p-1">
         <bookmark-favicon
           :favicon="bookmark.favicon"
+          :domain="bookmark.domain"
           class="h-3 w-3"
         />
         <span class="mx-3 text-xs font-semibold text-white">{{

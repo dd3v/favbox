@@ -1,15 +1,13 @@
 <template>
   <img
-    v-if="favicon"
     :src="favicon"
     alt="favicon"
     @error="handleError"
   >
-  <globe-alt-icon v-else />
 </template>
 <script setup>
-import { computed } from 'vue';
-import { GlobeAltIcon } from '@heroicons/vue/24/outline';
+import { ref } from 'vue';
+import globe from '@/assets/globe.svg';
 
 const props = defineProps({
   favicon: {
@@ -17,14 +15,16 @@ const props = defineProps({
     required: false,
     default: '',
   },
-});
-const emit = defineEmits(['update:modelValue']);
-const favicon = computed({
-  get: () => props.favicon,
-  set: (value) => emit('update:modelValue', value),
+  domain: {
+    type: String,
+    required: false,
+    default: '',
+  },
 });
 
+const favicon = ref(props.favicon ? props.favicon : `https://${props.domain}/favicon.ico`);
+
 const handleError = () => {
-  favicon.value = '';
+  favicon.value = globe;
 };
 </script>
