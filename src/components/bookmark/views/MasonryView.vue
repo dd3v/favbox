@@ -6,9 +6,10 @@
       :href="bookmark.url"
       target="_blank"
     >
+    {{ bookmark.favicon }}
       <div class="flex min-h-[160px] items-center justify-center">
         <v-lazy-image
-          :src="bookmark.image ?? placeholder"
+          :src="String(bookmark.image)"
           :alt="bookmark.title"
           class="object-cover object-center"
           @error="errorHandler"
@@ -54,7 +55,7 @@ const bookmark = computed({
   get: () => props.bookmark,
 });
 const errorHandler = () => {
-  bookmark.value.image = placeholder;
+  bookmark.value.image = bookmark.value.favicon ? bookmark.value.favicon : placeholder;
 };
 watch(
   () => useDark().value,

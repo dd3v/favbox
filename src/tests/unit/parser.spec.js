@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 describe('Parser Tests', () => {
-  it('Test case 1. Default test case..', async () => {
+  it('Test case 1. Default test case', async () => {
     const filePath = path.join(__dirname, './testdata/case_1.html');
     const file = await fs.readFileSync(filePath);
     const { document } = parseHTML(file.toString());
@@ -19,7 +19,7 @@ describe('Parser Tests', () => {
     expect(parser.getImage()).toBe('https://opengraph.githubassets.com/43afb82228294a6b45d9c10e0b8dd42890be6069e81c0262c861b7c1f5b30d91/chromedp/examples');
   });
 
-  it('Test case 2: When there are no images...', async () => {
+  it('Test case 2: When there are no images', async () => {
     const filePath = path.join(__dirname, './testdata/case_2.html');
     const file = await fs.readFileSync(filePath);
     const { document } = parseHTML(file.toString());
@@ -31,7 +31,7 @@ describe('Parser Tests', () => {
     expect(parser.getImage()).toBe('https://blog.gopheracademy.com/images/galogo16.png');
   });
 
-  it('Test case 3: When favicon path is relative...', async () => {
+  it('Test case 3: When favicon path is relative', async () => {
     const filePath = path.join(__dirname, './testdata/case_3.html');
     const file = await fs.readFileSync(filePath);
     const { document } = parseHTML(file.toString());

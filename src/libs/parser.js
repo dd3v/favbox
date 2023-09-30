@@ -9,9 +9,7 @@ export default class Parser {
   }
 
   getTitle() {
-    const title = this.#html
-      .querySelector('meta[property="og:title"], meta[name="twitter:title"]')
-      ?.getAttribute('content')
+    const title = this.#html.querySelector('meta[property="og:title"], meta[name="twitter:title"]')?.getAttribute('content')
       ?? this.#html.title
       ?? this.#html.querySelector('h1')?.textContent
       ?? this.#html.querySelector('h2')?.textContent;
@@ -25,13 +23,32 @@ export default class Parser {
       'meta[name="twitter:description"]',
       'meta[name="description"]',
     ];
-    return (
-      this.#html.querySelector(selectors.join(','))?.getAttribute('content')
-      ?? null
-    );
+    return this.#html.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
   }
 
-  getImage() {
+  #getLargestImageFromPage() {
+    const images = this.#html.getElementsByTagName('img');
+    let largestImage = null;
+    let largestSize = 0;
+    for (const img of images) {
+      if (img.width >= 300) {
+        const imageSize = img.width * img.height;
+        if (imageSize > largestSize) {
+          largestSize = imageSize;
+          largestImage = img;
+        }
+      }
+    }
+    return largestImage ? largestImage.src : null;
+  }
+
+  #getAppleTouchImageFromPage() {
+    const htmlElem = this.#html.querySelector('link[rel="apple-touch-icon"][sizes="152x152"]');
+    const src = (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
+    return src;
+  }
+
+  #getOGImageFromPage() {
     const selectors = [
       'meta[property="og:image"]',
       'meta[name="twitter:image"]',
@@ -41,31 +58,24 @@ export default class Parser {
       'link[rel="image_src"]',
       'meta[property="forem:logo"]',
     ];
-    let image = this.#html.querySelector(selectors.join(','));
-    image = (image?.getAttribute('content') || image?.getAttribute('href'))
-      ?? this.getAppleTouchIcon();
-
-    if (image === null) {
-      image = this.#html.querySelector('img')?.getAttribute('src');
-    }
-    return image ? new URL(image, this.#url).href : null;
+    const htmlElem = this.#html.querySelector(selectors.join(','));
+    return (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
   }
 
-  getAppleTouchIcon() {
-    let maxSize = 0;
-    let maxIcon = null;
-    const icons = this.#html.querySelectorAll(
-      'link[rel="apple-touch-icon"][sizes]',
-    );
-    // eslint-disable-next-line no-restricted-syntax
-    for (const icon of icons) {
-      const size = parseInt(icon.getAttribute('sizes').split('x')[0], 10);
-      if (size > maxSize) {
-        maxSize = size;
-        maxIcon = icon;
-      }
+  getImage() {
+    let src = this.#getOGImageFromPage();
+
+    if (src === null) {
+      src = this.#getLargestImageFromPage();
     }
-    return maxIcon?.getAttribute('href') ?? null;
+    if (src === null) {
+      src = this.#getAppleTouchImageFromPage();
+    }
+
+    console.warn(src);
+    console.warn(this.#html);
+
+    return src ? new URL(src, this.#url).href : null;
   }
 
   getDomain() {
@@ -74,9 +84,7 @@ export default class Parser {
 
   getFavicon() {
     const selectors = ['link[rel="shortcut icon"]', 'link[rel="icon"]'];
-    const link = this.#html
-      .querySelector(selectors.join(','))
-      ?.getAttribute('href');
+    const link = this.#html.querySelector(selectors.join(','))?.getAttribute('href');
     return link ? new URL(link, this.#url).href : null;
   }
 
@@ -85,11 +93,7 @@ export default class Parser {
   }
 
   getType() {
-    return (
-      this.#html
-        .querySelector('meta[property="og:type"]')
-        ?.getAttribute('content') ?? null
-    );
+    return this.#html.querySelector('meta[property="og:type"]')?.getAttribute('content') ?? null;
   }
 
   getKeywords() {
@@ -97,14 +101,9 @@ export default class Parser {
       'meta[name="keywords"]',
       'meta[name="keynews_keywordswords"]',
     ];
-    const keywords = this.#html
-      .querySelector(selectors.join(','))
-      ?.getAttribute('content');
+    const keywords = this.#html.querySelector(selectors.join(','))?.getAttribute('content');
     if (!keywords || keywords.length === 0) return null;
-    return keywords
-      .split(',')
-      .map((keyword) => keyword.trim())
-      .filter((keyword) => keyword.length > 0);
+    return keywords.split(',').map((keyword) => keyword.trim()).filter((keyword) => keyword.length > 0);
   }
 
   getFullPageInfo() {
