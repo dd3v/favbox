@@ -1,24 +1,24 @@
 import { parseHTML } from 'linkedom';
 import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
-import Parser from '@/libs/parser';
-import PageRequest from '@/libs/pageRequest';
+import Parser from '@/helpers/parser';
+import fetchHelper from '@/helpers/fetch';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmarks';
+import syncBookmarks from './sync';
 
 const saved = '/icons/icon32_saved.png';
 const notSaved = '/icons/icon32.png';
 const requestTimeout = 4000;
 
 (async () => {
-  let installed = true;
-  const dbCreated = await initStorage();
-  if (dbCreated === true) {
-    console.warn('Database created..');
-    installed = true;
-  }
+  await initStorage();
   const bookmarkStorage = new BookmarkStorage();
   const folders = await bookmarkHelper.getFolders();
+
+  chrome.runtime.onInstalled.addListener(async () => {
+    chrome.storage.session.clear();
+  });
 
   // https://developer.chrome.com/docs/extensions/reference/tabs/#event-onUpdated
   chrome.tabs.onUpdated.addListener(async (tabId, info) => {
@@ -48,16 +48,11 @@ const requestTimeout = 4000;
   // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
   chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     try {
-      await updateExtensionIcon(bookmark.url, false);
-    } catch (e) {
-      console.error(e);
-    }
-    try {
       let page = '';
       const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tabs.length === 0) {
         console.log('No tabs. Fetching data.. 🌎');
-        const response = await new PageRequest(bookmark.url, requestTimeout).getData();
+        const response = await fetchHelper.getData(bookmark.url, requestTimeout);
         page = response.text;
       } else {
         const tab = tabs[0];
@@ -96,9 +91,14 @@ const requestTimeout = 4000;
       };
       await bookmarkStorage.create(entity);
       console.log('🎉 Bookmark has been created..');
-      chrome.runtime.sendMessage({ type: 'swDbUpdated', data: { installed } });
+      chrome.runtime.sendMessage({ type: 'swDbUpdated' });
     } catch (e) {
       console.error('🎉', e, id, bookmark);
+    }
+    try {
+      await updateExtensionIcon(bookmark.url, false);
+    } catch (e) {
+      console.error(e);
     }
   });
 
@@ -118,7 +118,7 @@ const requestTimeout = 4000;
       if (folder !== undefined) {
         await bookmarkStorage.updateFolders(folder.title, changeInfo.title);
       }
-      chrome.runtime.sendMessage({ type: 'swDbUpdated', data: { installed } });
+      chrome.runtime.sendMessage({ type: 'swDbUpdated' });
     } catch (e) {
       console.error('🔄', e, id, changeInfo);
     }
@@ -135,7 +135,7 @@ const requestTimeout = 4000;
         folder,
         updatedAt: new Date().toISOString(),
       });
-      chrome.runtime.sendMessage({ type: 'swDbUpdated', data: { installed } });
+      chrome.runtime.sendMessage({ type: 'swDbUpdated' });
     } catch (e) {
       console.error('🗂', e, id, moveInfo);
     }
@@ -161,57 +161,11 @@ const requestTimeout = 4000;
     try {
       console.log('🗑️ Bookmark has been removed..', id, removeInfo);
       await bookmarkStorage.remove(id);
-      chrome.runtime.sendMessage({ type: 'swDbUpdated', data: { installed } });
+      chrome.runtime.sendMessage({ type: 'swDbUpdated' });
     } catch (e) {
       console.error('🗑️', e, id, removeInfo);
     }
   });
-
-  const storage = await chrome.storage.session.get('import');
-  if (storage?.import !== true) {
-    console.time('Execution time');
-    const total = await bookmarkHelper.total();
-    console.log('⭐️ Total bookmarks', total);
-    let batch = [];
-    let processed = 0;
-    const root = await chrome.bookmarks.getChildren('0');
-    for await (const bookmark of traverseTreeRecursively(root)) {
-      processed += 1;
-      batch.push(bookmark);
-      if (batch.length % 10 === 0 || processed === total) {
-        try {
-          await sync(batch);
-          batch = [];
-          const progress = Math.round((processed / total) * 100);
-          chrome.runtime.sendMessage({
-            type: 'swDbUpdated',
-            data: { progress, installed },
-          });
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    await chrome.storage.session.set({ import: true });
-    console.timeEnd('Execution time');
-  } else {
-    console.warn('🕒 Sync in current session already finished..');
-  }
-
-  // service worker funcitions
-  async function* traverseTreeRecursively(bookmarks) {
-    for (const bookmark of bookmarks) {
-      if (Object.hasOwn(bookmark, 'url')) {
-        yield bookmark;
-      } else {
-        // eslint-disable-next-line no-await-in-loop
-        yield* traverseTreeRecursively(
-          // eslint-disable-next-line no-await-in-loop
-          await chrome.bookmarks.getChildren(String(bookmark.id)),
-        );
-      }
-    }
-  }
 
   async function updateExtensionIcon(url, defaultIcon = true) {
     const urlWithoutAnchor = url.replace(/#.*$/, '');
@@ -226,91 +180,5 @@ const requestTimeout = 4000;
     }
   }
 
-  async function sync(bookmarks) {
-    console.warn('syncing bookmarks..', bookmarks);
-    let promises = [];
-    const synced = await bookmarkStorage.getByIds(
-      bookmarks.map((item) => parseInt(item.id, 10)),
-    );
-    if (synced.length === bookmarks.length) return;
-    for (const bookmark of bookmarks) {
-      if (
-        !synced.find(
-          (item) => parseInt(item.id, 10) === parseInt(bookmark.id, 10),
-        )
-      ) {
-        promises.push(fetchBookmark(bookmark));
-      }
-    }
-    try {
-      if (promises.length !== 0) {
-        const response = await Promise.all(promises);
-        console.warn('promisse', response);
-        await bookmarkStorage.createMultiple(response);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      promises = [];
-    }
-  }
-
-  async function fetchBookmark(bookmark) {
-    const folder = folders.find((item) => item.id === bookmark.parentId);
-    let entity = {
-      id: parseInt(bookmark.id, 10),
-      folder,
-      folderName: folder.title,
-      title: tagHelper.getTitle(bookmark.title),
-      description: null,
-      favicon: null,
-      image: null,
-      domain: null,
-      type: null,
-      keywords: [],
-      url: bookmark.url,
-      tags: tagHelper.getTags(bookmark.title),
-      favorite: 0,
-      error: 0,
-      dateAdded: bookmark.dateAdded,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    try {
-      const page = await new PageRequest(bookmark.url, requestTimeout).getData();
-      const { document } = parseHTML(page.text);
-      const pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
-      entity = { ...entity, ...pageInfo };
-      return entity;
-    } catch (e) {
-      entity.error = e?.code ?? 0;
-      console.warn(e);
-      return entity;
-    }
-  }
-
-  // https://developer.chrome.com/blog/longer-esw-lifetimes/
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=1152255
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=1189678
-  chrome.runtime.onConnect.addListener((port) => {
-    if (port.name !== 'favbox') return;
-    port.onMessage.addListener(onMessage);
-    port.onDisconnect.addListener(deleteTimer);
-    port.timer = setTimeout(forceReconnect, 150000, port);
-  });
-
-  function onMessage(msg, port) {
-    console.log('received', msg, 'from', port.sender);
-  }
-  function forceReconnect(port) {
-    console.warn('Reconnect...');
-    deleteTimer(port);
-    port.disconnect();
-  }
-  function deleteTimer(port) {
-    if (port.timer) {
-      clearTimeout(port.timer);
-      delete port.timer;
-    }
-  }
+  syncBookmarks();
 })();

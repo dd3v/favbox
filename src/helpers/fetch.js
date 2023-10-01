@@ -1,18 +1,9 @@
-export default class PageRequest {
-  #url;
-
-  #timeout;
-
-  constructor(url, timeout) {
-    this.#url = url;
-    this.#timeout = timeout;
-  }
-
-  async getData() {
+const fetchHelper = {
+  getData: async (url, timeout = 5000) => {
     try {
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), this.#timeout);
-      const response = await fetch(this.#url, { signal: controller.signal });
+      const id = setTimeout(() => controller.abort(), timeout);
+      const response = await fetch(url, { signal: controller.signal });
       clearTimeout(id);
 
       if (!response.ok) {
@@ -32,5 +23,7 @@ export default class PageRequest {
       }
       throw error;
     }
-  }
-}
+  },
+
+};
+export default fetchHelper;

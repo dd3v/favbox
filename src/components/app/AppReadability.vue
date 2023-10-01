@@ -27,7 +27,7 @@ import DOMPurify from 'dompurify';
 import { parseHTML } from 'linkedom';
 import { Readability, isProbablyReaderable } from '@mozilla/readability';
 import { computed, ref, watchEffect } from 'vue';
-import PageRequest from '@/libs/pageRequest';
+import fetchHelper from '@/helpers/fetch';
 
 const props = defineProps({
   url: {
@@ -40,7 +40,7 @@ const readabilityResult = ref(null);
 const loading = ref(true);
 
 const getReadability = async (url) => {
-  const page = await new PageRequest(url).getData();
+  const page = await fetchHelper.getData(url, 5000);
   const { document } = parseHTML(page.text);
   if (!isProbablyReaderable(document)) {
     return null;
