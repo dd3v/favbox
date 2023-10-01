@@ -6,6 +6,7 @@ import fetchHelper from '@/helpers/fetch';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmarks';
 import syncBookmarks from './sync';
+import ping from './ping';
 
 const saved = '/icons/icon32_saved.png';
 const notSaved = '/icons/icon32.png';
@@ -48,47 +49,24 @@ const requestTimeout = 4000;
   // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
   chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     try {
-      let page = '';
+      let response = {};
       const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tabs.length === 0) {
         console.log('No tabs. Fetching data.. 🌎');
-        const response = await fetchHelper.getData(bookmark.url, requestTimeout);
-        page = response.text;
+        response = await fetchHelper.requestBookmark(bookmark, requestTimeout);
       } else {
         const tab = tabs[0];
-        const response = await chrome.tabs.sendMessage(tab.id, { action: 'getHTML' });
-        page = response.html;
+        const { html } = await chrome.tabs.sendMessage(tab.id, { action: 'getHTML' });
+        response = {
+          html,
+          bookmark,
+          error: 0,
+          contentType: null,
+        };
       }
-      console.warn(page);
-      let pageInfo = {};
-      try {
-        const { document } = parseHTML(page);
-        pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
-      } catch (e) {
-        console.error('🎉', 'Parsing error..', e);
-      }
-      const folder = folders.find(
-        (item) => parseInt(item.id, 10) === parseInt(bookmark.parentId, 10),
-      );
-      const entity = {
-        id: parseInt(bookmark.id, 10),
-        folderName: folder.title,
-        folder,
-        title: tagHelper.getTitle(bookmark.title),
-        url: bookmark.url,
-        description: pageInfo.description ?? null,
-        favicon: pageInfo.favicon ?? null,
-        image: pageInfo.image ?? null,
-        domain: pageInfo.domain ?? null,
-        tags: tagHelper.getTags(bookmark.title),
-        type: pageInfo.type,
-        keywords: pageInfo.keywords,
-        favorite: 0,
-        error: 0,
-        dateAdded: bookmark.dateAdded,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      console.warn(response);
+      const entity = await (new Parser(response)).getFavboxBookmark();
+      console.warn('Entity', entity);
       await bookmarkStorage.create(entity);
       console.log('🎉 Bookmark has been created..');
       chrome.runtime.sendMessage({ type: 'swDbUpdated' });
@@ -180,5 +158,6 @@ const requestTimeout = 4000;
     }
   }
 
+  ping();
   syncBookmarks();
 })();

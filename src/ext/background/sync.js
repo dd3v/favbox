@@ -1,18 +1,15 @@
 import fetchHelper from '@/helpers/fetch';
-import { parseHTML } from 'linkedom';
-import bookmarkHelper from '@/helpers/bookmarks';
-import tagHelper from '@/helpers/tags';
 import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import Parser from '@/helpers/parser';
+import bookmarkHelper from '@/helpers/bookmarks';
 
 let bookmarkStorage = null;
-let folders = [];
 
 const syncBookmarks = async () => {
   await prepareStorage();
   const storage = await chrome.storage.session.get('import');
-  if (storage?.import === true) {
+  if (storage?.import) {
     console.warn('🕒 Sync in current session already finished..');
     return;
   }
@@ -21,21 +18,36 @@ const syncBookmarks = async () => {
   console.log('⭐️ Total bookmarks', total);
   let batch = [];
   let processed = 0;
-  const root = await chrome.bookmarks.getChildren('0');
-  for await (const bookmark of traverseTreeRecursively(root)) {
+  const bookmarksTree = await chrome.bookmarks.getTree();
+  const bookmarks = getFlatBookmarksList(bookmarksTree);
+  console.warn('Bookmarks', bookmarks);
+  for (const bookmark of bookmarks) {
     processed += 1;
     batch.push(bookmark);
-    if (batch.length % 50 === 0 || processed === total) {
-      try {
-        await sync(batch);
+    if (batch.length % 100 === 0 || processed === total) {
+      const batchIdenitifers = batch.map((i) => parseInt(i.id, 10));
+      // eslint-disable-next-line no-await-in-loop
+      const storedBookmarks = await bookmarkStorage.getByIds(batchIdenitifers);
+      const idbBookmarkSet = new Set(storedBookmarks.map((i) => parseInt(i.id, 10)));
+      if (batchIdenitifers.length === idbBookmarkSet.size) {
         batch = [];
+        continue;
+      }
+      try {
+        const requestPromises = batch.filter((i) => !idbBookmarkSet.has(parseInt(i.id, 10))).map((i) => fetchHelper.requestBookmark(i, 3000));
+        // eslint-disable-next-line no-await-in-loop
+        const responses = await Promise.all(requestPromises);
+        const parsePromises = responses.map((response) => parse(response));
+        // eslint-disable-next-line no-await-in-loop
+        const parseResult = await Promise.all(parsePromises);
+        // eslint-disable-next-line no-await-in-loop
+        await bookmarkStorage.createMultiple(parseResult);
         const progress = Math.round((processed / total) * 100);
-        chrome.runtime.sendMessage({
-          type: 'swDbUpdated',
-          data: { progress },
-        });
+        chrome.runtime.sendMessage({ type: 'swDbUpdated', data: { progress } });
       } catch (e) {
         console.error(e);
+      } finally {
+        batch = [];
       }
     }
   }
@@ -43,86 +55,32 @@ const syncBookmarks = async () => {
   console.timeEnd('Execution time');
 };
 
+async function parse(response) {
+  const parser = new Parser(response);
+  const bookmark = await parser.getFavboxBookmark();
+  return bookmark;
+}
+
 async function prepareStorage() {
   const dbCreated = await initStorage();
   if (dbCreated === true) {
     console.warn('Database created..');
   }
   bookmarkStorage = new BookmarkStorage();
-  folders = await bookmarkHelper.getFolders();
 }
 
-async function* traverseTreeRecursively(bookmarks) {
-  for (const bookmark of bookmarks) {
-    if (Object.hasOwn(bookmark, 'url')) {
-      yield bookmark;
-    } else {
-      // eslint-disable-next-line no-await-in-loop
-      yield* traverseTreeRecursively(
-        // eslint-disable-next-line no-await-in-loop
-        await chrome.bookmarks.getChildren(String(bookmark.id)),
-      );
+function getFlatBookmarksList(bookmarksTree) {
+  const flatBookmarks = [];
+  function processNode(node) {
+    if (node.url) {
+      flatBookmarks.push(node);
+    }
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(processNode);
     }
   }
-}
-
-async function sync(bookmarks) {
-  console.warn('syncing bookmarks..', bookmarks);
-  let promises = [];
-  const synced = await bookmarkStorage.getByIds(
-    bookmarks.map((item) => parseInt(item.id, 10)),
-  );
-  if (synced.length === bookmarks.length) return;
-  for (const bookmark of bookmarks) {
-    if (!synced.find((item) => parseInt(item.id, 10) === parseInt(bookmark.id, 10))) {
-      promises.push(fetchBookmark(bookmark));
-    }
-  }
-  try {
-    if (promises.length !== 0) {
-      const response = await Promise.all(promises);
-      console.warn('promisse', response);
-      await bookmarkStorage.createMultiple(response);
-    }
-  } catch (e) {
-    console.error(e);
-  } finally {
-    promises = [];
-  }
-}
-
-async function fetchBookmark(bookmark) {
-  const folder = folders.find((item) => item.id === bookmark.parentId);
-  let entity = {
-    id: parseInt(bookmark.id, 10),
-    folder,
-    folderName: folder.title,
-    title: tagHelper.getTitle(bookmark.title),
-    description: null,
-    favicon: null,
-    image: null,
-    domain: null,
-    type: null,
-    keywords: [],
-    url: bookmark.url,
-    tags: tagHelper.getTags(bookmark.title),
-    favorite: 0,
-    error: 0,
-    dateAdded: bookmark.dateAdded,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  try {
-    const page = await fetchHelper.getData(bookmark.url, 5000);
-    const { document } = parseHTML(page.text);
-    const pageInfo = new Parser(bookmark.url, document).getFullPageInfo();
-    entity = { ...entity, ...pageInfo };
-    return entity;
-  } catch (e) {
-    entity.error = e?.code ?? 0;
-    console.warn(e);
-    return entity;
-  }
+  bookmarksTree.forEach(processNode);
+  return flatBookmarks;
 }
 
 export default syncBookmarks;

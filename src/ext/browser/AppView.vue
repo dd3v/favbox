@@ -262,7 +262,7 @@ onMounted(async () => {
 chrome.runtime.onMessage.addListener(async (message) => {
   // handle updates from service worker
   if (message.type === 'swDbUpdated') {
-    if (message.data.progress !== undefined && message.data.progress <= 100) {
+    if (message.data?.progress && message.data.progress <= 100) {
       showSync.value = true;
       syncProgress.value = message.data.progress;
     }

@@ -93,22 +93,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ html: document.documentElement.outerHTML });
   }
 });
-
-
-function getLargestImageFromPage() {
-  const images = document.body.getElementsByTagName('img');
-  let largestImage = null;
-  let largestSize = 0;
-  for (const img of images) {
-    if (img.width >= 72) {
-      const imageSize = img.width * img.height;
-      if (imageSize > largestSize) {
-        largestSize = imageSize;
-        largestImage = img;
-      }
-    }
-  }
-  return largestImage ? largestImage.src : null;
-}
-
-console.warn('IMAGE', getLargestImageFromPage());

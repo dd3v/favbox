@@ -1,11 +1,19 @@
+import { parseHTML } from 'linkedom';
+import bookmarkHelper from '@/helpers/bookmarks';
+import tagHelper from '@/helpers/tags';
+
 export default class Parser {
   #html;
 
-  #url;
+  #hasError;
 
-  constructor(url, html) {
-    this.#url = url;
-    this.#html = html;
+  #bookmark;
+
+  constructor(response) {
+    const { document } = parseHTML(response.html);
+    this.#bookmark = response.bookmark;
+    this.#html = document;
+    this.#hasError = response.error;
   }
 
   getTitle() {
@@ -13,7 +21,6 @@ export default class Parser {
       ?? this.#html.title
       ?? this.#html.querySelector('h1')?.textContent
       ?? this.#html.querySelector('h2')?.textContent;
-
     return title || null;
   }
 
@@ -26,19 +33,20 @@ export default class Parser {
     return this.#html.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
   }
 
-  #getLargestImageFromPage() {
+  #getImageWithAltFromPage() {
     const images = this.#html.getElementsByTagName('img');
     let largestImage = null;
     let largestSize = 0;
     for (const img of images) {
-      if (img.width >= 300) {
-        const imageSize = img.width * img.height;
+      if (img.alt.length >= 45) {
+        const imageSize = img.alt.length;
         if (imageSize > largestSize) {
           largestSize = imageSize;
           largestImage = img;
         }
       }
     }
+
     return largestImage ? largestImage.src : null;
   }
 
@@ -63,37 +71,54 @@ export default class Parser {
   }
 
   getImage() {
-    let src = this.#getOGImageFromPage();
-
-    if (src === null) {
-      src = this.#getLargestImageFromPage();
-    }
-    if (src === null) {
-      src = this.#getAppleTouchImageFromPage();
-    }
+    const src = this.#getOGImageFromPage() || this.#getAppleTouchImageFromPage() || this.#getImageWithAltFromPage();
 
     console.warn(src);
-    console.warn(this.#html);
-
-    return src ? new URL(src, this.#url).href : null;
+    return src ? new URL(src, this.#bookmark.url).href : null;
   }
 
   getDomain() {
-    return new URL(this.#url).hostname;
+    return new URL(this.#bookmark.url).hostname;
   }
 
-  getFavicon() {
+  async #pingFavicon() {
+    try {
+      if (this.#hasError) return false;
+      const url = `https://${this.getDomain()}/favicon.ico`;
+      const response = await fetch(url, { method: 'HEAD' });
+      if (response.status === 200) {
+        return url;
+      }
+      return false;
+    } catch (error) {
+      console.warn(error);
+      return false;
+    }
+  }
+
+  async getFavicon() {
     const selectors = ['link[rel="shortcut icon"]', 'link[rel="icon"]'];
     const link = this.#html.querySelector(selectors.join(','))?.getAttribute('href');
-    return link ? new URL(link, this.#url).href : null;
+
+    if (link) {
+      return new URL(link, this.#bookmark.url).href;
+    }
+
+    const icon = await this.#pingFavicon();
+    return icon || null;
   }
 
   getUrl() {
-    return this.#url;
+    return this.#bookmark.url;
   }
 
   getType() {
     return this.#html.querySelector('meta[property="og:type"]')?.getAttribute('content') ?? null;
+  }
+
+  async getFolder() {
+    const folders = await bookmarkHelper.getFolders();
+    return folders.find((item) => item.id === this.#bookmark.parentId);
   }
 
   getKeywords() {
@@ -106,16 +131,27 @@ export default class Parser {
     return keywords.split(',').map((keyword) => keyword.trim()).filter((keyword) => keyword.length > 0);
   }
 
-  getFullPageInfo() {
-    return {
-      title: this.getTitle(),
+  async getFavboxBookmark() {
+    const folder = await this.getFolder();
+    const entity = {
+      id: parseInt(this.#bookmark.id, 10),
+      folder,
+      folderName: folder.title,
+      title: tagHelper.getTitle(this.#bookmark.title),
       description: this.getDescription(),
+      favicon: await this.getFavicon(),
       image: this.getImage(),
       domain: this.getDomain(),
-      favicon: this.getFavicon(),
-      url: this.getUrl(),
-      keywords: this.getKeywords(),
       type: this.getType(),
+      keywords: this.getKeywords(),
+      url: this.#bookmark.url,
+      tags: tagHelper.getTags(this.#bookmark.title),
+      favorite: 0,
+      error: this.#hasError,
+      dateAdded: this.#bookmark.dateAdded,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
+    return entity;
   }
 }
