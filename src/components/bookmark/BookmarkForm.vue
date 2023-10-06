@@ -103,7 +103,7 @@
         v-model="bookmark.tags"
         :max="5"
         :suggestions="tags"
-        placeholder="Enter a tag"
+        placeholder="Enter a tag and press enter or tab"
       />
     </div>
     <div class="relative my-4 flex w-full justify-between">

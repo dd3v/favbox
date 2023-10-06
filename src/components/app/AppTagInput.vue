@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col">
     <div class="relative">
-      <span
-        class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500"
-      >
+      <span class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500">
         <hashtag-icon class="h-4 w-4 text-gray-700 dark:text-neutral-200" />
       </span>
       <input
@@ -21,6 +19,28 @@
         @keydown.arrow-up.prevent="arrowUp"
         @keydown.arrow-down.prevent="arrowDown"
       >
+    </div>
+    <span
+      v-if="showSuggestions"
+      class="left-0 top-10 z-20 -mt-1 ml-3 h-2 w-2 rotate-45 border-b border-r border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-800"
+    />
+    <div
+      v-if="showSuggestions"
+      class="absolute top-10 z-10 max-h-48 w-full overflow-y-auto rounded-md border border-gray-200 bg-white shadow-md dark:border-neutral-700 dark:bg-neutral-800"
+    >
+      <ul>
+        <li
+          v-for="(suggest, index) in filteredSuggestions"
+          :key="suggest"
+          class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-600 dark:hover:text-white"
+          :class="{ 'bg-neutral-50 dark:bg-neutral-700': highlightedSuggestionIndex === index }"
+          role="option"
+          aria-selected="true"
+          @click="highlightedSuggestionIndex = index; add();"
+        >
+          <span class="dark:text-white">{{ suggest }}</span>
+        </li>
+      </ul>
     </div>
     <transition-group
       name="list"
@@ -59,24 +79,6 @@
         </span>
       </li>
     </transition-group>
-    <div
-      v-if="showSuggestions"
-      class="z-10 mt-2 max-h-48 w-full overflow-y-auto rounded-md border-none bg-white shadow-lg dark:bg-neutral-800"
-    >
-      <ul>
-        <li
-          v-for="(suggest, index) in filteredSuggestions"
-          :key="suggest"
-          class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-600 dark:hover:text-white"
-          :class="{ 'bg-neutral-50 dark:bg-neutral-700': highlightedSuggestionIndex === index }"
-          role="option"
-          aria-selected="true"
-          @click="highlightedSuggestionIndex = index; add();"
-        >
-          <span class="dark:text-white">{{ suggest }}</span>
-        </li>
-      </ul>
-    </div>
   </div>
 </template>
 <script setup>
@@ -84,6 +86,7 @@ import {
   ref, computed, watch, onMounted, onUnmounted,
 } from 'vue';
 import { HashtagIcon } from '@heroicons/vue/20/solid';
+import { Tab } from '@headlessui/vue';
 
 const props = defineProps({
   max: {
@@ -137,6 +140,7 @@ const add = () => {
     tags.value.push(value);
   }
   tag.value = '';
+  showSuggestions.value = false;
 };
 const arrowUp = () => {
   if (highlightedSuggestionIndex.value !== 0) {
@@ -156,6 +160,9 @@ watch(tag, () => {
   if (filteredSuggestions.value.length) {
     showSuggestions.value = true;
   }
+  if (!tag.value || filteredSuggestions.value.length === 0) {
+    showSuggestions.value = false;
+  }
 });
 onMounted(() => {
   document.addEventListener('click', hideSuggestions);
@@ -169,6 +176,7 @@ onUnmounted(() => {
 .list-leave-active {
   transition: all 0.1s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
