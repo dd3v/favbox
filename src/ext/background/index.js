@@ -1,4 +1,3 @@
-import { parseHTML } from 'linkedom';
 import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import Parser from '@/helpers/parser';
@@ -56,9 +55,9 @@ const requestTimeout = 4000;
         response = await fetchHelper.requestBookmark(bookmark, requestTimeout);
       } else {
         const tab = tabs[0];
-        const { html } = await chrome.tabs.sendMessage(tab.id, { action: 'getHTML' });
+        const content = await chrome.tabs.sendMessage(tab.id, { action: 'getHTML' });
         response = {
-          html,
+          html: content?.html,
           bookmark,
           error: 0,
           contentType: null,
