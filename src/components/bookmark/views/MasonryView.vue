@@ -6,18 +6,10 @@
       :href="bookmark.url"
       target="_blank"
     >
-      <div class="flex min-h-[160px] items-center justify-center">
-        <v-lazy-image
-          :src="String(bookmark.image)"
-          :alt="bookmark.title"
-          class="object-cover object-center"
-          @error="errorHandler"
-        />
-      </div>
+      <bookmark-image :bookmark="bookmark" />
       <div class="flex items-center bg-gray-900 p-1">
         <bookmark-favicon
-          :favicon="bookmark.favicon"
-          :domain="bookmark.domain"
+          :bookmark="bookmark"
           class="h-3 w-3"
         />
         <span class="mx-3 text-xs font-semibold text-white">{{
@@ -36,12 +28,9 @@
   </div>
 </template>
 <script setup>
-import VLazyImage from 'v-lazy-image';
-import { computed, ref, watch } from 'vue';
-import { useDark } from '@vueuse/core';
+import { computed } from 'vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
-import placeholderDark from '@/assets/placeholder_dark.svg';
-import placeholderLight from '@/assets/placeholder.svg';
+import BookmarkImage from '@/components/bookmark/BookmarkImage.vue';
 
 const props = defineProps({
   bookmark: {
@@ -49,29 +38,7 @@ const props = defineProps({
     required: true,
   },
 });
-
-const placeholder = ref(useDark().value ? placeholderDark : placeholderLight);
 const bookmark = computed({
   get: () => props.bookmark,
 });
-const errorHandler = () => {
-  bookmark.value.image = bookmark.value.favicon ? bookmark.value.favicon : placeholder;
-};
-watch(
-  () => useDark().value,
-  () => {
-    placeholder.value = useDark().value ? placeholderDark : placeholderLight;
-  },
-);
 </script>
-<style scoped>
-.v-lazy-image {
-  filter: blur(5px);
-  transition: filter 1.1s;
-  will-change: filter;
-}
-
-.v-lazy-image-loaded {
-  filter: blur(0);
-}
-</style>

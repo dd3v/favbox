@@ -9,13 +9,11 @@
           placeholder="Page title"
           class="w-full rounded-md border-gray-200 pl-10 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600"
         >
-
         <span
           class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-700"
         >
           <bookmark-favicon
-            :favicon="bookmark.favicon"
-            :domain="bookmark.domain"
+            :bookmark="bookmark"
             class="h-4 w-4"
           />
         </span>
