@@ -15,12 +15,6 @@
         </button>
         <button
           class="m-1 rounded-full bg-gray-800 p-1.5 text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:ring-0"
-          @click="$emit('preview', bookmark)"
-        >
-          <newspaper-icon class="h-4 w-4" />
-        </button>
-        <button
-          class="m-1 rounded-full bg-gray-800 p-1.5 text-white shadow-lg transition duration-150 ease-in-out hover:bg-gray-900 hover:shadow-lg focus:bg-gray-900 focus:ring-0"
           @click="$emit('edit', bookmark)"
         >
           <pencil-square-icon class="h-4 w-4" />
@@ -31,7 +25,6 @@
 </template>
 <script setup>
 import {
-  NewspaperIcon,
   TrashIcon,
   PencilSquareIcon,
 } from '@heroicons/vue/24/outline';

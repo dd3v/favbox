@@ -59,22 +59,12 @@
             :display-type="displayType"
             :bookmark="bookmark"
             @remove="handleRemoveBookmark"
-            @preview="preview"
             @edit="edit"
           />
         </bookmark-layout>
       </app-infinite-scroll>
     </div>
     <bookmark-toolbar ref="drawer">
-      <template #preview>
-        <app-readability :url="currentBookmark.url">
-          <template #spinner>
-            <app-spinner
-              class="flex h-screen w-full flex-col items-center justify-center"
-            />
-          </template>
-        </app-readability>
-      </template>
       <template #edit>
         <bookmark-form
           v-model="currentBookmark"
@@ -116,7 +106,6 @@ import SearchConditions from '@/components/search/SearchConditions.vue';
 import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
-import AppReadability from '@/components/app/AppReadability.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
@@ -190,16 +179,10 @@ const handleRemoveBookmark = async (bookmark) => {
   }
 };
 
-const preview = (e) => {
-  console.warn('preview', e);
-  currentBookmark.value = e;
-  drawer.value.preview();
-};
-
 const edit = (e) => {
   currentBookmark.value = e;
   console.warn('edit', e);
-  drawer.value.edit();
+  drawer.value.open();
 };
 
 const handleSubmit = async (bookmark) => {
