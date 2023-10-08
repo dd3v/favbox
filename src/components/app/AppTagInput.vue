@@ -86,7 +86,6 @@ import {
   ref, computed, watch, onMounted, onUnmounted,
 } from 'vue';
 import { HashtagIcon } from '@heroicons/vue/20/solid';
-import { Tab } from '@headlessui/vue';
 
 const props = defineProps({
   max: {

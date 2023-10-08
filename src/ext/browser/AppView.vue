@@ -106,7 +106,6 @@ import SearchConditions from '@/components/search/SearchConditions.vue';
 import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
-import AppSpinner from '@/components/app/AppSpinner.vue';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 

@@ -53,7 +53,6 @@ const gradient = computed({
 });
 const fontSize = computed({
   get: () => {
-    console.warn(props.bookmark.title);
     if (props.bookmark.title.length < 20) {
       return 'text-4xl';
     } if (props.bookmark.title.length < 30) {

@@ -2,10 +2,11 @@
   <img
     :src="favicon"
     alt="favicon"
+    @error="handleError"
   >
 </template>
 <script setup>
-import { computed } from 'vue';
+import { ref, onBeforeUpdate } from 'vue';
 import globe from '@/assets/globe.svg';
 
 const props = defineProps({
@@ -15,7 +16,13 @@ const props = defineProps({
   },
 });
 
-const favicon = computed({
-  get: () => props.bookmark.favicon ?? globe,
+const favicon = ref(props.bookmark.favicon || globe);
+
+const handleError = () => {
+  favicon.value = globe;
+};
+
+onBeforeUpdate(() => {
+  favicon.value = props.bookmark.favicon || globe;
 });
 </script>

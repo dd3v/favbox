@@ -76,7 +76,7 @@ const selected = computed({
 const term = ref('');
 const list = computed(() => {
   if (term.value.length === 0) {
-    return props.items;
+    return [...new Set(props.items)];
   }
   return props.items.filter((item) => item.toLowerCase().includes(term.value.toLowerCase()));
 });
