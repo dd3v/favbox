@@ -33,23 +33,6 @@ export default class Parser {
     return this.#html.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
   }
 
-  #getImageWithAltFromPage() {
-    const images = this.#html.getElementsByTagName('img');
-    let largestImage = null;
-    let largestSize = 0;
-    for (const img of images) {
-      if (img.alt.length >= 45) {
-        const imageSize = img.alt.length;
-        if (imageSize > largestSize) {
-          largestSize = imageSize;
-          largestImage = img;
-        }
-      }
-    }
-
-    return largestImage ? largestImage.src : null;
-  }
-
   #getAppleTouchImageFromPage() {
     const htmlElem = this.#html.querySelector('link[rel="apple-touch-icon"][sizes="152x152"]');
     const src = (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
@@ -71,9 +54,7 @@ export default class Parser {
   }
 
   getImage() {
-    const src = this.#getOGImageFromPage() || this.#getAppleTouchImageFromPage() || this.#getImageWithAltFromPage();
-
-    console.warn(src);
+    const src = this.#getOGImageFromPage() || this.#getAppleTouchImageFromPage();
     return src ? new URL(src, this.#bookmark.url).href : null;
   }
 

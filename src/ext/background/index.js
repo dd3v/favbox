@@ -9,7 +9,6 @@ import ping from './ping';
 
 const saved = '/icons/icon32_saved.png';
 const notSaved = '/icons/icon32.png';
-const requestTimeout = 4000;
 
 (async () => {
   await initStorage();
@@ -47,14 +46,19 @@ const requestTimeout = 4000;
 
   // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
   chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
+    if (bookmark.url === undefined) {
+      chrome.runtime.sendMessage({ action: 'refresh' });
+      return;
+    }
     try {
       let response = {};
       const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tabs.length === 0) {
         console.log('No tabs. Fetching data.. 🌎');
-        response = await fetchHelper.requestBookmark(bookmark, requestTimeout);
+        response = await fetchHelper.requestBookmark(bookmark, 7000);
       } else {
         const tab = tabs[0];
+        console.warn(tab);
         const content = await chrome.tabs.sendMessage(tab.id, { action: 'getHTML' });
         response = {
           html: content?.html,
@@ -65,10 +69,19 @@ const requestTimeout = 4000;
       }
       console.warn(response);
       const entity = await (new Parser(response)).getFavboxBookmark();
+      if (entity.image === null && tabs.length) {
+        try {
+          console.warn('📸 No image, take a screenshot', tabs[0]);
+          const screenshot = await chrome.tabs.captureVisibleTab(tabs[0].windowId, { format: 'png' });
+          entity.image = screenshot;
+        } catch (e) {
+          console.error('📸', e);
+        }
+      }
       console.warn('Entity', entity);
       await bookmarkStorage.create(entity);
       console.log('🎉 Bookmark has been created..');
-      chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+      chrome.runtime.sendMessage({ action: 'refresh' });
     } catch (e) {
       console.error('🎉', e, id, bookmark);
     }
@@ -95,7 +108,7 @@ const requestTimeout = 4000;
       if (folder !== undefined) {
         await bookmarkStorage.updateFolders(folder.title, changeInfo.title);
       }
-      chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+      chrome.runtime.sendMessage({ action: 'refresh' });
     } catch (e) {
       console.error('🔄', e, id, changeInfo);
     }
@@ -112,7 +125,7 @@ const requestTimeout = 4000;
         folder,
         updatedAt: new Date().toISOString(),
       });
-      chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+      chrome.runtime.sendMessage({ action: 'refresh' });
     } catch (e) {
       console.error('🗂', e, id, moveInfo);
     }
@@ -138,7 +151,7 @@ const requestTimeout = 4000;
     try {
       console.log('🗑️ Bookmark has been removed..', id, removeInfo);
       await bookmarkStorage.remove(id);
-      chrome.runtime.sendMessage({ type: 'swDbUpdated' });
+      chrome.runtime.sendMessage({ action: 'refresh' });
     } catch (e) {
       console.error('🗑️', e, id, removeInfo);
     }
