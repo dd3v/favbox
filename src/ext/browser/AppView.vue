@@ -1,7 +1,6 @@
 <template>
   <div class="flex w-full overflow-y-hidden">
     <section
-      v-if="visible"
       class="flex"
     >
       <nav-sidebar
@@ -111,8 +110,6 @@ import tagHelper from '@/helpers/tags';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
-
-const visible = ref(true);
 
 const bookmarkFolders = ref(await bookmarkHelper.getFolders());
 
@@ -254,19 +251,4 @@ chrome.runtime.onMessage.addListener(async (message) => {
     domains.value = await bookmarkStorage.getDomains();
   }
 });
-
-window.addEventListener('message', (event) => {
-  if (event.data.type === 'favbox' && event.data.name === 'iframe') {
-    visible.value = false;
-    searchInputRef.value.input.focus();
-    displayType.value = 'list';
-  }
-});
-
-document.addEventListener('keydown', (event) => {
-  if (event.keyCode === 27) {
-    window?.parent.postMessage({ type: 'favbox', name: 'close' }, '*');
-  }
-});
 </script>
-<style scoped></style>
