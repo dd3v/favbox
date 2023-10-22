@@ -16,7 +16,10 @@
     class="flex h-32 w-full items-center justify-center"
     :class="gradient"
   >
-    <span :class="`p-3 drop-shadow-lg text-white ${fontSize}`">{{ title }}</span>
+    <span
+      class="p-3 text-white drop-shadow-lg"
+      style="font-size: calc(0.4rem + 1vw);"
+    >{{ title }}</span>
   </div>
 </template>
 
@@ -50,15 +53,5 @@ const gradients = [
 ];
 const gradient = computed({
   get: () => gradients[Math.floor(Math.random() * gradients.length)],
-});
-const fontSize = computed({
-  get: () => {
-    if (props.bookmark.title.length < 20) {
-      return 'text-4xl';
-    } if (props.bookmark.title.length < 30) {
-      return 'text-lg';
-    }
-    return 'text-sm';
-  },
 });
 </script>
