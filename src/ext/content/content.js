@@ -17,6 +17,12 @@ try {
   console.error('Content script error', e);
 }
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'getHTML') {
+    sendResponse({ html: document.documentElement.outerHTML });
+  }
+});
+
 const id = `favbox-app-container-${Math.floor(Math.random() * 100)}`;
 const div = document.createElement('div');
 div.setAttribute('id', id);
