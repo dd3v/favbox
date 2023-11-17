@@ -2,18 +2,35 @@
   <transition name="slide">
     <div
       v-show="show"
-      class="fixed inset-0 z-999999  flex h-full w-full flex-col items-center justify-center bg-gray-900 transition-opacity duration-300 ease-out"
+      class="modal-backdrop"
       @click.self="close"
       @keydown.esc="close"
     >
-      <slot name="body" />
+      <div class="modal">
+        <header class="modal-header">
+          <div class="modal-title">
+            <slot name="header" />
+          </div>
+          <div class="modal-close">
+            <button
+              class="close-btn"
+              @click="close"
+            >
+              &#x2715;
+            </button>
+          </div>
+        </header>
+        <section class="modal-body">
+          <slot name="body" />
+        </section>
+      </div>
     </div>
   </transition>
 </template>
 <script setup>
 import { ref } from 'vue';
 
-const show = ref(true);
+const show = ref(false);
 
 const onEsc = (event) => {
   if (show.value === true && event.keyCode === 27) {
@@ -37,21 +54,5 @@ defineExpose({
 });
 </script>
 <style scoped>
-.slide-enter-from {
-    opacity: 0;
-    transform: translateY(0px);
-    transition: 0.5s all ease;
-}
 
-.slide-enter-to {
-    opacity: 1;
-    transform: translateY(0px);
-    transition: 0.5s all ease;
-}
-
-.slide-leave-to {
-    opacity: 0;
-    transform: translateY(0px);
-    transition: 0.5s all ease;
-}
 </style>
