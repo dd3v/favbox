@@ -1,3 +1,4 @@
+<!-- eslint-disable tailwindcss/no-custom-classname -->
 <template>
   <transition name="slide">
     <div
@@ -7,19 +8,6 @@
       @keydown.esc="close"
     >
       <div class="modal">
-        <header class="modal-header">
-          <div class="modal-title">
-            <slot name="header" />
-          </div>
-          <div class="modal-close">
-            <button
-              class="close-btn"
-              @click="close"
-            >
-              &#x2715;
-            </button>
-          </div>
-        </header>
         <section class="modal-body">
           <slot name="body" />
         </section>
@@ -30,7 +18,7 @@
 <script setup>
 import { ref } from 'vue';
 
-const show = ref(false);
+const show = ref(true);
 
 const onEsc = (event) => {
   if (show.value === true && event.keyCode === 27) {
