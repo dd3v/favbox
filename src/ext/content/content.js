@@ -1,22 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 
-let port;
-function connect() {
-  console.warn('Keep alive connection..');
-  port = chrome.runtime.connect({ name: 'favbox' });
-  port.onDisconnect.addListener(connect);
-  port.onMessage.addListener((msg) => {
-    console.log('received', msg, 'from bg');
-  });
-  port.postMessage({ action: 'ping' });
-}
-try {
-  connect();
-} catch (e) {
-  console.error('Content script error', e);
-}
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'getHTML') {
     sendResponse({ html: document.documentElement.outerHTML });
@@ -24,8 +8,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 const div = document.createElement('div');
-div.setAttribute('class', `favbox-app-container-${Math.floor(Math.random() * 100)}`);
-div.setAttribute('id', 'favbox-browser-extension-v2');
+div.setAttribute('id', `favbox-app-container-${Math.floor(Math.random() * 100)}`);
 
 const shadowRoot = div.attachShadow({ mode: 'open' });
 import('@/assets/styles/cmdk.css')
