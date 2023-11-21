@@ -71,6 +71,8 @@ const hotKeys = [
     },
     type: 'command',
   },
+
+
   {
     title: 'Open a new browser window',
     keys: {
@@ -143,6 +145,16 @@ const hotKeys = [
     },
     type: 'command',
   },
+
+
+  // Pin tab
+  // full screen
+  // browsing hisotyry,
+  // downloads
+  // settings
+  // duplicate tab
+  // clear cookie
+  // clear cache 
 ];
 
 export default hotKeys;

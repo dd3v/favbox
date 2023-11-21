@@ -10,24 +10,12 @@
       >
         <div class="modal-wrapper">
           <div class="search-container">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
             <input
               ref="searchInput"
               v-model="term"
               name="term"
               type="text"
+              placeholder="Search for bookmarks and commands"
               autofocus
               @input="handleSearch"
               @keyup.up="up"
