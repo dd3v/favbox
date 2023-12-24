@@ -27,8 +27,9 @@
               <li
                 v-for="item, key in items"
                 :key="key"
+                :class="{ 'active': item.id === selected?.id }"
               >
-                {{ item.title }}
+                {{ item }}
               </li>
             </ul>
             <div
@@ -53,11 +54,11 @@
 
 <script setup>
 import { onBeforeMount, ref } from 'vue';
-import hotKeys from '../../helpers/hk';
 
 const term = ref('');
 const show = ref(true);
 const searchInput = ref(null);
+const selected = ref(null);
 
 const onEsc = (event) => {
   if (show.value === true && event.keyCode === 27) {
@@ -78,8 +79,11 @@ const open = () => {
 
 const items = ref([]);
 
-const handleSearch = () => {
+const handleSearch = async () => {
   console.warn('Term:', term.value);
+  const response = await chrome.runtime.sendMessage({ type: 'search', data: { term: term.value } });
+  console.warn('search response', response);
+  items.value = response.bookmarks;
 };
 
 document.addEventListener('keydown', (event) => {
@@ -90,14 +94,15 @@ document.addEventListener('keydown', (event) => {
 });
 
 onBeforeMount(async () => {
-  console.warn(hotKeys);
-  items.value = hotKeys;
   // items.value = [];
   //  modal.value.open();
   // items.value = await chrome.runtime.sendMessage({ type: 'getItems', data: {} });
+  items.value = await chrome.runtime.sendMessage({ type: 'search', data: { term: term.value, limit: 30 } });
 });
 
 const up = () => console.warn('up');
-const down = () => console.warn('down');
+const down = () => {
+
+};
 
 </script>

@@ -171,19 +171,24 @@ const notSaved = '/icons/icon32.png';
   }
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === 'getItems') {
-      // chrome.windows.create({
-      //   type: 'normal',
-      //   width: 800,
-      //   height: 600,
-      //   left: 100,
-      //   top: 100,
-      // });
-      const responseData = {
-        responseKey: 'responseValue',
-      };
-      sendResponse(responseData);
-    }
+    (async () => {
+      if (request.type === 'search') {
+        const bookmarks = await bookmarkStorage.search({
+          tags: [],
+          folders: [],
+          domains: [],
+          sort: 'desc',
+          term: request.data.term,
+          error: 0,
+        });
+        console.warn(bookmarks);
+        const responseData = {
+          bookmarks,
+        };
+        sendResponse(responseData);
+      }
+    })();
+    return true;
   });
 
   ping();
