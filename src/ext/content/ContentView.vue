@@ -29,7 +29,11 @@
                 :key="key"
                 :class="{ 'active': item.id === selected?.id }"
               >
-                {{ item }}
+                <bookmark-favicon
+                  :bookmark="item"
+                  class="favicon"
+                />
+                {{ item.title }}
               </li>
             </ul>
             <div
@@ -54,6 +58,7 @@
 
 <script setup>
 import { onBeforeMount, ref } from 'vue';
+import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 
 const term = ref('');
 const show = ref(true);
@@ -83,7 +88,7 @@ const handleSearch = async () => {
   console.warn('Term:', term.value);
   const response = await chrome.runtime.sendMessage({ type: 'search', data: { term: term.value } });
   console.warn('search response', response);
-  items.value = response.bookmarks;
+  items.value = response.boo;
 };
 
 document.addEventListener('keydown', (event) => {
@@ -97,7 +102,8 @@ onBeforeMount(async () => {
   // items.value = [];
   //  modal.value.open();
   // items.value = await chrome.runtime.sendMessage({ type: 'getItems', data: {} });
-  items.value = await chrome.runtime.sendMessage({ type: 'search', data: { term: term.value, limit: 30 } });
+  const response = await chrome.runtime.sendMessage({ type: 'search', data: { term: '' } });
+  items.value = response.bookmarks;
 });
 
 const up = () => console.warn('up');

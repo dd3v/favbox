@@ -1,28 +1,27 @@
 <template>
+  <GlobeIcon v-if="fallback || !bookmark.favicon" />
   <img
-    :src="favicon"
+    v-else
+    :src="bookmark.favicon"
     alt="favicon"
     @error="handleError"
   >
 </template>
 <script setup>
-import { ref, onBeforeUpdate } from 'vue';
-import globe from '@/assets/globe.svg';
+import { ref } from 'vue';
+import GlobeIcon from '@/components/icons/GlobeIcon.vue';
 
-const props = defineProps({
+defineProps({
   bookmark: {
     type: Object,
     required: true,
   },
 });
 
-const favicon = ref(props.bookmark.favicon || globe);
+const fallback = ref(false);
 
 const handleError = () => {
-  favicon.value = globe;
+  fallback.value = true;
 };
 
-onBeforeUpdate(() => {
-  favicon.value = props.bookmark.favicon || globe;
-});
 </script>

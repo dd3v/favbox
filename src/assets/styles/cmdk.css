@@ -84,7 +84,7 @@
     flex-direction: column;
     color: inherit;
     font-size: inherit;
-    width: 30%;
+    width: 40%;
     height: 50%;
     min-height: 50%;
     margin: 30px auto;
@@ -117,13 +117,13 @@
     list-style: none;
     content-visibility: auto;
     cursor: pointer;
-    height: 40px;
+    height: 45px;
     border-radius: 5px;
     font-size: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0 10px 0px 10px;
+    padding: 2px 15px 2px 15px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -137,6 +137,12 @@
     transition-property: background;
     background: var(--selected-item);
 }
+
+#favbox-browser-extension-v2 ul li:hover {
+    transition-property: background;
+    background: var(--selected-item);
+}
+
 
 #favbox-browser-extension-v2 ul li.active {
     transition-property: background;
@@ -248,4 +254,9 @@
     opacity: 0;
     transform: translateY(0px);
     transition: 0.5s all ease;
+}
+
+.favicon {
+    width: 14px;
+    height: 14px;
 }
