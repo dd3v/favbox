@@ -10,7 +10,7 @@
       <div class="flex items-center bg-gray-900 p-1">
         <bookmark-favicon
           :bookmark="bookmark"
-          class="h-3 w-3"
+          class="h-3 w-3 fill-gray-700 dark:fill-gray-100"
         />
         <span class="mx-3 text-xs font-semibold text-white">{{
           bookmark.domain

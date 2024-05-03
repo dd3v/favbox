@@ -14,7 +14,7 @@
         >
           <bookmark-favicon
             :bookmark="bookmark"
-            class="h-4 w-4"
+            class="h-4 w-4 fill-gray-700 dark:fill-gray-100"
           />
         </span>
       </label>

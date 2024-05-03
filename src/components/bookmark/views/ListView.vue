@@ -12,7 +12,7 @@
       >
         <bookmark-favicon
           :bookmark="bookmark"
-          class="h-0 w-0 md:mr-1 md:h-4 md:w-4"
+          class="h-0 w-0 fill-gray-700 dark:fill-gray-100 md:mr-1 md:h-4 md:w-4"
         />
         {{ bookmark.title }}
       </div>
