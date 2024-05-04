@@ -102,7 +102,7 @@
     background: var(--modal-background);
     backdrop-filter: var(--backdrop-filter);
     border-radius: 10px;
-    transition: all 0.3s ease;
+    animation: FavBoxFadeIn 0.5s;
 }
 
 #favbox-browser-extension-v2 .list-container {
@@ -115,7 +115,6 @@
     transition-property: height;
     padding: 0 8px 40px;
 }
-
 
 
 #favbox-browser-extension-v2 ul {
@@ -138,11 +137,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    will-change: background, color;
-    transition: all .15s ease;
-    transition-property: none;
 }
-
 
 #favbox-browser-extension-v2 ul li.active {
     transition-property: background;
@@ -213,7 +208,6 @@
     transition: opacity 0.3s ease;
 }
 
-
 #favbox-browser-extension-v2 .search-container {
     display: flex;
     align-items: center;
@@ -237,22 +231,12 @@
     color: var(--secondary-text-color);
 }
 
+@keyframes FavBoxFadeIn {
+    from {
+        opacity: 0;
+    }
 
-#favbox-browser-extension-v2 .slide-enter-from {
-    opacity: 0;
-    transform: translateY(0px);
-    transition: 0.5s all ease;
+    to {
+        opacity: 1;
+    }
 }
-
-#favbox-browser-extension-v2 .slide-enter-to {
-    opacity: 1;
-    transform: translateY(0px);
-    transition: 0.5s all ease;
-}
-
-#favbox-browser-extension-v2 .slide-leave-to {
-    opacity: 0;
-    transform: translateY(0px);
-    transition: 0.5s all ease;
-}
-

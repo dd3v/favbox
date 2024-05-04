@@ -1,65 +1,64 @@
 <!-- eslint-disable tailwindcss/no-custom-classname -->
 <template>
-  <transition name="slide">
-    <div id="favbox-browser-extension-v2">
-      <div
-        v-show="show"
-        class="modal-backdrop"
-        @click.self="close"
-        @keydown.esc="close"
-      >
-        <div class="modal-wrapper">
-          <div class="search-container">
-            <input
-              ref="searchInput"
-              v-model="term"
-              name="term"
-              type="text"
-              placeholder="Search for bookmarks and commands"
-              autofocus
-              @input="handleSearch"
-              @keydown.up="up"
-              @keydown.down="down"
-              @keydown.enter="openBookmark"
-            >
-          </div>
-          <div
-            ref="container"
-            class="list-container"
+  <div id="favbox-browser-extension-v2">
+    <div
+      v-show="show"
+      class="modal-backdrop"
+      :class="{ 'show': show, 'hide': !show }"
+      @click.self="close"
+      @keydown.esc="close"
+    >
+      <div class="modal-wrapper">
+        <div class="search-container">
+          <input
+            ref="searchInput"
+            v-model="term"
+            name="term"
+            type="text"
+            placeholder="Search for bookmarks and commands"
+            autofocus
+            @input="handleSearch"
+            @keydown.up="up"
+            @keydown.down="down"
+            @keydown.enter="openBookmark"
           >
-            <ul v-if="items.length">
-              <li
-                v-for="item, key in items"
-                :key="key"
-                :class="{ 'active': selected && item.id === selected.id }"
-                @click="openBookmark(item)"
-                @mouseenter="setActive(key, item)"
-              >
-                <bookmark-favicon
-                  :bookmark="item"
-                  class="favbox-bookmark-favicon"
-                />
-                {{ item.title }}
-              </li>
-            </ul>
-            <div
-              v-else
-              class="empty"
+        </div>
+        <div
+          ref="container"
+          class="list-container"
+        >
+          <ul v-if="items.length">
+            <li
+              v-for="item, key in items"
+              :key="key"
+              :class="{ 'active': selected && item.id === selected.id }"
+              @click="openBookmark(item)"
+              @mouseenter="setActive(key, item)"
             >
-              empty.. 🤔
-            </div>
+              <bookmark-favicon
+                :bookmark="item"
+                class="favbox-bookmark-favicon"
+              />
+              {{ item.title }}
+            </li>
+          </ul>
+          <div
+            v-else
+            class="empty"
+          >
+            empty.. 🤔
           </div>
-          <div class="footer-container">
-            <div class="footer-kbd">
-              <span class="kbd">↑</span><span class="kbd">↓</span>
-              <hr>
-              <span class="kbd">esc</span>
-            </div>
+        </div>
+        <div class="footer-container">
+          <div class="footer-kbd">
+            <span class="kbd">↑</span><span class="kbd">↓</span>
+            <hr>
+            <span class="kbd">esc</span>
           </div>
         </div>
       </div>
     </div>
-  </transition>
+  </div>
 </template>
 
 <script setup>
@@ -67,7 +66,7 @@ import { onBeforeMount, reactive, ref } from 'vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 
 const term = ref('');
-const show = ref(true);
+const show = ref(false);
 const searchInput = ref(null);
 const selected = reactive({});
 const selectedIndex = ref(0);
