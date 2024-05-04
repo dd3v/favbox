@@ -4,7 +4,6 @@
     <div
       v-show="show"
       class="modal-backdrop"
-      :class="{ 'show': show, 'hide': !show }"
       @click.self="close"
       @keydown.esc="close"
     >
@@ -20,7 +19,7 @@
             @input="handleSearch"
             @keydown.up="up"
             @keydown.down="down"
-            @keydown.enter="openBookmark"
+            @keydown.enter="openFocusedBookmark"
           >
         </div>
         <div
@@ -31,7 +30,7 @@
             <li
               v-for="item, key in items"
               :key="key"
-              :class="{ 'active': selected && item.id === selected.id }"
+              :class="{ 'active': focusedBookmark && item.id === focusedBookmark.id }"
               @click="openBookmark(item)"
               @mouseenter="setActive(key, item)"
             >
@@ -62,14 +61,16 @@
 </template>
 
 <script setup>
-import { onBeforeMount, reactive, ref } from 'vue';
+import {
+  onBeforeMount, reactive, ref, nextTick,
+} from 'vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 
 const term = ref('');
 const show = ref(false);
 const searchInput = ref(null);
-const selected = reactive({});
-const selectedIndex = ref(0);
+const focusedBookmark = reactive({});
+const focusedBookmarkIndex = ref(0);
 const items = reactive([]);
 const container = ref(null);
 
@@ -86,8 +87,8 @@ const close = () => {
 
 const open = () => {
   show.value = true;
-  searchInput.value.focus();
   document.addEventListener('keyup', onEsc);
+  nextTick(() => { searchInput.value.focus(); });
 };
 
 const handleSearch = async () => {
@@ -96,8 +97,8 @@ const handleSearch = async () => {
   console.warn('🔍️ search response:', response);
   items.splice(0, items.length, ...response.bookmarks);
   if (items.length) {
-    Object.assign(selected, items[0]);
-    selectedIndex.value = 0;
+    Object.assign(focusedBookmark, items[0]);
+    focusedBookmarkIndex.value = 0;
   }
   container.value.scrollTo({ top: 0, behavior: 'smooth' });
 };
@@ -113,35 +114,38 @@ onBeforeMount(async () => {
   const response = await chrome.runtime.sendMessage({ type: 'search', data: { term: '' } });
   Object.assign(items, response.bookmarks);
   if (items.length) {
-    Object.assign(selected, items[0]);
+    Object.assign(focusedBookmark, items[0]);
   }
 });
 
 const openBookmark = (item) => {
   window.open(item.url, '_blank');
+  show.value = false;
 };
+
+const openFocusedBookmark = () => openBookmark(focusedBookmark);
 
 const up = () => {
   container.value.scrollBy({ top: -50, behavior: 'smooth' });
-  const index = selectedIndex.value - 1;
+  const index = focusedBookmarkIndex.value - 1;
   if (items[index]) {
-    selectedIndex.value -= 1;
-    Object.assign(selected, items[index]);
+    focusedBookmarkIndex.value -= 1;
+    Object.assign(focusedBookmark, items[index]);
   }
 };
 const down = () => {
   console.warn(container);
   container.value.scrollBy({ top: 50, behavior: 'smooth' });
-  const index = selectedIndex.value + 1;
+  const index = focusedBookmarkIndex.value + 1;
   if (items[index]) {
-    selectedIndex.value += 1;
-    Object.assign(selected, items[index]);
+    focusedBookmarkIndex.value += 1;
+    Object.assign(focusedBookmark, items[index]);
   }
 };
 
 const setActive = (key, item) => {
-  selectedIndex.value = key;
-  Object.assign(selected, item);
+  focusedBookmarkIndex.value = key;
+  Object.assign(focusedBookmark, item);
 };
 
 </script>
