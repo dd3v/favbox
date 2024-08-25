@@ -15,7 +15,7 @@ const notSaved = '/icons/icon32.png';
   const bookmarkStorage = new BookmarkStorage();
   const folders = await bookmarkHelper.getFolders();
 
-  chrome.runtime.onInstalled.addListener(async () => {
+  chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.session.clear();
   });
 
@@ -26,10 +26,7 @@ const notSaved = '/icons/icon32.png';
       const bookmarkSearchResults = await chrome.bookmarks.search({
         url: tab.url,
       });
-      chrome.action.setIcon({
-        tabId,
-        path: bookmarkSearchResults.length === 0 ? notSaved : saved,
-      });
+      chrome.action.setIcon({ tabId, path: bookmarkSearchResults.length === 0 ? notSaved : saved });
     }
   });
 
@@ -47,32 +44,31 @@ const notSaved = '/icons/icon32.png';
   // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
   chrome.bookmarks.onCreated.addListener(async (id, bookmark) => {
     if (bookmark.url === undefined) {
-      chrome.runtime.sendMessage({ action: 'refresh' });
+      console.warn('bad bookmark data', bookmark);
       return;
     }
     try {
       let response = {};
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tabs.length === 0) {
-        console.log('No tabs. Fetching data.. 🌎');
+      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (activeTab === undefined) {
+        console.log('No tabs. It is weird. Fetching data from internet.. 🌎');
         response = await fetchHelper.requestBookmark(bookmark, 7000);
       } else {
-        const tab = tabs[0];
-        console.warn(tab);
-        const content = await chrome.tabs.sendMessage(tab.id, { action: 'getHTML' });
+        console.warn('requesting html from tab', activeTab);
+        const content = await chrome.tabs.sendMessage(activeTab.id, { action: 'getHTML' });
         response = {
           html: content?.html,
           bookmark,
           error: 0,
           contentType: null,
         };
+        console.warn('response from tab', response);
       }
-      console.warn(response);
       const entity = await (new Parser(response)).getFavboxBookmark();
-      if (entity.image === null && tabs.length) {
+      if (entity.image === null && activeTab) {
         try {
-          console.warn('📸 No image, take a screenshot', tabs[0]);
-          const screenshot = await chrome.tabs.captureVisibleTab(tabs[0].windowId, { format: 'png' });
+          console.warn('📸 No image, take a screenshot', activeTab);
+          const screenshot = await chrome.tabs.captureVisibleTab(activeTab.windowId, { format: 'png' });
           entity.image = screenshot;
         } catch (e) {
           console.error('📸', e);
@@ -81,14 +77,18 @@ const notSaved = '/icons/icon32.png';
       console.warn('Entity', entity);
       await bookmarkStorage.create(entity);
       console.log('🎉 Bookmark has been created..');
-      chrome.runtime.sendMessage({ action: 'refresh' });
     } catch (e) {
       console.error('🎉', e, id, bookmark);
     }
     try {
-      await updateExtensionIcon(bookmark.url, false);
+      chrome.runtime.sendMessage({ action: 'refresh' });
     } catch (e) {
-      console.error(e);
+      console.error('Refresh app UI on create', e);
+    }
+    try {
+      await tryToUpdateExtensionIcon(bookmark.url, saved);
+    } catch (e) {
+      console.error('Refresh ext icon on creation event', e);
     }
   });
 
@@ -108,9 +108,13 @@ const notSaved = '/icons/icon32.png';
       if (folder !== undefined) {
         await bookmarkStorage.updateFolders(folder.title, changeInfo.title);
       }
-      chrome.runtime.sendMessage({ action: 'refresh' });
     } catch (e) {
       console.error('🔄', e, id, changeInfo);
+    }
+    try {
+      chrome.runtime.sendMessage({ action: 'refresh' });
+    } catch (e) {
+      console.error('Refresh app UI on change', e);
     }
   });
 
@@ -125,9 +129,13 @@ const notSaved = '/icons/icon32.png';
         folder,
         updatedAt: new Date().toISOString(),
       });
-      chrome.runtime.sendMessage({ action: 'refresh' });
     } catch (e) {
       console.error('🗂', e, id, moveInfo);
+    }
+    try {
+      chrome.runtime.sendMessage({ action: 'refresh' });
+    } catch (e) {
+      console.error('Refresh app UI on move', e);
     }
   });
 
@@ -137,36 +145,35 @@ const notSaved = '/icons/icon32.png';
       const bookmark = await bookmarkStorage.getById(id);
       console.warn(bookmark);
       if (bookmark) {
-        const bookmarkSearchResults = await chrome.bookmarks.search({
-          url: bookmark.url,
-        });
+        const bookmarkSearchResults = await chrome.bookmarks.search({ url: bookmark.url });
         console.table('Tabs with icon', bookmarkSearchResults);
         if (bookmarkSearchResults.length === 0) {
-          await updateExtensionIcon(bookmark.url, true);
+          await tryToUpdateExtensionIcon(bookmark.url, notSaved);
         }
       }
     } catch (e) {
       console.error(e);
     }
     try {
-      console.log('🗑️ Bookmark has been removed..', id, removeInfo);
       await bookmarkStorage.remove(id);
-      chrome.runtime.sendMessage({ action: 'refresh' });
+      console.log('🗑️ Bookmark has been removed..', id, removeInfo);
     } catch (e) {
       console.error('🗑️', e, id, removeInfo);
     }
+    try {
+      chrome.runtime.sendMessage({ action: 'refresh' });
+    } catch (e) {
+      console.error('Refresh app UI on remove', e);
+    }
   });
 
-  async function updateExtensionIcon(url, defaultIcon = true) {
+  async function tryToUpdateExtensionIcon(url, path) {
     const urlWithoutAnchor = url.replace(/#.*$/, '');
-    console.warn('Update icon by', url, urlWithoutAnchor);
     const tabs = await chrome.tabs.query({ url: urlWithoutAnchor });
+    console.warn('Update icon by', url, urlWithoutAnchor);
     console.warn('Tabs to update', tabs);
     for (const tab of tabs) {
-      chrome.action.setIcon({
-        tabId: tab.id,
-        path: defaultIcon ? notSaved : saved,
-      });
+      chrome.action.setIcon({ tabId: tab.id, path });
     }
   }
 

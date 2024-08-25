@@ -34,7 +34,7 @@ export default class Parser {
   }
 
   #getAppleTouchImageFromPage() {
-    const htmlElem = this.#html.querySelector('link[rel="apple-touch-icon"][sizes="152x152"]');
+    const htmlElem = this.#html.querySelector('link[rel="apple-touch-icon"][sizes="152x152"], link[rel="apple-touch-icon"][sizes="180x180"]');
     const src = (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
     return src;
   }
@@ -62,31 +62,13 @@ export default class Parser {
     return new URL(this.#bookmark.url).hostname;
   }
 
-  async #pingFavicon() {
-    try {
-      if (this.#hasError) return false;
-      const url = `https://${this.getDomain()}/favicon.ico`;
-      const response = await fetch(url, { method: 'HEAD' });
-      if (response.status === 200) {
-        return url;
-      }
-      return false;
-    } catch (error) {
-      console.warn(error);
-      return false;
-    }
-  }
-
-  async getFavicon() {
-    const selectors = ['link[rel="shortcut icon"]', 'link[rel="icon"]'];
-    const link = this.#html.querySelector(selectors.join(','))?.getAttribute('href');
-
-    if (link) {
-      return new URL(link, this.#bookmark.url).href;
+  getFavicon() {
+    let link = this.#html.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute('href');
+    if (!link) {
+      link = this.#html.querySelector('link[rel="shortcut icon"], link[rel="icon"]')?.getAttribute('href');
     }
 
-    const icon = await this.#pingFavicon();
-    return icon || null;
+    return link ? new URL(link, this.#bookmark.url).href : `https://${this.getDomain()}/favicon.ico`;
   }
 
   getUrl() {
@@ -94,7 +76,7 @@ export default class Parser {
   }
 
   getType() {
-    return this.#html.querySelector('meta[property="og:type"]')?.getAttribute('content') ?? null;
+    return this.#html.querySelector('meta[property="og:type"]')?.getAttribute('content').toLowerCase() ?? null;
   }
 
   async getFolder() {
@@ -109,7 +91,17 @@ export default class Parser {
     ];
     const keywords = this.#html.querySelector(selectors.join(','))?.getAttribute('content');
     if (!keywords || keywords.length === 0) return null;
-    return keywords.split(',').map((keyword) => keyword.trim()).filter((keyword) => keyword.length > 0);
+    return keywords.split(',').map((keyword) => keyword.trim().toLocaleLowerCase()).filter((keyword) => keyword.length > 0);
+  }
+
+  async getLocale() {
+    const locale = this.#html.querySelector('meta[property="og:locale"]')?.getAttribute('content');
+    if (locale) {
+      return locale;
+    }
+    const result = await chrome.i18n.detectLanguage(this.#bookmark.title + this.getDescription());
+
+    return result.languages.shift()?.language;
   }
 
   async getFavboxBookmark() {
@@ -120,7 +112,7 @@ export default class Parser {
       folderName: folder.title,
       title: tagHelper.getTitle(this.#bookmark.title),
       description: this.getDescription(),
-      favicon: await this.getFavicon(),
+      favicon: this.getFavicon(),
       image: this.getImage(),
       domain: this.getDomain(),
       type: this.getType(),
@@ -128,6 +120,7 @@ export default class Parser {
       url: this.#bookmark.url,
       tags: tagHelper.getTags(this.#bookmark.title),
       favorite: 0,
+      locale: await this.getLocale(),
       error: this.#hasError,
       dateAdded: this.#bookmark.dateAdded,
       createdAt: new Date().toISOString(),

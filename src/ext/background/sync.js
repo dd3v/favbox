@@ -43,7 +43,11 @@ const syncBookmarks = async () => {
         // eslint-disable-next-line no-await-in-loop
         await bookmarkStorage.createMultiple(parseResult);
         const progress = Math.round((processed / total) * 100);
-        chrome.runtime.sendMessage({ action: 'refresh', data: { progress } });
+        try {
+          chrome.runtime.sendMessage({ action: 'refresh', data: { progress } });
+        } catch (e) {
+          console.warn('ui refresh from sync', e);
+        }
       } catch (e) {
         console.error(e);
       } finally {

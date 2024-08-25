@@ -43,6 +43,10 @@ const getDb = () => {
         dataType: DATA_TYPE.String,
         enableSearch: true,
       },
+      locale: {
+        dataType: DATA_TYPE.String,
+        enableSearch: true,
+      },
       keywords: {
         dataType: DATA_TYPE.Array,
         multiEntry: true,

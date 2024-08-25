@@ -181,4 +181,40 @@ export default class BookmarkStorage {
     });
     return response.map((item) => item.keywords);
   }
+
+  async getAttributes() {
+    const flattenDomains = await connection.select({ from: this.tableName, groupBy: 'domain' });
+    const domains = flattenDomains.map((item) => ({ domain: item.domain }));
+    const flattenTags = await connection.select({
+      from: this.tableName,
+      flatten: ['tags'],
+      groupBy: 'tags',
+      order: {
+        by: 'tags',
+        type: 'asc',
+      },
+    });
+    const tags = flattenTags.map((item) => ({ tag: item.tags }));
+    const flattenKeywords = await connection.select({
+      from: this.tableName,
+      flatten: ['keywords'],
+      groupBy: 'keywords',
+      order: {
+        by: 'keywords',
+        type: 'asc',
+      },
+    });
+    const keywords = flattenKeywords.map((item) => ({ keyword: item.keywords }));
+
+    const flattenTypes = await connection.select({ from: this.tableName, groupBy: 'type' });
+    const types = flattenTypes.map((item) => ({ type: item.type }));
+
+    const flattenLocales = await connection.select({ from: this.tableName, groupBy: 'locale' });
+    const locales = flattenLocales.map((item) => ({ locale: item.locale }));
+
+    const flattenFolders = await connection.select({ from: this.tableName, groupBy: 'folderName' });
+    const folders = flattenFolders.map((item) => ({ folder: item.folderName }));
+
+    return [...keywords, ...tags, ...domains, ...types, ...locales, ...folders];
+  }
 }

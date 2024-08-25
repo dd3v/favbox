@@ -233,9 +233,13 @@ watch(
 );
 
 onMounted(async () => {
-  folders.value = await bookmarkHelper.getFoldersFlatten();
-  tags.value = await bookmarkStorage.getTags();
-  domains.value = await bookmarkStorage.getDomains();
+  // folders.value = await bookmarkHelper.getFoldersFlatten();
+  // tags.value = await bookmarkStorage.getTags();
+  // domains.value = await bookmarkStorage.getDomains();
+
+  const attrs = await bookmarkStorage.getAttributes();
+
+  console.warn(attrs);
 });
 
 chrome.runtime.onMessage.addListener(async (message) => {
