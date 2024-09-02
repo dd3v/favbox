@@ -4,7 +4,7 @@ import Parser from '@/helpers/parser';
 import fetchHelper from '@/helpers/fetch';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmarks';
-import syncBookmarks from './sync';
+import importBookmarks from './import';
 import ping from './ping';
 
 const saved = '/icons/icon32_saved.png';
@@ -52,19 +52,14 @@ const notSaved = '/icons/icon32.png';
       const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (activeTab === undefined) {
         console.log('No tabs. It is weird. Fetching data from internet.. 🌎');
-        response = await fetchHelper.requestBookmark(bookmark, 7000);
+        response = await fetchHelper.fetch(bookmark.url, 7000);
       } else {
         console.warn('requesting html from tab', activeTab);
         const content = await chrome.tabs.sendMessage(activeTab.id, { action: 'getHTML' });
-        response = {
-          html: content?.html,
-          bookmark,
-          error: 0,
-          contentType: null,
-        };
+        response = { html: content?.html, error: 0 };
         console.warn('response from tab', response);
       }
-      const entity = await (new Parser(response)).getFavboxBookmark();
+      const entity = await (new Parser(bookmark, response)).getFavboxBookmark();
       if (entity.image === null && activeTab) {
         try {
           console.warn('📸 No image, take a screenshot', activeTab);
@@ -199,5 +194,5 @@ const notSaved = '/icons/icon32.png';
   });
 
   ping();
-  syncBookmarks();
+  importBookmarks();
 })();

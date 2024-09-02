@@ -3,24 +3,33 @@ import bookmarkHelper from '@/helpers/bookmarks';
 import tagHelper from '@/helpers/tags';
 
 export default class Parser {
-  #html;
-
-  #hasError;
-
   #bookmark;
 
-  constructor(response) {
-    const { document } = parseHTML(response.html);
-    this.#bookmark = response.bookmark;
-    this.#html = document;
-    this.#hasError = response.error;
+  #httpResponse;
+
+  #dom;
+
+  /**
+   * Creates an instance of a class that processes a bookmark;
+   *
+   * @param {Object} bookmark - The bookmark object from browser.
+   * @param {Object} httpResponse - The response object from the HTTP request made to the bookmark URL.
+   * @param {string} httpResponse.html - The HTML content of the response.
+   * @param {number} httpResponse.error - Error code.
+   */
+  constructor(bookmark, httpResponse) {
+    const { document } = parseHTML(httpResponse.html);
+    this.#bookmark = bookmark;
+    this.#dom = document;
+    this.#httpResponse = httpResponse;
   }
 
   getTitle() {
-    const title = this.#html.querySelector('meta[property="og:title"], meta[name="twitter:title"]')?.getAttribute('content')
-      ?? this.#html.title
-      ?? this.#html.querySelector('h1')?.textContent
-      ?? this.#html.querySelector('h2')?.textContent;
+    const title = this.#bookmark.title
+      ?? this.#dom.title
+      ?? this.#dom.querySelector('meta[property="og:title"], meta[name="twitter:title"]')?.getAttribute('content')
+      ?? this.#dom.querySelector('h1')?.textContent
+      ?? this.#dom.querySelector('h2')?.textContent;
     return title || null;
   }
 
@@ -30,11 +39,11 @@ export default class Parser {
       'meta[name="twitter:description"]',
       'meta[name="description"]',
     ];
-    return this.#html.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
+    return this.#dom.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
   }
 
   #getAppleTouchImageFromPage() {
-    const htmlElem = this.#html.querySelector('link[rel="apple-touch-icon"][sizes="152x152"], link[rel="apple-touch-icon"][sizes="180x180"]');
+    const htmlElem = this.#dom.querySelector('link[rel="apple-touch-icon"][sizes="152x152"], link[rel="apple-touch-icon"][sizes="180x180"]');
     const src = (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
     return src;
   }
@@ -49,7 +58,7 @@ export default class Parser {
       'link[rel="image_src"]',
       'meta[property="forem:logo"]',
     ];
-    const htmlElem = this.#html.querySelector(selectors.join(','));
+    const htmlElem = this.#dom.querySelector(selectors.join(','));
     return (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
   }
 
@@ -63,11 +72,10 @@ export default class Parser {
   }
 
   getFavicon() {
-    let link = this.#html.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute('href');
+    let link = this.#dom.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute('href');
     if (!link) {
-      link = this.#html.querySelector('link[rel="shortcut icon"], link[rel="icon"]')?.getAttribute('href');
+      link = this.#dom.querySelector('link[rel="shortcut icon"], link[rel="icon"]')?.getAttribute('href');
     }
-
     return link ? new URL(link, this.#bookmark.url).href : `https://${this.getDomain()}/favicon.ico`;
   }
 
@@ -76,7 +84,8 @@ export default class Parser {
   }
 
   getType() {
-    return this.#html.querySelector('meta[property="og:type"]')?.getAttribute('content').toLowerCase() ?? null;
+    return this.#dom.querySelector('meta[property="og:type"]')?.getAttribute('content')?.split('.')?.shift()
+      ?.toLowerCase() ?? 'website';
   }
 
   async getFolder() {
@@ -89,19 +98,34 @@ export default class Parser {
       'meta[name="keywords"]',
       'meta[name="keynews_keywordswords"]',
     ];
-    const keywords = this.#html.querySelector(selectors.join(','))?.getAttribute('content');
-    if (!keywords || keywords.length === 0) return null;
+    const keywords = this.#dom.querySelector(selectors.join(','))?.getAttribute('content');
+    if (!keywords || keywords.length === 0) return [];
     return keywords.split(',').map((keyword) => keyword.trim().toLocaleLowerCase()).filter((keyword) => keyword.length > 0);
   }
 
   async getLocale() {
-    const locale = this.#html.querySelector('meta[property="og:locale"]')?.getAttribute('content');
-    if (locale) {
-      return locale;
+    if (this.#httpResponse.error !== 0) {
+      return null;
     }
-    const result = await chrome.i18n.detectLanguage(this.#bookmark.title + this.getDescription());
-
-    return result.languages.shift()?.language;
+    const htmlLang = this.#dom?.documentElement?.lang?.split(/[_-]/).shift()?.toUpperCase();
+    if (htmlLang) {
+      return htmlLang;
+    }
+    const metaLocale = this.#dom.querySelector('meta[property="og:locale"]')?.getAttribute('content').split(/[_-]/)?.shift()
+      ?.toUpperCase();
+    if (metaLocale) {
+      return metaLocale;
+    }
+    const elements = Array.from(this.#dom.querySelectorAll('button, label, h1, h2, h3, h4, h5, h6, p'));
+    const description = elements.map((el) => el.textContent).concat([this.getDescription() || '', this.getKeywords() || '']).join(' ');
+    if (description.trim()) {
+      const result = await chrome.i18n.detectLanguage(description);
+      if (result.languages?.length) {
+        console.warn(description, result.languages);
+        return result.languages[0].language.toUpperCase();
+      }
+    }
+    return null;
   }
 
   async getFavboxBookmark() {
@@ -121,7 +145,7 @@ export default class Parser {
       tags: tagHelper.getTags(this.#bookmark.title),
       favorite: 0,
       locale: await this.getLocale(),
-      error: this.#hasError,
+      error: this.#httpResponse.error,
       dateAdded: this.#bookmark.dateAdded,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
