@@ -93,9 +93,11 @@
     flex-direction: column;
     color: inherit;
     font-size: inherit;
+    width: 80vw;
     max-width: 600px;
+    height: 60vh;
     max-height: 400px;
-    margin: 100px auto;
+    margin: 5vh auto; 
     border: 1px solid var(--border-color);
     box-shadow: var(--modal-box-shadow);
     background: var(--modal-background);
