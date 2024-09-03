@@ -10,11 +10,17 @@ const getDb = () => {
         autoIncrement: false,
         dataType: DATA_TYPE.Number,
       },
-      folder: {
+      bfolder: {
         dataType: DATA_TYPE.Object,
         enableSearch: true,
       },
-      folderName: {
+      folders: {
+        dataType: DATA_TYPE.Array,
+        multiEntry: true,
+        default: [],
+        enableSearch: true,
+      },
+      folder: {
         dataType: DATA_TYPE.String,
         enableSearch: true,
       },
@@ -73,7 +79,6 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
         default: 0,
       },
-      searchKeyPath: { keyPath: ['title', 'description', 'url'] },
       createdAt: {
         dataType: DATA_TYPE.String,
         notNull: true,
@@ -89,6 +94,7 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
         enableSearch: true,
       },
+      searchKeyPath: { keyPath: ['title', 'description', 'url'] },
     },
   };
 

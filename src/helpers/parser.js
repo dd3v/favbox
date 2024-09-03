@@ -129,11 +129,12 @@ export default class Parser {
   }
 
   async getFavboxBookmark() {
-    const folder = await this.getFolder();
+    const foldersTree = await bookmarkHelper.getFoldersTreeByBookmark(this.#bookmark.id);
     const entity = {
       id: parseInt(this.#bookmark.id, 10),
-      folder,
-      folderName: folder.title,
+      bfolder: await bookmarkHelper.getById(this.#bookmark.parentId),
+      folder: foldersTree.at(-1),
+      folders: foldersTree,
       title: tagHelper.getTitle(this.#bookmark.title),
       description: this.getDescription(),
       favicon: this.getFavicon(),
