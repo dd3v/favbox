@@ -10,12 +10,12 @@
           @click="openApp"
         >
           <span
-            class="ease absolute inset-0 flex h-full w-full -translate-x-full items-center justify-center bg-rose-400 text-white duration-300 group-hover:translate-x-0"
+            class="ease absolute inset-0 flex size-full -translate-x-full items-center justify-center bg-rose-400 text-white duration-300 group-hover:translate-x-0"
           >
-            <heart-icon class="h-4 w-4" />
+            <heart-icon class="size-4" />
           </span>
           <span
-            class="ease absolute flex h-full w-full items-center justify-center text-rose-400 transition-all duration-300 group-hover:translate-x-full"
+            class="ease absolute flex size-full items-center justify-center text-rose-400 transition-all duration-300 group-hover:translate-x-full"
           >OPEN</span>
           <span class="invisible relative">Open App</span>
         </button>
@@ -36,7 +36,7 @@ import { onMounted, ref } from 'vue';
 import { HeartIcon } from '@heroicons/vue/24/solid';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
-import bookmarkHelper from '@/helpers/bookmarks';
+import bookmarkHelper from '@/helpers/bookmark';
 import initStorage from '@/storage/idb/idb';
 import BookmarkStorage from '@/storage/bookmark';
 

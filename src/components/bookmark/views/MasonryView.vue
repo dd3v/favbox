@@ -10,7 +10,7 @@
       <div class="flex items-center bg-gray-900 p-1">
         <bookmark-favicon
           :bookmark="bookmark"
-          class="h-3 w-3 fill-gray-700 dark:fill-gray-100"
+          class="size-3 fill-gray-700 dark:fill-gray-100"
         />
         <span class="mx-3 text-xs font-semibold text-white">{{
           bookmark.domain
@@ -20,8 +20,16 @@
         <span class="break-words text-sm font-semibold text-gray-900 dark:text-neutral-100">{{ bookmark.title }}
         </span>
         <p class="break-words py-2 text-gray-700 dark:text-neutral-300">
-          {{ bookmark.description }}
+          {{ bookmark.description }} <br>
+          {{ bookmark.error }} - {{ bookmark.folderName }} - {{ bookmark.folder }}
         </p>
+        <div class="flex space-x-2">
+          <app-badge
+            v-for="(value, key) in bookmark.tags"
+            :key="key"
+            :badge="value"
+          />
+        </div>
       </div>
     </a>
     <slot name="actions" />
@@ -29,6 +37,7 @@
 </template>
 <script setup>
 import { computed } from 'vue';
+import AppBadge from '@/components/app/AppBadge.vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 import BookmarkImage from '@/components/bookmark/BookmarkImage.vue';
 

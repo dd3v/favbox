@@ -1,19 +1,18 @@
 import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
-import Parser from '@/helpers/parser';
+import MetadataParser from '@/parser/metadata';
 import fetchHelper from '@/helpers/fetch';
 import tagHelper from '@/helpers/tags';
-import bookmarkHelper from '@/helpers/bookmarks';
+import bookmarkHelper from '@/helpers/bookmark';
 import importBookmarks from './import';
 import ping from './ping';
 
-const saved = '/icons/icon32_saved.png';
-const notSaved = '/icons/icon32.png';
+const ICON_SAVED = '/icons/icon32_saved.png';
+const ICON_NOT_SAVED = '/icons/icon32.png';
 
 (async () => {
   await initStorage();
   const bookmarkStorage = new BookmarkStorage();
-  const folders = await bookmarkHelper.getFolders();
 
   chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.session.clear();
@@ -22,23 +21,16 @@ const notSaved = '/icons/icon32.png';
   // https://developer.chrome.com/docs/extensions/reference/tabs/#event-onUpdated
   chrome.tabs.onUpdated.addListener(async (tabId, info) => {
     if (info.status === 'loading') {
-      const tab = await chrome.tabs.get(parseInt(tabId, 10));
-      const bookmarkSearchResults = await chrome.bookmarks.search({
-        url: tab.url,
-      });
-      chrome.action.setIcon({ tabId, path: bookmarkSearchResults.length === 0 ? notSaved : saved });
+      try {
+        const tab = await chrome.tabs.get(parseInt(tabId, 10));
+        const result = await chrome.bookmarks.search({ url: tab.url });
+        if (result.length) {
+          setIconForOpenTab(tab.url, ICON_SAVED);
+        }
+      } catch (error) {
+        console.error('Error getting tab or updating icon:', error);
+      }
     }
-  });
-
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
-  // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'getBookmark') {
-      (async () => {
-        sendResponse({ success: true });
-      })();
-    }
-    return true;
   });
 
   // https:// developer.chrome.com/docs/extensions/reference/bookmarks/#event-onCreated
@@ -59,7 +51,7 @@ const notSaved = '/icons/icon32.png';
         response = { html: content?.html, error: 0 };
         console.warn('response from tab', response);
       }
-      const entity = await (new Parser(bookmark, response)).getFavboxBookmark();
+      const entity = await (new MetadataParser(bookmark, response)).getFavboxBookmark();
       if (entity.image === null && activeTab) {
         try {
           console.warn('📸 No image, take a screenshot', activeTab);
@@ -75,33 +67,26 @@ const notSaved = '/icons/icon32.png';
     } catch (e) {
       console.error('🎉', e, id, bookmark);
     }
-    try {
-      chrome.runtime.sendMessage({ action: 'refresh' });
-    } catch (e) {
-      console.error('Refresh app UI on create', e);
-    }
-    try {
-      await tryToUpdateExtensionIcon(bookmark.url, saved);
-    } catch (e) {
-      console.error('Refresh ext icon on creation event', e);
-    }
+    await setIconForOpenTab(bookmark.url, ICON_SAVED);
+    refreshUserInterface();
   });
 
   // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onChanged
   chrome.bookmarks.onChanged.addListener(async (id, changeInfo) => {
     try {
       console.log('🔄 Bookmark has been updated..', id, changeInfo);
-      const folder = folders.find(
-        (item) => parseInt(item.id, 10) === parseInt(id, 10),
-      );
-      await bookmarkStorage.update(id, {
-        title: tagHelper.getTitle(changeInfo.title),
-        tags: tagHelper.getTags(changeInfo.title),
-        url: changeInfo.url,
-        updatedAt: new Date().toISOString(),
-      });
-      if (folder !== undefined) {
-        await bookmarkStorage.updateFolders(folder.title, changeInfo.title);
+      const [bookmark] = await chrome.bookmarks.get(id);
+      const folderTree = await bookmarkHelper.getFoldersTreeByBookmark(id);
+      if (!bookmark.url) {
+        console.warn('changeInfo', changeInfo, bookmark);
+        await bookmarkStorage.updateFolders(bookmark, folderTree);
+      } else {
+        await bookmarkStorage.update(id, {
+          title: tagHelper.getTitle(changeInfo.title),
+          tags: tagHelper.getTags(changeInfo.title),
+          url: changeInfo.url,
+          updatedAt: new Date().toISOString(),
+        });
       }
     } catch (e) {
       console.error('🔄', e, id, changeInfo);
@@ -117,81 +102,89 @@ const notSaved = '/icons/icon32.png';
   chrome.bookmarks.onMoved.addListener(async (id, moveInfo) => {
     try {
       console.log('🗂 Bookmark has been moved..', id, moveInfo);
-      const folder = folders.find((item) => item.id === moveInfo.parentId);
-      console.warn(folder);
+      const [folder] = await chrome.bookmarks.get(moveInfo.parentId);
       await bookmarkStorage.update(id, {
         folderName: folder.title,
         folder,
+        folderId: parseInt(folder.id, 10),
         updatedAt: new Date().toISOString(),
       });
     } catch (e) {
       console.error('🗂', e, id, moveInfo);
     }
-    try {
-      chrome.runtime.sendMessage({ action: 'refresh' });
-    } catch (e) {
-      console.error('Refresh app UI on move', e);
-    }
+    refreshUserInterface();
   });
 
   // https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onRemoved
   chrome.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
+    if (removeInfo.node.children !== undefined) {
+      try {
+        const items = bookmarkHelper.getAllBookmarksFromNode(removeInfo.node);
+        const bookmarksToRemove = items.map((bookmark) => bookmark.id);
+        const tabsToUpdate = items.map((bookmark) => bookmark.url);
+        if (bookmarksToRemove.length) {
+          const total = await bookmarkStorage.removeByIds(bookmarksToRemove);
+          console.log('🗑️Folder has been removed..', total, id, removeInfo);
+        }
+        refreshUserInterface();
+        console.warn(tabsToUpdate);
+        const tabPromises = tabsToUpdate.map((url) => setIconForOpenTab(url, ICON_NOT_SAVED));
+        await Promise.all(tabPromises);
+      } catch (e) {
+        console.error('🗑️ Remove err', e);
+      }
+      return;
+    }
     try {
       const bookmark = await bookmarkStorage.getById(id);
-      console.warn(bookmark);
-      if (bookmark) {
-        const bookmarkSearchResults = await chrome.bookmarks.search({ url: bookmark.url });
-        console.table('Tabs with icon', bookmarkSearchResults);
-        if (bookmarkSearchResults.length === 0) {
-          await tryToUpdateExtensionIcon(bookmark.url, notSaved);
-        }
+      if (!bookmark) {
+        throw new Error(`Bookmark with ID ${id} not found in storage.`);
       }
-    } catch (e) {
-      console.error(e);
-    }
-    try {
       await bookmarkStorage.remove(id);
+      refreshUserInterface();
+      await setIconForOpenTab(bookmark.url, ICON_NOT_SAVED);
       console.log('🗑️ Bookmark has been removed..', id, removeInfo);
     } catch (e) {
-      console.error('🗑️', e, id, removeInfo);
-    }
-    try {
-      chrome.runtime.sendMessage({ action: 'refresh' });
-    } catch (e) {
-      console.error('Refresh app UI on remove', e);
+      console.error('🗑️', e);
     }
   });
 
-  async function tryToUpdateExtensionIcon(url, path) {
-    const urlWithoutAnchor = url.replace(/#.*$/, '');
-    const tabs = await chrome.tabs.query({ url: urlWithoutAnchor });
-    console.warn('Update icon by', url, urlWithoutAnchor);
-    console.warn('Tabs to update', tabs);
-    for (const tab of tabs) {
-      chrome.action.setIcon({ tabId: tab.id, path });
-    }
-  }
-
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
+  // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
-      if (request.type === 'search') {
-        const bookmarks = await bookmarkStorage.search({
-          tags: [],
-          folders: [],
-          domains: [],
-          sort: 'desc',
-          term: request.data.term,
-          error: 0,
-        });
-        console.warn(bookmarks);
-        const responseData = {
-          bookmarks,
-        };
-        sendResponse(responseData);
+      switch (message.action) {
+        case 'getBookmark':
+          sendResponse({ success: true });
+          break;
+        case 'search':
+          console.warn('handle search..');
+          sendResponse({ bookmarks: [] });
+          break;
+        default:
+          console.warn('Unknown message type:', message);
+          break;
       }
     })();
     return true;
   });
+
+  function refreshUserInterface() {
+    try {
+      chrome.runtime.sendMessage({ action: 'refresh' });
+    } catch (e) {
+      console.error('Refresh UI listener not available', e);
+    }
+  }
+
+  async function setIconForOpenTab(url, path) {
+    const urlWithoutAnchor = url.replace(/#.*$/, '');
+    const tabs = await chrome.tabs.query({ url: urlWithoutAnchor });
+    console.warn('Update icon by', url, urlWithoutAnchor);
+    for (const tab of tabs) {
+      chrome.action.setIcon({ tabId: tab.id, path });
+    }
+  }
 
   ping();
   importBookmarks();

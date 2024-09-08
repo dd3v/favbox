@@ -14,7 +14,7 @@
         >
           <bookmark-favicon
             :bookmark="bookmark"
-            class="h-4 w-4 fill-gray-700 dark:fill-gray-100"
+            class="size-4 fill-gray-700 dark:fill-gray-100"
           />
         </span>
       </label>
@@ -35,7 +35,7 @@
               class="absolute inset-y-0 right-0 flex items-center pr-2"
             >
               <ChevronUpDownIcon
-                class="h-5 w-5 text-gray-700"
+                class="size-5 text-gray-700"
                 aria-hidden="true"
               />
             </ComboboxButton>
@@ -85,7 +85,7 @@
                     }"
                   >
                     <CheckIcon
-                      class="h-5 w-5"
+                      class="size-5"
                       aria-hidden="true"
                     />
                   </span>
