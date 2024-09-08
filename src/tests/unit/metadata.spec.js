@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import Parser from '@/helpers/parser';
+import MetadataParser from '@/parser/metadata';
 
 const fs = require('fs');
 const path = require('path');
@@ -16,7 +16,7 @@ describe('Parser Tests', () => {
       },
       hasError: 0,
     };
-    const parser = new Parser(response);
+    const parser = new MetadataParser(response);
     expect(parser.getTitle()).toBe('examples/screenshot/main.go at master · chromedp/examples');
     expect(parser.getDescription()).toBe('chromedp code examples. Contribute to chromedp/examples development by creating an account on GitHub.');
     expect(await parser.getFavicon()).toBe('https://github.githubassets.com/favicons/favicon.svg');
@@ -35,7 +35,7 @@ describe('Parser Tests', () => {
       },
       hasError: 0,
     };
-    const parser = new Parser(response);
+    const parser = new MetadataParser(response);
     expect(parser.getTitle()).toBe('Advanced Encoding and Decoding Techniques in Go');
     expect(parser.getDescription()).toBe('Advanced Encoding and Decoding Techniques Go’s standard library comes packed with some great encoding and decoding packages covering a wide array of encoding schemes. Everything from CSV, XML, JSON, and even gob - a Go specific encoding format - is covered, and all of these packages are incredibly easy to get started with.');
     expect(await parser.getFavicon()).toBe(null);
@@ -54,7 +54,7 @@ describe('Parser Tests', () => {
       },
       hasError: 0,
     };
-    const parser = new Parser(response);
+    const parser = new MetadataParser(response);
     expect(parser.getTitle()).toBe('Backend from the Beginning, part 3: Databases, Dependency Injection, Middleware, and Routing');
     expect(parser.getDescription()).toBe(null);
     expect(await parser.getFavicon()).toBe('https://eblog.fly.dev/favicon.ico');

@@ -1,8 +1,8 @@
 import { parseHTML } from 'linkedom';
-import bookmarkHelper from '@/helpers/bookmarks';
+import bookmarkHelper from '@/helpers/bookmark';
 import tagHelper from '@/helpers/tags';
 
-export default class Parser {
+export default class MetadataParser {
   #bookmark;
 
   #httpResponse;
@@ -10,13 +10,11 @@ export default class Parser {
   #dom;
 
   /**
-   * Creates an instance of a class that processes a bookmark;
-   *
-   * @param {Object} bookmark - The bookmark object from browser.
-   * @param {Object} httpResponse - The response object from the HTTP request made to the bookmark URL.
-   * @param {string} httpResponse.html - The HTML content of the response.
-   * @param {number} httpResponse.error - Error code.
-   */
+  * Creates an instance of a class that processes a bookmark;
+  *
+  * @param {Object} bookmark - The bookmark object from browser.
+  * @param {Object} httpResponse - The response object from the HTTP request made to the bookmark URL.
+  */
   constructor(bookmark, httpResponse) {
     const { document } = parseHTML(httpResponse.html);
     this.#bookmark = bookmark;
@@ -24,6 +22,11 @@ export default class Parser {
     this.#httpResponse = httpResponse;
   }
 
+  /**
+  * Retrieves the title from various sources in the HTML document.
+  *
+  * @returns {string|null} - The title of the document or null if not found.
+  */
   getTitle() {
     const title = this.#bookmark.title
       ?? this.#dom.title
@@ -33,6 +36,11 @@ export default class Parser {
     return title || null;
   }
 
+  /**
+  * Retrieves the description from various meta tags in the HTML document.
+  *
+  * @returns {string|null} - The description of the document or null if not found.
+  */
   getDescription() {
     const selectors = [
       'meta[property="og:description"]',
@@ -42,12 +50,24 @@ export default class Parser {
     return this.#dom.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
   }
 
+  /**
+  * Retrieves the Apple Touch icon URL from the HTML document.
+  *
+  * @returns {string|null} - The URL of the Apple Touch icon or null if not found.
+  * @private
+  */
   #getAppleTouchImageFromPage() {
     const htmlElem = this.#dom.querySelector('link[rel="apple-touch-icon"][sizes="152x152"], link[rel="apple-touch-icon"][sizes="180x180"]');
     const src = (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
     return src;
   }
 
+  /**
+  * Retrieves the Open Graph image URL from the HTML document.
+  *
+  * @returns {string|null} - The URL of the Open Graph image or null if not found.
+  * @private
+  */
   #getOGImageFromPage() {
     const selectors = [
       'meta[property="og:image"]',
@@ -62,15 +82,30 @@ export default class Parser {
     return (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
   }
 
+  /**
+  * Retrieves the main image URL from the HTML document.
+  *
+  * @returns {string|null} - The URL of the main image or null if not found.
+  */
   getImage() {
     const src = this.#getOGImageFromPage() || this.#getAppleTouchImageFromPage();
     return src ? new URL(src, this.#bookmark.url).href : null;
   }
 
+  /**
+  * Retrieves the domain from the bookmark URL.
+  *
+  * @returns {string} - The domain of the bookmark URL.
+  */
   getDomain() {
-    return new URL(this.#bookmark.url).hostname;
+    return new URL(this.#bookmark.url).hostname.replace(/^www\./, '');
   }
 
+  /**
+  * Retrieves the favicon URL from the HTML document.
+  *
+  * @returns {string} - The URL of the favicon or a default favicon URL if not found.
+  */
   getFavicon() {
     let link = this.#dom.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute('href');
     if (!link) {
@@ -79,30 +114,41 @@ export default class Parser {
     return link ? new URL(link, this.#bookmark.url).href : `https://${this.getDomain()}/favicon.ico`;
   }
 
+  /**
+  * Retrieves the URL of the bookmark.
+  *
+  * @returns {string} - The URL of the bookmark.
+  */
   getUrl() {
     return this.#bookmark.url;
   }
 
+  /**
+  * Retrieves the type of the content.
+  *
+  * @returns {string} - The type of the bookmark.
+  */
   getType() {
     return this.#dom.querySelector('meta[property="og:type"]')?.getAttribute('content')?.split('.')?.shift()
       ?.toLowerCase() ?? 'website';
   }
 
-  async getFolder() {
-    const folders = await bookmarkHelper.getFolders();
-    return folders.find((item) => item.id === this.#bookmark.parentId);
-  }
-
+  /**
+  * Retrieves the keywords from the HTML document's meta tags.
+  *
+  * @returns {string[]} - An array of keywords or an empty array if no keywords are found.
+  */
   getKeywords() {
-    const selectors = [
-      'meta[name="keywords"]',
-      'meta[name="keynews_keywordswords"]',
-    ];
-    const keywords = this.#dom.querySelector(selectors.join(','))?.getAttribute('content');
-    if (!keywords || keywords.length === 0) return [];
-    return keywords.split(',').map((keyword) => keyword.trim().toLocaleLowerCase()).filter((keyword) => keyword.length > 0);
+    const keywords = this.#dom.querySelector('meta[name="keywords"]')?.getAttribute('content');
+    if (!keywords) return [];
+    return keywords.split(',').map((keyword) => keyword.trim().toLowerCase()).filter((keyword) => keyword.length > 0);
   }
 
+  /**
+  * Retrieves the locale of the web page.
+  *
+  * @returns {Promise<string|null>} - A promise that resolves to the locale of the document or null if not found.
+  */
   async getLocale() {
     if (this.#httpResponse.error !== 0) {
       return null;
@@ -128,13 +174,18 @@ export default class Parser {
     return null;
   }
 
+  /**
+  *
+  * @returns {Promise<Object>} - A promise that resolves to an object representing the bookmark entity.
+  */
   async getFavboxBookmark() {
+    const [folder] = await chrome.bookmarks.get(this.#bookmark.parentId);
     const foldersTree = await bookmarkHelper.getFoldersTreeByBookmark(this.#bookmark.id);
     const entity = {
       id: parseInt(this.#bookmark.id, 10),
-      bfolder: await bookmarkHelper.getById(this.#bookmark.parentId),
-      folder: foldersTree.at(-1),
-      folders: foldersTree,
+      folder,
+      folderId: parseInt(this.#bookmark.parentId, 10),
+      folderName: foldersTree.titles.at(-1),
       title: tagHelper.getTitle(this.#bookmark.title),
       description: this.getDescription(),
       favicon: this.getFavicon(),

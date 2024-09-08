@@ -5,39 +5,55 @@ export default class BookmarkStorage {
     this.tableName = 'bookmarks';
   }
 
-  search(conditions, skip = 0, limit = 50) {
+  async search(conditions, skip = 0, limit = 50) {
+    console.warn('search query', conditions);
+
     const whereConditions = {};
-    if (conditions.tags.length) {
+    if (conditions.tag.length) {
       Object.assign(whereConditions, {
         tags: {
-          in: [...conditions.tags],
+          in: [...conditions.tag],
         },
       });
     }
-    if (conditions.folders.length) {
+    if (conditions.folder.length) {
       Object.assign(whereConditions, {
         folderName: {
-          in: [...conditions.folders],
+          in: [...conditions.folder],
         },
       });
     }
-    if (conditions.error === 1) {
-      Object.assign(whereConditions, {
-        error: {
-          in: [404, 410],
-        },
-      });
-    }
-    if (conditions.domains.length) {
+    if (conditions.domain.length) {
       Object.assign(whereConditions, {
         domain: {
-          in: [...conditions.domains],
+          in: [...conditions.domain],
         },
       });
     }
-    if (conditions.term.length) {
+    if (conditions.keyword.length) {
       Object.assign(whereConditions, {
-        searchKeyPath: { like: `%${conditions.term}%` },
+        keywords: {
+          in: [...conditions.keyword],
+        },
+      });
+    }
+    if (conditions.type.length) {
+      Object.assign(whereConditions, {
+        type: {
+          in: [...conditions.type],
+        },
+      });
+    }
+    if (conditions.locale.length) {
+      Object.assign(whereConditions, {
+        locale: {
+          in: [...conditions.locale],
+        },
+      });
+    }
+    if (conditions.error === true) {
+      Object.assign(whereConditions, {
+        error: { '!=': 0 },
       });
     }
     return connection.select({
@@ -46,20 +62,20 @@ export default class BookmarkStorage {
       skip,
       order: {
         by: 'id',
-        type: conditions.sort,
+        type: 'desc',
       },
       where: Object.keys(whereConditions).length === 0 ? null : whereConditions,
     });
   }
 
-  create(entity) {
+  async create(entity) {
     return connection.insert({
       into: this.tableName,
       values: [entity],
     });
   }
 
-  update(id, data) {
+  async update(id, data) {
     return connection.update({
       in: this.tableName,
       set: data,
@@ -69,14 +85,26 @@ export default class BookmarkStorage {
     });
   }
 
-  remove(id) {
+  async removeByIds(ids) {
+    const result = await connection.remove({
+      from: this.tableName,
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+    return result;
+  }
+
+  async remove(id) {
     return connection.remove({
       from: this.tableName,
       where: { id: Number(id) },
     });
   }
 
-  count(id) {
+  async count(id) {
     return connection.count({
       from: this.tableName,
       where: {
@@ -85,7 +113,7 @@ export default class BookmarkStorage {
     });
   }
 
-  createMultiple(data) {
+  async createMultiple(data) {
     return connection.insert({
       into: this.tableName,
       values: data,
@@ -95,9 +123,8 @@ export default class BookmarkStorage {
     });
   }
 
-  getByIds(ids) {
-    console.warn(ids);
-    return connection.select({
+  async getIds(ids) {
+    const response = await connection.select({
       from: this.tableName,
       where: {
         id: {
@@ -105,16 +132,19 @@ export default class BookmarkStorage {
         },
       },
     });
+    return response.map((i) => parseInt(i.id, 10));
   }
 
-  updateFolders(oldTitle, newTitle) {
+  async updateFolders(folder) {
     return connection.update({
       in: this.tableName,
       set: {
-        folderName: newTitle,
+        folderName: folder.title,
+        folder,
+        folderId: parseInt(folder.id, 10),
       },
       where: {
-        folderName: oldTitle,
+        folderId: parseInt(folder.id, 10),
       },
     });
   }
@@ -159,7 +189,6 @@ export default class BookmarkStorage {
   async getDomains() {
     const response = await connection.select({
       from: this.tableName,
-      // flatten: ['domain'],
       groupBy: 'domain',
       order: {
         by: 'domain',
@@ -183,38 +212,113 @@ export default class BookmarkStorage {
   }
 
   async getAttributes() {
-    const flattenDomains = await connection.select({ from: this.tableName, groupBy: 'domain' });
-    const domains = flattenDomains.map((item) => ({ domain: item.domain }));
+    const flattenDomains = await connection.select({
+      from: this.tableName,
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+      groupBy: 'domain',
+    });
+    const domains = flattenDomains.map((item) => ({
+      key: 'domain', value: item.domain, id: `domain${item.id}`, count: item['count(id)'], list: item['list(id)'],
+    })).slice(0, 5);
+
     const flattenTags = await connection.select({
       from: this.tableName,
       flatten: ['tags'],
       groupBy: 'tags',
+      aggregate: {
+        list: ['id'],
+      },
       order: {
         by: 'tags',
         type: 'asc',
       },
     });
-    const tags = flattenTags.map((item) => ({ tag: item.tags }));
+
+    console.warn('flattenTags', flattenTags);
+
+    const tags = flattenTags.map((item) => {
+      const uniqueList = [...new Set(item['list(id)'])];
+      return {
+        key: 'tag',
+        value: item.tags,
+        id: `tag${item.id}`,
+        count: uniqueList.length,
+        list: uniqueList,
+      };
+    }).slice(0, 5);
+
     const flattenKeywords = await connection.select({
       from: this.tableName,
       flatten: ['keywords'],
       groupBy: 'keywords',
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
       order: {
         by: 'keywords',
         type: 'asc',
       },
     });
-    const keywords = flattenKeywords.map((item) => ({ keyword: item.keywords }));
+    const keywords = flattenKeywords.map((item) => {
+      const uniqueList = [...new Set(item['list(id)'])];
+      return {
+        key: 'keyword',
+        value: item.keywords,
+        id: `keyword${item.id}`,
+        count: uniqueList.length,
+        list: uniqueList,
+      };
+    }).slice(0, 5);
 
-    const flattenTypes = await connection.select({ from: this.tableName, groupBy: 'type' });
-    const types = flattenTypes.map((item) => ({ type: item.type }));
+    const flattenTypes = await connection.select({
+      from: this.tableName,
+      groupBy: 'type',
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+    });
+    const types = flattenTypes.map((item) => ({
+      key: 'type', value: item.type, id: `type${item.id}`, count: item['count(id)'], list: item['list(id)'],
+    })).slice(0, 5);
 
-    const flattenLocales = await connection.select({ from: this.tableName, groupBy: 'locale' });
-    const locales = flattenLocales.map((item) => ({ locale: item.locale }));
+    const flattenLocales = await connection.select({
+      from: this.tableName,
+      where: {
+        locale: {
+          '!=': 'null',
+        },
+      },
+      groupBy: 'locale',
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+    });
+    const locales = flattenLocales.map((item) => ({
+      key: 'locale', value: item.locale, id: `locale${item.id}`, count: item['count(id)'], list: item['list(id)'],
+    }));
 
-    const flattenFolders = await connection.select({ from: this.tableName, groupBy: 'folderName' });
-    const folders = flattenFolders.map((item) => ({ folder: item.folderName }));
+    const flattenFolders = await connection.select({
+      from: this.tableName,
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+      groupBy: 'folderName',
+    });
 
+    console.warn(flattenFolders);
+
+    const folders = flattenFolders.map((item) => ({
+      key: 'folder', value: item.folderName, id: `folder${item.id}`, count: item['count(id)'], list: item['list(id)'],
+    })).slice(0, 125);
+
+    // return [];
     return [...keywords, ...tags, ...domains, ...types, ...locales, ...folders];
   }
 }

@@ -1,0 +1,136 @@
+/**
+* A helper object for working with bookmarks.
+*
+* @typedef {Object} bookmarkHelper
+* @property {Function} total - Counts the total number of bookmarks (excluding folders).
+* @property {Function} getAllBookmarksFromNode - Recursively collects all bookmarks and their URLs from the given node.
+* @property {Function} getFoldersTreeByBookmark - Retrieves the tree of folder names and IDs for a given bookmark ID.
+* @property {Function} getFolders - Retrieves all folders from the bookmarks.
+* @property {Function} getFoldersFlatten - Retrieves the titles of all folders in the bookmarks tree as a flat array.
+* @property {Function} getBookmarksFlatten - Retrieves all bookmarks as a flat array.
+*/
+const bookmarkHelper = {
+  /**
+  * Counts the total number of bookmarks (excluding folders).
+  *
+  * @returns {Promise<number>}
+  */
+  total: async () => {
+    const items = await chrome.bookmarks.getTree();
+    let count = 0;
+    function countBookmarks(bookmarks) {
+      bookmarks.forEach((bookmark) => {
+        if (bookmark.url) {
+          count += 1;
+        }
+        if (bookmark.children) {
+          countBookmarks(bookmark.children);
+        }
+      });
+    }
+    countBookmarks(items);
+    return count;
+  },
+
+  /**
+  * Recursively collects all bookmarks and their URLs from the given node.
+  *
+  * @param {Object} node - The bookmark node to start with. This can be a folder or a bookmark.
+  *
+  * @returns {Array<Object>} An array of bookmark objects, each containing:
+  * - `id` {number} - The unique identifier of the bookmark.
+  * - `url` {string} - The URL of the bookmark. This is `undefined` if the node is a folder.
+  */
+  getAllBookmarksFromNode(node) {
+    let items = [];
+    if (node.url) {
+      items.push({ id: parseInt(node.id, 10), url: node.url });
+    }
+    if (node.children) {
+      for (const child of node.children) {
+        items = items.concat(this.getAllBookmarksFromNode(child));
+      }
+    }
+    return items;
+  },
+  /**
+  * Retrieves the tree of folder names and IDs for a given bookmark ID.
+  *
+  * @param {string|number} id - The ID of the bookmark.
+  * @returns {Promise<{ ids: string[], titles: string[] }>}
+  */
+  getFoldersTreeByBookmark: async (id) => {
+    const ids = [];
+    const titles = [];
+    async function getParent(pid) {
+      const [bookmarkItem] = await chrome.bookmarks.get(pid);
+      if (bookmarkItem && !bookmarkItem.url && bookmarkItem.title) {
+        ids.push(parseInt(bookmarkItem.id, 10));
+        titles.push(bookmarkItem.title);
+      }
+      if (bookmarkItem && bookmarkItem.parentId) {
+        await getParent(bookmarkItem.parentId);
+      }
+    }
+    await getParent(String(id));
+    ids.reverse();
+    titles.reverse();
+    return { ids, titles };
+  },
+  /**
+  * Retrieves all folders from the bookmarks.
+  *
+  * @returns {Promise<Object[]>}
+  */
+  getFolders: async () => {
+    const tree = await chrome.bookmarks.getTree();
+    const folders = [];
+    function getFolders(bookmarks) {
+      for (const bookmark of bookmarks) {
+        if (bookmark.children) {
+          if (bookmark.title !== '') {
+            folders.push({
+              id: bookmark.id,
+              index: bookmark.index,
+              parentId: bookmark.parentId,
+              dateAdded: bookmark.dateAdded,
+              title: bookmark.title,
+            });
+          }
+          getFolders(bookmark.children);
+        }
+      }
+    }
+    getFolders(tree);
+    return folders;
+  },
+  /**
+  * Retrieves the titles of all folders in the bookmarks tree as a flat array.
+  *
+  * @returns {Promise<string[]>}
+  */
+  getFoldersFlatten: async () => {
+    const folders = await this.getFolders();
+    return folders.map((item) => item.title);
+  },
+  /**
+  * Retrieves all bookmarks from the browser and flattens the hierarchical structure into array.
+  *
+  * @returns {Promise<Array>}
+  */
+  getBookmarksFlatten: async () => {
+    const bookmarksTree = await chrome.bookmarks.getTree();
+    const flatBookmarks = [];
+    function processNode(node) {
+      if (node.url) {
+        flatBookmarks.push(node);
+      }
+      if (node.children && node.children.length > 0) {
+        node.children.forEach(processNode);
+      }
+    }
+    bookmarksTree.forEach(processNode);
+    return flatBookmarks;
+  },
+};
+export default bookmarkHelper;
