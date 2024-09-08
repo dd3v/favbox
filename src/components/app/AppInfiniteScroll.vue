@@ -18,11 +18,18 @@ const props = defineProps({
 const emit = defineEmits(['scroll:end']);
 const scroll = ref(null);
 const skip = ref(0);
+let isLoading = false;
+
 const onScroll = () => {
+  if (isLoading) return;
   const el = scroll.value;
-  if (Math.round(el.offsetHeight + el.scrollTop) >= el.scrollHeight) {
+  if (Math.round(el.offsetHeight + el.scrollTop) >= el.scrollHeight * 0.75) {
+    isLoading = true;
     skip.value += parseInt(props.limit, 10);
     emit('scroll:end', skip.value);
+    setTimeout(() => {
+      isLoading = false;
+    }, 1000);
   }
 };
 const scrollUp = () => {

@@ -4,12 +4,12 @@
     class="flex items-center justify-center"
     :class="{'min-h-[132px]': !bookmark.image}"
   >
-    <v-lazy-image
+    <img
       :src="String(bookmark.image || bookmark.favicon)"
       :alt="bookmark.title"
       class="object-cover object-center"
       @error="showImage = false"
-    />
+    >
   </div>
   <div
     v-else
@@ -24,7 +24,6 @@
 </template>
 
 <script setup>
-import VLazyImage from 'v-lazy-image';
 import { computed, ref } from 'vue';
 
 const props = defineProps({
