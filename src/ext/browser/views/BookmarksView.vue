@@ -11,14 +11,13 @@
       />
     </section>
     <div class="flex h-screen w-full flex-col overflow-hidden bg-gray-50 dark:bg-neutral-900">
-      <div class="sticky top-0 z-10 flex h-14 flex-row space-x-3 p-2">
+      <div class="sticky top-0 z-10 flex h-14 flex-row space-x-3">
         <search-term
           ref="searchInputRef"
           v-model="temp"
         />
         <sort-direction v-model="temp" />
         <bookmark-display v-model="displayType" />
-        <broken-bookmarks v-model="query.error" />
       </div>
       <app-infinite-scroll
         ref="scroll"
@@ -46,17 +45,20 @@
         </bookmark-layout>
       </app-infinite-scroll>
     </div>
-    <bookmark-toolbar ref="drawer">
-      <template #edit>
+    <app-drawer ref="drawer">
+      <template #title>
+        Edit Bookmark
+      </template>
+      <template #content>
         <bookmark-form
           v-model="currentBookmark"
           :folders="bookmarkFolders"
           :tags="tags"
-          class="w-3/5"
+          class="w-full"
           @submit="handleSubmit"
         />
       </template>
-    </bookmark-toolbar>
+    </app-drawer>
     <bookmarks-sync
       v-if="showSync"
       :progress="syncProgress"
@@ -73,13 +75,12 @@ import {
   GlobeAltIcon,
 } from '@heroicons/vue/24/outline';
 import { notify } from 'notiwind';
-import BookmarkToolbar from '@/components/bookmark/BookmarkToolbar.vue';
+import AppDrawer from '@/components/app/AppDrawer.vue';
 import AttributeList from '@/components/AttributeList.vue';
 import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
 import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import bookmarkHelper from '@/helpers/bookmark';
-import BrokenBookmarks from '@/components/search/BrokenBookmarks.vue';
 import SearchTerm from '@/components/search/SearchTerm.vue';
 import SortDirection from '@/components/search/SortDirection.vue';
 import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
