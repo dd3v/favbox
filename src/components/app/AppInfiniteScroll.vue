@@ -12,7 +12,7 @@ import { onMounted, ref } from 'vue';
 const props = defineProps({
   limit: {
     type: Number,
-    default: 50,
+    default: 15,
   },
 });
 const emit = defineEmits(['scroll:end']);

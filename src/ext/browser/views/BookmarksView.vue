@@ -16,7 +16,6 @@
           ref="searchInputRef"
           v-model="temp"
         />
-        <sort-direction v-model="temp" />
         <bookmark-display v-model="displayType" />
       </div>
       <app-infinite-scroll
@@ -37,6 +36,7 @@
           <bookmark-card
             v-for="(bookmark, key) in bookmarks"
             :key="key"
+            v-motion-slide-visible-once-bottom
             :display-type="displayType"
             :bookmark="bookmark"
             @remove="handleRemoveBookmark"
@@ -82,7 +82,6 @@ import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import bookmarkHelper from '@/helpers/bookmark';
 import SearchTerm from '@/components/search/SearchTerm.vue';
-import SortDirection from '@/components/search/SortDirection.vue';
 import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
 import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';

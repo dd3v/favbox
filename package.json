@@ -17,6 +17,7 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.13",
     "@vueuse/core": "^9.13.0",
+    "@vueuse/motion": "^2.2.5",
     "dompurify": "^3.1.2",
     "jsstore": "^4.7.4",
     "linkedom": "^0.14.26",
