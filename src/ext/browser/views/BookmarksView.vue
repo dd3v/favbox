@@ -3,14 +3,14 @@
     <section class="flex">
       <attribute-list
         v-model="query"
-        :sort="attrsSort"
-        :includes="attrsIncludes"
-        :term="attrsTerm"
+        v-model:sort="attrsSort"
+        v-model:includes="attrsIncludes"
+        v-model:term="attrsTerm"
         class="sticky top-0 flex h-full w-64"
         :items="attrs"
       />
     </section>
-    <div class="flex h-screen w-full flex-col overflow-hidden bg-gray-50 dark:bg-neutral-900">
+    <div class="flex h-screen w-full flex-col overflow-hidden">
       <div class="sticky top-0 z-10 flex h-14 flex-row space-x-3">
         <search-term
           ref="searchInputRef"
@@ -63,20 +63,16 @@
       v-if="showSync"
       :progress="syncProgress"
     />
+    <b-search />
   </div>
 </template>
 <script setup>
 import {
   toRaw, reactive, ref, watch, onMounted,
 } from 'vue';
-import {
-  FolderOpenIcon,
-  HashtagIcon,
-  GlobeAltIcon,
-} from '@heroicons/vue/24/outline';
 import { notify } from 'notiwind';
 import AppDrawer from '@/components/app/AppDrawer.vue';
-import AttributeList from '@/components/AttributeList.vue';
+import AttributeList from '@/ext/browser/components/AttributeList.vue';
 import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
 import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
@@ -88,6 +84,7 @@ import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 import BookmarksSync from '@/ext/browser/components/BookmarksSync.vue';
+import BSearch from '@/ext/browser/components/BSearch.vue';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
@@ -100,12 +97,7 @@ const currentBookmark = ref({});
 const drawer = ref(null);
 
 const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
-const currentTab = ref('folders');
-const tabs = [
-  { value: 'folders', icon: FolderOpenIcon },
-  { value: 'tags', icon: HashtagIcon },
-  { value: 'domains', icon: GlobeAltIcon },
-];
+
 const scroll = ref(null);
 const bookmarks = ref([]);
 
@@ -116,13 +108,12 @@ const query = reactive({
   locale: [],
   keyword: [],
   type: [],
-  error: false,
 });
 
 const attrs = ref([]);
-const attrsSort = ref('asc');
-const attrsIncludes = ref(['folders']);
-const attrsTerm = ref('');
+const attrsSort = ref('name:asc');
+const attrsIncludes = reactive(['folder', 'tag', 'locale', 'keyword', 'type', 'domain']);
+const attrsTerm = ref('1');
 
 const searchInputRef = ref(null);
 const showSync = ref(false);
@@ -194,32 +185,26 @@ watch(displayType, () => localStorage.setItem('displayType', displayType.value))
 watch(
   query,
   async () => {
-    console.warn(query);
+    console.warn('QUERY', query);
     scroll.value?.scrollUp();
     bookmarks.value = await bookmarkStorage.search(toRaw(query));
   },
   { immediate: true, deep: true },
 );
 
-watch([attrsSort, attrsTerm, attrsIncludes], ([newSort, newTerm, newIncludes]) => {
+watch([attrsSort, attrsTerm, attrsIncludes], async ([newSort, newTerm, newIncludes]) => {
   console.warn('newSort', newSort);
   console.warn('newTerm', newTerm);
   console.warn('newIncludes', newIncludes);
 
-  // eslint-disable-next-line no-unused-expressions
-  attrs.value = newSort === 'asc'
-    ? attrs.value.sort((a, b) => {
-      const valueA = a.value || '';
-      const valueB = b.value || '';
-      return valueA.localeCompare(valueB);
-    })
-    : attrs.value.sort((a, b) => {
-      const valueA = a.value || '';
-      const valueB = b.value || '';
-      return valueB.localeCompare(valueA);
-    });
-  // attrs.value = attrs.value.filter((item) => attrsIncludes.value.includes(item.key));
+  const result = await bookmarkStorage.getAttributes(attrsIncludes, attrsSort.value, attrsTerm.value);
+
+  attrs.value = result;
 }, { deep: true });
+
+watch(attrsTerm, () => {
+  console.log('attrsTerm', attrsTerm.value);
+});
 
 watch(query, (newVal) => {
   console.warn('query', newVal);
@@ -233,7 +218,9 @@ watch(
 );
 
 onMounted(async () => {
-  attrs.value = await bookmarkStorage.getAttributes();
+  const result = await bookmarkStorage.getAttributes(attrsIncludes, attrsSort.value, attrsTerm.value);
+
+  attrs.value = result;
 
   console.warn('attrs', attrs.value);
 });
@@ -246,7 +233,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
       syncProgress.value = message.data.progress;
     }
     bookmarks.value = await bookmarkStorage.search(toRaw(query));
-    attrs.value = await bookmarkStorage.getAttributes();
+    attrs.value = await bookmarkStorage.getAttributes(attrsIncludes, attrsSort.value, attrsTerm.value);
   }
 });
 </script>

@@ -211,114 +211,138 @@ export default class BookmarkStorage {
     return response.map((item) => item.keywords);
   }
 
-  async getAttributes() {
-    const flattenDomains = await connection.select({
-      from: this.tableName,
-      aggregate: {
-        count: ['id'],
-        list: ['id'],
-      },
-      groupBy: 'domain',
-    });
-    const domains = flattenDomains.map((item) => ({
-      key: 'domain', value: item.domain, id: `domain${item.id}`, count: item['count(id)'], list: item['list(id)'],
-    })).slice(0, 5);
-
-    const flattenTags = await connection.select({
-      from: this.tableName,
-      flatten: ['tags'],
-      groupBy: 'tags',
-      aggregate: {
-        list: ['id'],
-      },
-      order: {
-        by: 'tags',
-        type: 'asc',
-      },
-    });
-
-    console.warn('flattenTags', flattenTags);
-
-    const tags = flattenTags.map((item) => {
-      const uniqueList = [...new Set(item['list(id)'])];
-      return {
-        key: 'tag',
-        value: item.tags,
-        id: `tag${item.id}`,
-        count: uniqueList.length,
-        list: uniqueList,
-      };
-    }).slice(0, 5);
-
-    const flattenKeywords = await connection.select({
-      from: this.tableName,
-      flatten: ['keywords'],
-      groupBy: 'keywords',
-      aggregate: {
-        count: ['id'],
-        list: ['id'],
-      },
-      order: {
-        by: 'keywords',
-        type: 'asc',
-      },
-    });
-    const keywords = flattenKeywords.map((item) => {
-      const uniqueList = [...new Set(item['list(id)'])];
-      return {
-        key: 'keyword',
-        value: item.keywords,
-        id: `keyword${item.id}`,
-        count: uniqueList.length,
-        list: uniqueList,
-      };
-    }).slice(0, 5);
-
-    const flattenTypes = await connection.select({
-      from: this.tableName,
-      groupBy: 'type',
-      aggregate: {
-        count: ['id'],
-        list: ['id'],
-      },
-    });
-    const types = flattenTypes.map((item) => ({
-      key: 'type', value: item.type, id: `type${item.id}`, count: item['count(id)'], list: item['list(id)'],
-    })).slice(0, 5);
-
-    const flattenLocales = await connection.select({
-      from: this.tableName,
-      where: {
-        locale: {
-          '!=': 'null',
+  async getAttributes(include, sort, term = '') {
+    const [sortColumn, sortDirection] = sort.split(':');
+    const result = [];
+    if (include.includes('domain')) {
+      console.warn('include domain');
+      const flattenDomains = await connection.select({
+        from: this.tableName,
+        aggregate: {
+          count: ['id'],
+          list: ['id'],
         },
-      },
-      groupBy: 'locale',
-      aggregate: {
-        count: ['id'],
-        list: ['id'],
-      },
-    });
-    const locales = flattenLocales.map((item) => ({
-      key: 'locale', value: item.locale, id: `locale${item.id}`, count: item['count(id)'], list: item['list(id)'],
-    }));
+        where: term ? { domain: { like: `%${term}%` } } : null,
+        groupBy: 'domain',
+      });
+      const domains = flattenDomains.map((item) => ({
+        key: 'domain', value: item.domain, id: `domain${item.id}`, count: item['count(id)'], list: item['list(id)'],
+      }));
+      result.push(...domains);
+    }
+    if (include.includes('tag')) {
+      let flattenTags = await connection.select({
+        from: this.tableName,
+        flatten: ['tags'],
+        groupBy: 'tags',
+        aggregate: {
+          count: ['id'],
+          list: ['id'],
+        },
+        where: term ? { tags: { like: `%${term}%` } } : null,
+      });
+      flattenTags = term ? flattenTags.filter((item) => item.tags.includes(term)) : flattenTags;
+      const tags = flattenTags.map((item) => {
+        const uniqueList = [...new Set(item['list(id)'])];
+        return {
+          key: 'tag',
+          value: item.tags,
+          id: `tag${item.id}`,
+          count: uniqueList.length,
+          list: uniqueList,
+        };
+      });
+      result.push(...tags);
+    }
+    if (include.includes('keyword')) {
+      let flattenKeywords = await connection.select({
+        from: this.tableName,
+        flatten: ['keywords'],
+        groupBy: 'keywords',
+        aggregate: {
+          count: ['id'],
+          list: ['id'],
+        },
+      });
+      flattenKeywords = term ? flattenKeywords.filter((item) => item.keywords.includes(term)) : flattenKeywords;
+      const keywords = flattenKeywords.map((item) => {
+        const uniqueList = [...new Set(item['list(id)'])];
+        return {
+          key: 'keyword',
+          value: item.keywords,
+          id: `keyword${item.id}`,
+          count: uniqueList.length,
+          list: uniqueList,
+        };
+      });
+      result.push(...keywords);
+    }
+    if (include.includes('type')) {
+      const flattenTypes = await connection.select({
+        from: this.tableName,
+        groupBy: 'type',
+        aggregate: {
+          count: ['id'],
+          list: ['id'],
+        },
+        where: term ? { type: { like: `%${term}%` } } : null,
+      });
+      const types = flattenTypes.map((item) => ({
+        key: 'type', value: item.type, id: `type${item.id}`, count: item['count(id)'], list: item['list(id)'],
+      }));
 
-    const flattenFolders = await connection.select({
-      from: this.tableName,
-      aggregate: {
-        count: ['id'],
-        list: ['id'],
-      },
-      groupBy: 'folderName',
-    });
+      result.push(...types);
+    }
+    if (include.includes('locale')) {
+      const conditions = [{ locale: { '!=': 'null' } }];
+      if (term) {
+        conditions.push({ locale: { like: `%${term}%` } });
+      }
+      const flattenLocales = await connection.select({
+        from: this.tableName,
+        where: conditions,
+        groupBy: 'locale',
+        aggregate: {
+          count: ['id'],
+          list: ['id'],
+        },
+      });
+      const locales = flattenLocales.map((item) => ({
+        key: 'locale', value: item.locale, id: `locale${item.id}`, count: item['count(id)'], list: item['list(id)'],
+      }));
 
-    console.warn(flattenFolders);
+      result.push(...locales);
+    }
+    if (include.includes('folder')) {
+      const flattenFolders = await connection.select({
+        from: this.tableName,
+        groupBy: 'folderName',
+        aggregate: {
+          count: ['id'],
+          list: ['id'],
+        },
+        where: term ? { folderName: { like: `%${term}%` } } : null,
+      });
+      const folders = flattenFolders.map((item) => ({
+        key: 'folder', value: item.folderName, id: `folder${item.id}`, count: item['count(id)'], list: item['list(id)'],
+      }));
 
-    const folders = flattenFolders.map((item) => ({
-      key: 'folder', value: item.folderName, id: `folder${item.id}`, count: item['count(id)'], list: item['list(id)'],
-    })).slice(0, 125);
-
-    // return [];
-    return [...keywords, ...tags, ...domains, ...types, ...locales, ...folders];
+      result.push(...folders);
+    }
+    if (sortColumn === 'count') {
+      if (sortDirection === 'asc') {
+        result.sort((a, b) => a.count - b.count);
+      } else {
+        result.sort((a, b) => b.count - a.count);
+      }
+    }
+    if (sortColumn === 'name') {
+      if (sortDirection === 'asc') {
+        result.sort((a, b) => a.value.localeCompare(b.value));
+      } else {
+        result.sort((a, b) => b.value.localeCompare(a.value));
+      }
+    }
+    return result;
   }
 }
