@@ -5,57 +5,79 @@ export default class BookmarkStorage {
     this.tableName = 'bookmarks';
   }
 
-  async search(conditions, skip = 0, limit = 50) {
-    console.warn('search query', conditions);
-
+  async search(query, skip = 0, limit = 50) {
+    const queryParams = {};
     const whereConditions = {};
-    if (conditions.tag.length) {
-      Object.assign(whereConditions, {
-        tags: {
-          in: [...conditions.tag],
-        },
-      });
-    }
-    if (conditions.folder.length) {
+    query.forEach(({ key, value }) => {
+      (queryParams[key] ??= []).push(value);
+    });
+
+    if (queryParams?.folder) {
       Object.assign(whereConditions, {
         folderName: {
-          in: [...conditions.folder],
+          in: [...queryParams.folder],
         },
       });
     }
-    if (conditions.domain.length) {
+    if (queryParams?.tag) {
+      Object.assign(whereConditions, {
+        tags: {
+          in: [...queryParams.tag],
+        },
+      });
+    }
+    if (queryParams?.domain) {
       Object.assign(whereConditions, {
         domain: {
-          in: [...conditions.domain],
+          in: [...queryParams.domain],
         },
       });
     }
-    if (conditions.keyword.length) {
+    if (queryParams?.keyword) {
       Object.assign(whereConditions, {
         keywords: {
-          in: [...conditions.keyword],
+          in: [...queryParams.keyword],
         },
       });
     }
-    if (conditions.type.length) {
+    if (queryParams?.type) {
       Object.assign(whereConditions, {
         type: {
-          in: [...conditions.type],
+          in: [...queryParams.type],
         },
       });
     }
-    if (conditions.locale.length) {
+    if (queryParams?.locale) {
       Object.assign(whereConditions, {
         locale: {
-          in: [...conditions.locale],
+          in: [...queryParams.locale],
         },
       });
     }
-    if (conditions.error === true) {
+
+    if (queryParams?.term) {
+      const [term] = queryParams.term;
+
       Object.assign(whereConditions, {
-        error: { '!=': 0 },
+        title: { like: `%${term}%` },
+        or: {
+          description: { like: `%${term}%` },
+          or: {
+            keywords: { in: [term] },
+            or: {
+              tags: { in: [term] },
+              or: {
+                domain: { like: `%${term}%` },
+                or: {
+                  url: { like: `%${term}%` },
+                },
+              },
+            },
+          },
+        },
       });
     }
+
     return connection.select({
       from: this.tableName,
       limit,
@@ -214,7 +236,7 @@ export default class BookmarkStorage {
   async getAttributes(include, sort, term = '') {
     const [sortColumn, sortDirection] = sort.split(':');
     const result = [];
-    if (include.includes('domain')) {
+    if (include.domain) {
       console.warn('include domain');
       const flattenDomains = await connection.select({
         from: this.tableName,
@@ -230,7 +252,7 @@ export default class BookmarkStorage {
       }));
       result.push(...domains);
     }
-    if (include.includes('tag')) {
+    if (include.tag) {
       let flattenTags = await connection.select({
         from: this.tableName,
         flatten: ['tags'],
@@ -254,7 +276,7 @@ export default class BookmarkStorage {
       });
       result.push(...tags);
     }
-    if (include.includes('keyword')) {
+    if (include.keyword) {
       let flattenKeywords = await connection.select({
         from: this.tableName,
         flatten: ['keywords'],
@@ -277,7 +299,7 @@ export default class BookmarkStorage {
       });
       result.push(...keywords);
     }
-    if (include.includes('type')) {
+    if (include.type) {
       const flattenTypes = await connection.select({
         from: this.tableName,
         groupBy: 'type',
@@ -293,7 +315,7 @@ export default class BookmarkStorage {
 
       result.push(...types);
     }
-    if (include.includes('locale')) {
+    if (include.locale) {
       const conditions = [{ locale: { '!=': 'null' } }];
       if (term) {
         conditions.push({ locale: { like: `%${term}%` } });
@@ -313,7 +335,7 @@ export default class BookmarkStorage {
 
       result.push(...locales);
     }
-    if (include.includes('folder')) {
+    if (include.folder) {
       const flattenFolders = await connection.select({
         from: this.tableName,
         groupBy: 'folderName',

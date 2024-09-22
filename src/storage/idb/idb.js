@@ -93,7 +93,6 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
         enableSearch: true,
       },
-      searchKeyPath: { keyPath: ['title', 'description', 'url'] },
     },
   };
 
