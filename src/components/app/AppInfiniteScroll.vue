@@ -1,7 +1,6 @@
 <template>
   <div
     ref="scroll"
-    class="h-full overflow-y-auto"
   >
     <slot />
   </div>
