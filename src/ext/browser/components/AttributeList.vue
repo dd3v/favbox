@@ -11,16 +11,22 @@
           v-model="term"
           autocomplete="off"
           type="text"
-          placeholder="Search terms..."
-          class="w-full rounded-md border-gray-200 px-9 text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600 sm:text-sm"
+          class="w-full rounded-md border-gray-200 px-9 text-gray-700 shadow-sm outline-none placeholder:text-xs focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600 sm:text-sm"
         >
         <Popover class="relative">
-          <PopoverButton class="pointer-events-auto absolute inset-y-0 -top-9 right-0 flex items-center pr-2">
-            <span class="flex size-6 cursor-pointer items-center justify-center rounded-md border border-gray-300 bg-white text-sm text-gray-500 shadow-sm dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
-              /
+          <PopoverButton
+            ref="popoverButtonRef"
+            class="pointer-events-auto absolute inset-y-0 -top-9 right-0 flex items-center pr-2 focus:outline-none focus:ring-0"
+          >
+            <span class="flex flex-wrap items-center gap-x-1 text-sm text-gray-400 dark:text-neutral-600">
+              <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white px-1.5 py-1 font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                <CmdIcon />
+              </kbd>
+              <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white px-1.5 py-1 font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                /
+              </kbd>
             </span>
           </PopoverButton>
-
           <Transition
             enter-active-class="transition duration-200 ease-out"
             enter-from-class="translate-y-1 opacity-0"
@@ -110,12 +116,12 @@
               </div>
 
               <div>
-                <a
-                  href="##"
+                <button
                   class="block w-full rounded-b-lg border-t border-gray-200 bg-gray-50 p-2 text-center text-sm font-medium text-gray-600 shadow-sm transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  @click="close"
                 >
                   Close
-                </a>
+                </button>
               </div>
             </PopoverPanel>
           </Transition>
@@ -131,7 +137,6 @@
       <li
         v-for="(item, key) in list"
         :key="item.id + key"
-        class="px-1"
       >
         <label
           :key="item.id + key"
@@ -166,7 +171,9 @@ import {
   Popover, PopoverButton, PopoverPanel, SwitchGroup, SwitchLabel,
   Switch,
 } from '@headlessui/vue';
-import { computed, defineModel } from 'vue';
+import {
+  computed, defineModel, onMounted, ref, onBeforeUnmount,
+} from 'vue';
 import AppRadio from '@/components/app/AppRadio.vue';
 import AppBullet from '@/components/app/AppBullet.vue';
 import KeywordIcon from '@/components/icons/KeywordIcon.vue';
@@ -178,6 +185,7 @@ import TypeIcon from '@/components/icons/TypeIcon.vue';
 import IncludeIcon from '@/components/icons/IncludeIcon.vue';
 import SortIcon from '@/components/icons/SortIcon.vue';
 import SearchIcon from '@/components/icons/SearchIcon.vue';
+import CmdIcon from '@/components/icons/CmdIcon.vue';
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -205,6 +213,8 @@ const iconMap = {
   tag: TagIcon,
   type: TypeIcon,
 };
+
+const popoverButtonRef = ref(null);
 
 const getIcon = (item) => iconMap[item.key];
 
@@ -241,4 +251,24 @@ const update = (key, value) => {
   }
   emit('update:modelValue', updatedModelValue);
 };
+
+const close = () => {
+  popoverButtonRef.value.el.click();
+};
+
+const popoverKbd = (event) => {
+  if ((event.metaKey || event.ctrlKey) && event.key === '/') {
+    event.preventDefault();
+    close();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('keydown', popoverKbd);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', popoverKbd);
+});
+
 </script>
