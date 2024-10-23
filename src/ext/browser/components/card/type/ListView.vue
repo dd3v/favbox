@@ -1,5 +1,6 @@
 <template>
   <div
+    v-motion-slide-visible-once-bottom
     class="group relative flex min-h-min w-full rounded-md border border-solid bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
   >
     <a
@@ -12,7 +13,7 @@
       >
         <bookmark-favicon
           :bookmark="bookmark"
-          class="h-0 w-0 fill-gray-700 dark:fill-gray-100 md:mr-1 md:h-4 md:w-4"
+          class="size-0 fill-gray-700 dark:fill-gray-100 md:mr-1 md:size-4"
         />
         {{ bookmark.title }}
       </div>
@@ -27,8 +28,7 @@
           <app-badge
             v-for="(value, key) in bookmark.tags"
             :key="key"
-            :badge="value"
-          />
+          >{{ value }}</app-badge>
         </div>
       </div>
     </a>

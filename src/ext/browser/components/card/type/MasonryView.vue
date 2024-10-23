@@ -1,5 +1,6 @@
 <template>
   <div
+    v-motion-slide-visible-once-bottom
     class="group relative mb-3 min-h-max w-full max-w-sm overflow-hidden rounded-md border border-solid bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
   >
     <a
@@ -27,8 +28,7 @@
           <app-badge
             v-for="(value, key) in bookmark.tags"
             :key="key"
-            :badge="value"
-          />
+          >{{ value }}</app-badge>
         </div>
       </div>
     </a>
@@ -39,7 +39,7 @@
 import { computed } from 'vue';
 import AppBadge from '@/components/app/AppBadge.vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
-import BookmarkImage from '@/components/bookmark/BookmarkImage.vue';
+import BookmarkImage from '@/ext/browser/components/card/BookmarkImage.vue';
 
 const props = defineProps({
   bookmark: {

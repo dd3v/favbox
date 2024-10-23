@@ -1,5 +1,6 @@
 <template>
   <div
+    v-motion-fade-visible-once
     class="group relative w-full max-w-sm overflow-hidden rounded-md border border-solid bg-white shadow-sm transition-transform duration-300 ease-in-out hover:-translate-y-1 dark:border-neutral-700 dark:bg-neutral-800"
   >
     <a
@@ -10,7 +11,7 @@
       <div class="flex items-center bg-gray-900 p-1">
         <bookmark-favicon
           :bookmark="bookmark"
-          class="h-3 w-3 fill-gray-700 dark:fill-gray-100"
+          class="size-3 fill-gray-700 dark:fill-gray-100"
         />
         <span class="mx-3 text-xs font-semibold text-white">{{
           bookmark.domain
@@ -30,7 +31,7 @@
 <script setup>
 import { computed } from 'vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
-import BookmarkImage from '@/components/bookmark/BookmarkImage.vue';
+import BookmarkImage from '@/ext/browser/components/card/BookmarkImage.vue';
 
 const props = defineProps({
   bookmark: {

@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="sticky top-0 flex h-full min-h-screen w-12 min-w-12 flex-col items-center justify-center border-neutral-800 bg-[#EEEEEF] align-middle shadow-inner dark:border-r dark:bg-neutral-900"
+    class="sticky top-0 flex h-full min-h-screen w-12 min-w-12 flex-col items-center justify-center border-neutral-800 align-middle shadow-inner dark:border-r dark:bg-neutral-900"
   >
     <div
       ref="indicatorRef"
