@@ -12,52 +12,15 @@ export default class BookmarkStorage {
       (queryParams[key] ??= []).push(value);
     });
 
-    if (queryParams?.folder) {
-      Object.assign(whereConditions, {
-        folderName: {
-          in: [...queryParams.folder],
-        },
-      });
-    }
-    if (queryParams?.tag) {
-      Object.assign(whereConditions, {
-        tags: {
-          in: [...queryParams.tag],
-        },
-      });
-    }
-    if (queryParams?.domain) {
-      Object.assign(whereConditions, {
-        domain: {
-          in: [...queryParams.domain],
-        },
-      });
-    }
-    if (queryParams?.keyword) {
-      Object.assign(whereConditions, {
-        keywords: {
-          in: [...queryParams.keyword],
-        },
-      });
-    }
-    if (queryParams?.type) {
-      Object.assign(whereConditions, {
-        type: {
-          in: [...queryParams.type],
-        },
-      });
-    }
-    if (queryParams?.locale) {
-      Object.assign(whereConditions, {
-        locale: {
-          in: [...queryParams.locale],
-        },
-      });
-    }
+    Object.assign(whereConditions, queryParams?.folder ? { folderName: { in: queryParams.folder } } : {});
+    Object.assign(whereConditions, queryParams?.tag ? { tags: { in: queryParams.tag } } : {});
+    Object.assign(whereConditions, queryParams?.domain ? { domain: { in: queryParams.domain } } : {});
+    Object.assign(whereConditions, queryParams?.keyword ? { keywords: { in: queryParams.keyword } } : {});
+    Object.assign(whereConditions, queryParams?.type ? { type: { in: queryParams.type } } : {});
+    Object.assign(whereConditions, queryParams?.locale ? { locale: { in: queryParams.locale } } : {});
 
     if (queryParams?.term) {
       const [term] = queryParams.term;
-
       Object.assign(whereConditions, {
         title: { like: `%${term}%` },
         or: {
@@ -68,9 +31,6 @@ export default class BookmarkStorage {
               tags: { in: [term] },
               or: {
                 domain: { like: `%${term}%` },
-                or: {
-                  url: { like: `%${term}%` },
-                },
               },
             },
           },
@@ -231,6 +191,23 @@ export default class BookmarkStorage {
       },
     });
     return response.map((item) => item.keywords);
+  }
+
+  async getBrokenBookmarks(skip = 0, limit = 50) {
+    return connection.select({
+      from: this.tableName,
+      limit,
+      skip,
+      order: {
+        by: 'id',
+        type: 'desc',
+      },
+      where: {
+        error: {
+          '!=': 0,
+        },
+      },
+    });
   }
 
   async getAttributes(include, sort, term = '') {

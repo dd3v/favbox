@@ -11,15 +11,17 @@
       />
     </section>
     <div class="flex h-screen w-full flex-col overflow-hidden">
-      <div class="sticky top-0 z-10 flex h-14 flex-row space-x-3">
+      <div class="sticky top-0 z-10 flex w-auto flex-row space-x-3">
         <search-term
           ref="searchInputRef"
-          v-model="temp"
+          v-model="query"
+          placeholder="Search your bookmarks.. ⏎"
         />
-        <bookmark-display v-model="displayType" />
+        <ViewMode v-model="displayType" />
       </div>
       <app-infinite-scroll
         ref="scroll"
+        class="size-full overflow-y-auto"
         :limit="50"
         @scroll:end="paginate"
       >
@@ -31,12 +33,10 @@
         </div>
         <bookmark-layout
           :display-type="displayType"
-          class="p-2"
         >
           <bookmark-card
             v-for="(bookmark, key) in bookmarks"
             :key="key"
-            v-motion-slide-visible-once-bottom
             :display-type="displayType"
             :bookmark="bookmark"
             @remove="handleRemoveBookmark"
@@ -63,7 +63,6 @@
       v-if="showSync"
       :progress="syncProgress"
     />
-    <b-search />
   </div>
 </template>
 <script setup>
@@ -73,25 +72,24 @@ import {
 import { notify } from 'notiwind';
 import AppDrawer from '@/components/app/AppDrawer.vue';
 import AttributeList from '@/ext/browser/components/AttributeList.vue';
-import BookmarkCard from '@/components/bookmark/BookmarkCard.vue';
 import BookmarkStorage from '@/storage/bookmark';
 import initStorage from '@/storage/idb/idb';
 import bookmarkHelper from '@/helpers/bookmark';
-import SearchTerm from '@/components/search/SearchTerm.vue';
-import BookmarkDisplay from '@/components/search/BookmarkDisplay.vue';
-import BookmarkLayout from '@/components/bookmark/BookmarkLayout.vue';
+import SearchTerm from '@/ext/browser/components/SearchTerm.vue';
+import ViewMode from '@/ext/browser/components/ViewMode.vue';
+import BookmarkLayout from '@/ext/browser/components/BookmarkLayout.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 import BookmarksSync from '@/ext/browser/components/BookmarksSync.vue';
-import BSearch from '@/ext/browser/components/BSearch.vue';
+import BookmarkCard from '@/ext/browser/components/card/BookmarkCard.vue';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
 
 const bookmarkFolders = ref(await bookmarkHelper.getFolders());
 
-const temp = ref(null);
+const temp = ref([]);
 
 const currentBookmark = ref({});
 const drawer = ref(null);
@@ -101,19 +99,14 @@ const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
 const scroll = ref(null);
 const bookmarks = ref([]);
 
-const query = reactive({
-  domain: [],
-  tag: [],
-  folder: [],
-  locale: [],
-  keyword: [],
-  type: [],
-});
+const query = ref([]);
 
 const attrs = ref([]);
 const attrsSort = ref('name:asc');
-const attrsIncludes = reactive(['folder', 'tag', 'locale', 'keyword', 'type', 'domain']);
-const attrsTerm = ref('1');
+const attrsIncludes = reactive({
+  domain: true, folder: true, tag: true, keyword: true, locale: false, type: false,
+});
+const attrsTerm = ref('');
 
 const searchInputRef = ref(null);
 const showSync = ref(false);
@@ -175,7 +168,7 @@ const paginate = async (skip) => {
   try {
     console.warn('load', skip);
     bookmarks.value.push(
-      ...(await bookmarkStorage.search(toRaw(query), skip, 50)),
+      ...(await bookmarkStorage.search(query.value, skip, 50)),
     );
   } catch (e) {
     console.error(e);
@@ -187,7 +180,7 @@ watch(
   async () => {
     console.warn('QUERY', query);
     scroll.value?.scrollUp();
-    bookmarks.value = await bookmarkStorage.search(toRaw(query));
+    bookmarks.value = await bookmarkStorage.search(query.value);
   },
   { immediate: true, deep: true },
 );
@@ -232,7 +225,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
       showSync.value = true;
       syncProgress.value = message.data.progress;
     }
-    bookmarks.value = await bookmarkStorage.search(toRaw(query));
+    bookmarks.value = await bookmarkStorage.search(query.value);
     attrs.value = await bookmarkStorage.getAttributes(attrsIncludes, attrsSort.value, attrsTerm.value);
   }
 });

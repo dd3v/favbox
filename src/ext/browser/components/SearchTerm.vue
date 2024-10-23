@@ -26,7 +26,7 @@
         v-model="term"
         type="text"
         maxlength="25"
-        :placeholder="placeholder"
+        :placeholder="modelValue.length ? '' : placeholder"
         class="w-full min-w-max border-0 px-2 py-1 text-sm focus:outline-none focus:ring-0"
         @keydown.enter="enter"
         @keydown.tab.prevent="enter"

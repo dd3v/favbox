@@ -5,7 +5,7 @@
     <div class="flex w-full space-x-1 px-1">
       <div class="relative w-full">
         <span class="absolute inset-y-0 left-0 flex items-center pl-2">
-          <SearchIcon class="size-5 text-gray-400 dark:text-gray-200" />
+          <FilterIcon class="size-5 text-gray-400 dark:text-gray-200" />
         </span>
         <input
           v-model="term"
@@ -184,7 +184,7 @@ import TagIcon from '@/components/icons/TagIcon.vue';
 import TypeIcon from '@/components/icons/TypeIcon.vue';
 import IncludeIcon from '@/components/icons/IncludeIcon.vue';
 import SortIcon from '@/components/icons/SortIcon.vue';
-import SearchIcon from '@/components/icons/SearchIcon.vue';
+import FilterIcon from '@/components/icons/FilterIcon.vue';
 import CmdIcon from '@/components/icons/CmdIcon.vue';
 
 const emit = defineEmits(['update:modelValue']);

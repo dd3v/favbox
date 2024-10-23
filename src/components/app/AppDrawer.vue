@@ -9,10 +9,10 @@
     >
       <TransitionChild
         as="template"
-        enter="ease-in-out duration-500"
+        enter="ease-in-out duration-300"
         enter-from="opacity-0"
         enter-to="opacity-100"
-        leave="ease-in-out duration-500"
+        leave="ease-in-out duration-300"
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
@@ -24,20 +24,20 @@
           <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <TransitionChild
               as="template"
-              enter="transform transition ease-in-out duration-500 sm:duration-700"
+              enter="transform transition ease-in-out duration-300 sm:duration-300"
               enter-from="translate-x-full"
               enter-to="translate-x-0"
-              leave="transform transition ease-in-out duration-500 sm:duration-700"
+              leave="transform transition ease-in-out duration-300 sm:duration-300"
               leave-from="translate-x-0"
               leave-to="translate-x-full"
             >
               <DialogPanel class="pointer-events-auto relative w-screen max-w-md">
                 <TransitionChild
                   as="template"
-                  enter="ease-in-out duration-500"
+                  enter="ease-in-out duration-300"
                   enter-from="opacity-0"
                   enter-to="opacity-100"
-                  leave="ease-in-out duration-500"
+                  leave="ease-in-out duration-300"
                   leave-from="opacity-100"
                   leave-to="opacity-0"
                 >
