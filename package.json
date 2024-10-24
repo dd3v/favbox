@@ -28,7 +28,7 @@
     "vue-router": "^4.4.3"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "2.0.0-beta.19",
+    "@crxjs/vite-plugin": "2.0.0-beta.26",
     "@rushstack/eslint-patch": "^1.10.2",
     "@types/dompurify": "^2.4.0",
     "@vitejs/plugin-vue": "^4.6.2",
