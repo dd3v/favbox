@@ -16,6 +16,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'max-len': 'off',
     'vue/no-v-model-argument': 'off',
+    'no-plusplus': 'off',
     'no-continue': 'off',
     'no-restricted-syntax': [
       'error',
