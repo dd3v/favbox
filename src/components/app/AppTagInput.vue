@@ -1,184 +1,158 @@
 <template>
-  <div class="flex flex-col">
-    <div class="relative">
-      <span class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-500">
-        <hashtag-icon class="h-4 w-4 text-gray-700 dark:text-neutral-200" />
-      </span>
+  <div @click="focus">
+    <div
+      class="flex min-h-9 w-full flex-wrap items-center gap-1 whitespace-normal rounded-md border border-gray-200 bg-white px-2 py-1 shadow-sm focus-within:border-gray-300 dark:bg-neutral-800"
+    >
+      <AppBadge
+        v-for="(value, index) in tags"
+        :key="index"
+        closable
+        :data-tag="value"
+        @onClose="remove(index)"
+      >
+        <span class="whitespace-nowrap text-xs">{{ value }}</span>
+      </AppBadge>
       <input
+        v-if="showInput"
         ref="inputRef"
         v-model="tag"
-        class="w-full rounded-md border-gray-200 pl-10 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600"
+        class="min-w-[20%] flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-xs placeholder:text-xs focus:outline-none focus:ring-0"
         type="text"
         maxlength="25"
-        :placeholder="placeholder"
+        :placeholder="tags.length ? '' : placeholder"
         aria-label="Tag input"
         @keydown.enter="add"
-        @keydown.,.prevent="add"
         @keydown.tab.prevent="add"
         @keydown.delete="removeLast"
         @keydown.arrow-up.prevent="arrowUp"
         @keydown.arrow-down.prevent="arrowDown"
       >
     </div>
-    <span
-      v-if="showSuggestions"
-      class="left-0 top-10 z-20 -mt-1 ml-3 h-2 w-2 rotate-45 border-b border-r border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-800"
-    />
-    <div
-      v-if="showSuggestions"
-      class="absolute top-10 z-10 max-h-48 w-full overflow-y-auto rounded-md border border-gray-200 bg-white shadow-md dark:border-neutral-700 dark:bg-neutral-800"
+    <transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="translate-y-1 opacity-0"
+      enter-to-class="translate-y-0 opacity-100"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="translate-y-0 opacity-100"
+      leave-to-class="translate-y-1 opacity-0"
     >
-      <ul>
-        <li
-          v-for="(suggest, index) in filteredSuggestions"
-          :key="suggest"
-          class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-600 dark:hover:text-white"
-          :class="{ 'bg-neutral-50 dark:bg-neutral-700': highlightedSuggestionIndex === index }"
-          role="option"
-          aria-selected="true"
-          @click="highlightedSuggestionIndex = index; add();"
-        >
-          <span class="dark:text-white">{{ suggest }}</span>
-        </li>
-      </ul>
-    </div>
-    <transition-group
-      name="list"
-      tag="ul"
-      class="mt-2 inline-flex flex-wrap"
-    >
-      <li
-        v-for="(value, key) in tags"
-        :key="key"
+      <div
+        v-if="showSuggestionContainer"
+        class="z-10 max-h-48 w-full overflow-y-auto rounded-md border border-gray-200 bg-white shadow-md dark:border-neutral-700 dark:bg-neutral-800"
       >
-        <span
-          class="m-1 mr-2 inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-neutral-700 dark:text-neutral-300"
-          :data-tag="value"
-        >
-          <p class="flex-wrap whitespace-nowrap text-xs">{{ value }}</p>
-          <button
-            class="-mr-1 ml-1.5 inline-block rounded-full bg-gray-200 p-0.5 text-gray-700 transition hover:text-gray-600 dark:bg-neutral-800 dark:text-neutral-300"
-            @click="remove(key)"
-            @keypress="remove(key)"
+        <ul>
+          <li
+            v-for="(suggestion, index) in filteredSuggestions"
+            :key="index"
+            ref="suggestionRef"
+            class="block cursor-pointer px-4 py-2 hover:bg-neutral-50 dark:hover:bg-neutral-600"
+            :class="{ 'bg-neutral-50 dark:bg-neutral-700': highlightedSuggestionIndex === index }"
+            role="option"
+            @click="add"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="h-3 w-3"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </span>
-      </li>
-    </transition-group>
+            <span class="dark:text-white">{{ suggestion }}</span>
+          </li>
+        </ul>
+      </div>
+    </transition>
   </div>
 </template>
+
 <script setup>
 import {
-  ref, computed, watch, onMounted, onUnmounted,
+  ref, computed, watch, onMounted, onUnmounted, nextTick,
 } from 'vue';
-import { HashtagIcon } from '@heroicons/vue/20/solid';
+import AppBadge from '@/components/app/AppBadge.vue';
 
 const props = defineProps({
-  max: {
-    type: Number,
-    default: 5,
-  },
-  placeholder: {
-    type: String,
-    default: 'Enter a tag',
-  },
-  modelValue: {
-    type: Array,
-    default: () => [],
-  },
-  suggestions: {
-    type: Array,
-    default: () => [],
-  },
+  max: { type: Number, default: 5 },
+  placeholder: { type: String, default: 'Enter a tag' },
+  modelValue: { type: Array, default: () => [] },
+  suggestions: { type: Array, default: () => [] },
 });
 
-const showSuggestions = ref(false);
+const showSuggestionContainer = ref(false);
 const highlightedSuggestionIndex = ref(-1);
 const inputRef = ref(null);
 const emit = defineEmits(['update:modelValue']);
 const tag = ref('');
+const suggestionRef = ref([]);
+const showInput = ref(false);
+
 const tags = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
+
+const focus = () => {
+  showInput.value = true;
+  nextTick(() => {
+    if (inputRef.value) {
+      inputRef.value.focus();
+    }
+  });
+};
+
 const remove = (index) => {
   tags.value.splice(index, 1);
 };
+
 const removeLast = () => {
-  if (!tag.value.length) {
-    tags.value.pop();
-  }
+  if (!tag.value) tags.value.pop();
 };
-const filteredSuggestions = computed({
-  get: () => (tag.value === ''
-    ? []
-    : props.suggestions.filter((suggestion) => suggestion.toLowerCase().includes(tag.value.toLowerCase()))),
-});
+
+const filteredSuggestions = computed(() => (tag.value === '' ? [] : props.suggestions.filter((suggestion) => suggestion.toLowerCase().includes(tag.value.toLowerCase()))));
+
 const add = () => {
-  let value = null;
-  if (highlightedSuggestionIndex.value !== -1) {
-    value = filteredSuggestions.value[highlightedSuggestionIndex.value];
-  } else {
-    value = tag.value;
-  }
+  const value = highlightedSuggestionIndex.value !== -1
+    ? filteredSuggestions.value[highlightedSuggestionIndex.value]
+    : tag.value;
+
   if (value && !tags.value.includes(value) && tags.value.length < props.max) {
     tags.value.push(value);
   }
   tag.value = '';
-  showSuggestions.value = false;
+  showSuggestionContainer.value = false;
 };
+
+const scrollIntoView = () => {
+  const currentElement = suggestionRef.value[highlightedSuggestionIndex.value];
+  if (currentElement) {
+    currentElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+};
+
 const arrowUp = () => {
   if (highlightedSuggestionIndex.value !== 0) {
     highlightedSuggestionIndex.value -= 1;
+    scrollIntoView();
   }
 };
+
 const arrowDown = () => {
   if (filteredSuggestions.value.length > highlightedSuggestionIndex.value + 1) {
     highlightedSuggestionIndex.value += 1;
+    scrollIntoView();
   }
 };
+
 const hideSuggestions = () => {
-  showSuggestions.value = false;
+  showSuggestionContainer.value = false;
 };
+
 watch(tag, () => {
   highlightedSuggestionIndex.value = -1;
-  if (filteredSuggestions.value.length) {
-    showSuggestions.value = true;
-  }
-  if (!tag.value || filteredSuggestions.value.length === 0) {
-    showSuggestions.value = false;
-  }
+  showSuggestionContainer.value = tag.value && filteredSuggestions.value.length > 0;
 });
+
 onMounted(() => {
+  if (tags.value.length === 0) {
+    showInput.value = true;
+  }
   document.addEventListener('click', hideSuggestions);
 });
+
 onUnmounted(() => {
   document.removeEventListener('click', hideSuggestions);
 });
 </script>
-<style scoped>
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.1s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(10px);
-}
-</style>

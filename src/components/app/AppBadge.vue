@@ -1,21 +1,21 @@
 <template>
-  <span
+  <div
     :class="badgeClass"
-    class="inline-flex items-center space-x-1 rounded-md px-2 py-1 font-medium ring-1 ring-inset"
+    class="inline-flex cursor-pointer items-center space-x-1 truncate text-nowrap rounded-md px-2.5 py-1 font-medium ring-1 ring-inset"
   >
     <slot />
     <button
       v-if="closable"
       :class="closeButtonClass"
+      class="size-4 items-center justify-center"
       @click="handleClose"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
-        stroke-width="1.5"
+        stroke-width="1"
         stroke="currentColor"
-        class="size-4"
       >
         <path
           stroke-linecap="round"
@@ -24,7 +24,7 @@
         />
       </svg>
     </button>
-  </span>
+  </div>
 </template>
 
 <script setup>
@@ -41,47 +41,51 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['onClose']);
 
 const badgeClass = computed(() => {
   switch (props.color) {
     case 'red':
-      return 'bg-red-50 text-red-700 ring-red-600/10';
+      return 'bg-red-50 text-red-700 ring-red-700/10';
     case 'yellow':
-      return 'bg-yellow-50 text-yellow-800 ring-yellow-600/20';
+      return 'bg-yellow-50 text-yellow-800 ring-yellow-700/10';
     case 'green':
-      return 'bg-green-50 text-green-700 ring-green-600/20';
-    case 'blue':
-      return 'bg-blue-50 text-blue-700 ring-blue-700/10';
+      return 'bg-green-50 text-green-700 ring-green-700/10';
+    case 'cyan':
+      return 'bg-cyan-50 text-cyan-700 ring-cyan-700/10';
     case 'indigo':
       return 'bg-indigo-50 text-indigo-700 ring-indigo-700/10';
     case 'purple':
       return 'bg-purple-50 text-purple-700 ring-purple-700/10';
     case 'pink':
       return 'bg-pink-50 text-pink-700 ring-pink-700/10';
+    case 'gray':
+      return 'bg-gray-50 text-gray-600 ring-gray-700/10';
     default:
-      return 'bg-gray-50 text-gray-600 ring-gray-500/10';
+      return 'bg-rose-50 text-rose-600 ring-rose-700/10';
   }
 });
 
 const closeButtonClass = computed(() => {
   switch (props.color) {
     case 'red':
-      return 'text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-100';
+      return 'text-red-700  hover:bg-red-300/20 hover:text-red-900 dark:text-red-300 dark:hover:text-red-100';
     case 'yellow':
-      return 'text-yellow-800 hover:text-yellow-900 dark:text-yellow-300 dark:hover:text-yellow-100';
+      return 'text-yellow-700 hover:bg-yellow-300/20 hover:text-yellow-900 dark:text-yellow-300 dark:hover:text-yellow-100';
     case 'green':
-      return 'text-green-700 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100';
-    case 'blue':
-      return 'text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100';
+      return 'text-green-700 hover:text-green-900 hover:bg-green-300/20 dark:text-green-300 dark:hover:text-green-100';
+    case 'cyan':
+      return 'text-cyan-700 hover:text-cyan-900 hover:bg-cyan-300/20 dark:text-cyan-300 dark:hover:text-cyan-100';
     case 'indigo':
-      return 'text-indigo-700 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100';
+      return 'text-indigo-700 hover:bg-indigo-300/20 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100';
     case 'purple':
-      return 'text-purple-700 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-100';
+      return 'text-purple-700 hover:bg-purple-300/20 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-100';
     case 'pink':
-      return 'text-pink-700 hover:text-pink-900 dark:text-pink-300 dark:hover:text-pink-100';
+      return 'text-pink-700 hover:text-pink-900 hover:bg-pink-300/20 dark:text-pink-300 dark:hover:text-pink-100';
+    case 'gray':
+      return 'text-gray-600 hover:bg-gray-300/20 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100';
     default:
-      return 'text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100';
+      return 'text-rose-600 hover:bg-rose-300/20 hover:text-rose-800 dark:text-rose-300 dark:hover:text-rose-100';
   }
 });
 

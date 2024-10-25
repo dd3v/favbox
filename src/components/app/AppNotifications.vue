@@ -23,7 +23,7 @@
             >
               <div class="flex w-12 items-center justify-center bg-red-500">
                 <svg
-                  class="h-6 w-6 fill-current text-white"
+                  class="size-6 fill-current text-white"
                   viewBox="0 0 40 40"
                   xmlns="http://www.w3.org/2000/svg"
                 >
@@ -72,7 +72,7 @@
             >
               <div class="flex w-12 items-center justify-center bg-blue-500">
                 <svg
-                  class="h-6 w-6 fill-current text-white"
+                  class="size-6 fill-current text-white"
                   viewBox="0 0 40 40"
                   xmlns="http://www.w3.org/2000/svg"
                 >
