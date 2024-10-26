@@ -1,7 +1,7 @@
 <template>
   <div
     v-motion-slide-visible-once-bottom
-    class="group relative flex min-h-min w-full rounded-md border border-solid bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
+    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
   >
     <a
       :href="bookmark.url"

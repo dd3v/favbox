@@ -18,11 +18,7 @@
 import { computed } from 'vue';
 
 const props = defineProps({
-  displayType: {
-    type: String,
-    required: true,
-    default: 'masonry',
-  },
+  displayType: { type: String, required: true, default: 'masonry' },
 });
 
 const layout = computed({
@@ -31,11 +27,11 @@ const layout = computed({
       case 'masonry':
         return '';
       case 'card':
-        return 'grid gap-10 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4';
+        return 'grid gap-3 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4';
       case 'list':
-        return 'grid gap-5 grid-cols-1';
+        return 'grid gap-3 grid-cols-1';
       default:
-        return '';
+        return 'masonry';
     }
   },
 });

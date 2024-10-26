@@ -8,23 +8,23 @@
       target="_blank"
     >
       <bookmark-image :bookmark="bookmark" />
-      <div class="flex items-center bg-gray-900 p-1">
+      <div class="flex items-center bg-black/80 p-2">
         <bookmark-favicon
           :bookmark="bookmark"
-          class="size-3 fill-gray-700 dark:fill-gray-100"
+          class="size-3 fill-white"
         />
-        <span class="mx-3 text-xs font-semibold text-white">{{
+        <span class="mx-3 truncate text-xs font-semibold text-white">{{
           bookmark.domain
         }}</span>
       </div>
-      <div class="px-6 py-4">
-        <span class="break-words text-sm font-semibold text-gray-900 dark:text-neutral-100">{{ bookmark.title }}
-        </span>
+      <div class="p-2">
+        <h1 class="break-words text-sm font-semibold text-gray-900 dark:text-neutral-100">{{ bookmark.title }}
+        </h1>
         <p class="break-words py-2 text-gray-700 dark:text-neutral-300">
           {{ bookmark.description }} <br>
           {{ bookmark.error }} - {{ bookmark.folderName }} - {{ bookmark.folder }}
         </p>
-        <div class="flex space-x-2">
+        <div class="flex flex-wrap gap-1">
           <app-badge
             v-for="(value, key) in bookmark.tags"
             :key="key"

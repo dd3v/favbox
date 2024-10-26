@@ -17,7 +17,7 @@
     :class="gradient"
   >
     <span
-      class="p-3 text-white drop-shadow-lg"
+      class="p-3 drop-shadow-lg"
       style="font-size: calc(0.4rem + 1vw);"
     >{{ title }}</span>
   </div>
@@ -42,13 +42,8 @@ const title = computed({
   },
 });
 const gradients = [
-  'bg-gradient-to-r from-purple-500 to-purple-900',
-  'bg-gradient-to-r from-fuchsia-600 to-pink-600',
-  'bg-gradient-to-r from-fuchsia-600 to-purple-600',
-  'bg-gradient-to-r from-amber-500 to-pink-500',
-  'bg-gradient-to-r from-pink-500 to-rose-500',
-  'bg-gradient-to-r from-violet-400 to-pink-300',
-  'bg-gradient-to-bl from-rose-400 to-rose-600',
+  'bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-[size:20px_20px] text-white',
+  'bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] text-black',
 ];
 const gradient = computed({
   get: () => gradients[Math.floor(Math.random() * gradients.length)],
