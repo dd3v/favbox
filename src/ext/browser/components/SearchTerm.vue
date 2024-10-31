@@ -1,6 +1,8 @@
 <template>
-  <div class="flex w-full items-center overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 px-1 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
-    <ul class="mr-2 flex list-none gap-1 p-0">
+  <div
+    class="flex w-full items-center overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 px-1 shadow-sm focus-within:border-gray-300 dark:bg-neutral-800"
+  >
+    <ul class="flex gap-1">
       <li
         v-for="(tag, tagKey) in modelValue"
         :key="tagKey"
@@ -9,30 +11,28 @@
           v-motion-fade
           closable
           :color="getColor(tag.key)"
-          @onClose="onClose(tag.key,tag.value)"
+          @onClose="onClose(tag.key, tag.value)"
         >
-          <span class="inline-flex items-center">
+          <div class="flex items-center">
             <component
               :is="getIcon(tag.key)"
-              class="size-5 pr-1"
+              class="mr-1 size-4"
             /> {{ tag.value }}
-          </span>
+          </div>
         </AppBadge>
       </li>
     </ul>
-    <div class="w-full shrink-0">
-      <input
-        ref="inputRef"
-        v-model="term"
-        type="text"
-        maxlength="25"
-        :placeholder="modelValue.length ? '' : placeholder"
-        class="w-full min-w-max border-0 px-2 py-1 text-sm focus:outline-none focus:ring-0"
-        @keydown.enter="enter"
-        @keydown.tab.prevent="enter"
-        @keydown.delete="removeLast"
-      >
-    </div>
+    <input
+      ref="inputRef"
+      v-model="term"
+      type="text"
+      maxlength="25"
+      :placeholder="modelValue.length ? '' : placeholder"
+      class="w-full min-w-max appearance-none border-0 px-2 py-1 text-sm focus:outline-none focus:ring-0"
+      @keydown.enter="add"
+      @keydown.tab.prevent="add"
+      @keydown.delete="removeLast"
+    >
   </div>
 </template>
 
@@ -69,7 +69,7 @@ const removeLast = () => {
   emit('update:modelValue', props.modelValue.slice(0, -1));
 };
 
-const enter = () => {
+const add = () => {
   if (!term.value) return;
   const [key, value] = term.value.split(':');
   if (['tag', 'keyword', 'domain', 'folder', 'locale', 'type'].includes(key) && value) {
@@ -106,17 +106,17 @@ const getColor = (key) => {
     case 'domain':
       return 'yellow';
     case 'tag':
-      return 'pink';
+      return 'gray';
     case 'keyword':
       return 'green';
     case 'folder':
       return 'purple';
     case 'locale':
-      return 'blue';
+      return 'cyan';
     case 'type':
       return 'indigo';
     default:
-      return 'gray';
+      return 'stone';
   }
 };
 

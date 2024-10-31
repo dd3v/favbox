@@ -11,7 +11,7 @@
       <div class="flex items-center bg-black/80 p-2">
         <bookmark-favicon
           :bookmark="bookmark"
-          class="size-3 fill-white"
+          class="size-5 fill-white"
         />
         <span class="mx-3 truncate text-xs font-semibold text-white">{{
           bookmark.domain

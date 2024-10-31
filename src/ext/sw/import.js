@@ -6,6 +6,9 @@ import MetadataParser from '@/parser/metadata';
 import bookmarkHelper from '@/helpers/bookmark';
 
 const importBookmarks = async () => {
+  if (await fetchHelper.ping() === false) {
+    return;
+  }
   console.time('Execution time');
   await initStorage();
   const bookmarkStorage = new BookmarkStorage();
@@ -40,7 +43,9 @@ const importBookmarks = async () => {
         const parseResult = await Promise.all(
           httpResults.map(({ bookmark, response }) => (new MetadataParser(bookmark, response)).getFavboxBookmark()),
         );
-        await bookmarkStorage.createMultiple(parseResult);
+        console.time('DB execution time');
+        await bookmarkStorage.createMultipleTx(parseResult);
+        console.timeEnd('DB execution time');
       } catch (e) {
         console.error(e);
       } finally {

@@ -1,6 +1,6 @@
 {
   "name": "favbox",
-  "version": "2.1.0",
+  "version": "2.0.0",
   "private": false,
   "type": "module",
   "scripts": {
@@ -40,6 +40,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-tailwindcss": "^3.15.1",
     "eslint-plugin-vue": "^9.25.0",
+    "file-loader": "^6.2.0",
     "jsdom": "^20.0.3",
     "postcss": "^8.4.38",
     "terser": "^5.31.0",

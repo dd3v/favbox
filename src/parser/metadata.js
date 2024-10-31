@@ -150,9 +150,6 @@ export default class MetadataParser {
   * @returns {Promise<string|null>} - A promise that resolves to the locale of the document or null if not found.
   */
   async getLocale() {
-    if (this.#httpResponse.error !== 0) {
-      return null;
-    }
     const htmlLang = this.#dom?.documentElement?.lang?.split(/[_-]/).shift()?.toUpperCase();
     if (htmlLang) {
       return htmlLang;
@@ -197,7 +194,7 @@ export default class MetadataParser {
       tags: tagHelper.getTags(this.#bookmark.title),
       favorite: 0,
       locale: await this.getLocale(),
-      error: this.#httpResponse.error,
+      httpStatus: this.#httpResponse.httpStatus,
       dateAdded: this.#bookmark.dateAdded,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

@@ -4,9 +4,9 @@
   >
     <div class="flex w-full space-x-1 px-1">
       <div class="relative w-full">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-2">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-2">
           <FilterIcon class="size-5 text-gray-400 dark:text-gray-200" />
-        </span>
+        </div>
         <input
           v-model="term"
           autocomplete="off"
@@ -18,14 +18,14 @@
             ref="popoverButtonRef"
             class="pointer-events-auto absolute inset-y-0 -top-9 right-0 flex items-center pr-2 focus:outline-none focus:ring-0"
           >
-            <span class="flex flex-wrap items-center gap-x-1 text-sm text-gray-400 dark:text-neutral-600">
+            <div class="flex flex-wrap items-center gap-x-1 text-sm text-gray-400 dark:text-neutral-600">
               <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white px-1.5 py-1 font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
                 <CmdIcon />
               </kbd>
               <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white px-1.5 py-1 font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
                 /
               </kbd>
-            </span>
+            </div>
           </PopoverButton>
           <Transition
             enter-active-class="transition duration-200 ease-out"
@@ -227,17 +227,17 @@ const getColor = (key) => {
     case 'domain':
       return 'yellow';
     case 'tag':
-      return 'pink';
+      return 'gray';
     case 'keyword':
       return 'green';
     case 'folder':
       return 'purple';
     case 'locale':
-      return 'blue';
+      return 'cyan';
     case 'type':
       return 'indigo';
     default:
-      return 'gray';
+      return 'stone';
   }
 };
 

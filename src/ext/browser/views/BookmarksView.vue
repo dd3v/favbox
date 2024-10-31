@@ -109,7 +109,7 @@ const attrsIncludes = reactive({
 const attrsTerm = ref('');
 
 const searchInputRef = ref(null);
-const showSync = ref(false);
+const showSync = ref(true);
 const syncProgress = ref(0);
 const empty = ref(false);
 const tags = ref([]);
@@ -119,6 +119,7 @@ const handleRemoveBookmark = async (bookmark) => {
     await chrome.bookmarks.remove(String(bookmark.id));
   } catch (e) {
     console.error(e);
+    // If for some reason we are not able to remove the bookmark from Google Chrome
     await bookmarkStorage.remove(parseInt(bookmark.id, 10));
   } finally {
     bookmarks.value = bookmarks.value.filter(

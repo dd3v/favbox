@@ -1,8 +1,39 @@
 import connection from './idb/connection';
 
+function addBookmarks(ctx) {
+  ctx.start();
+
+  ctx.insert({
+    into: 'bookmarks',
+    values: ctx.data.bookmarks,
+    validation: false,
+    skipDataCheck: true,
+    ignore: true,
+    return: true,
+  });
+}
+
+// eslint-disable-next-line no-restricted-globals
+self.addBookmarks = addBookmarks;
+
 export default class BookmarkStorage {
   constructor() {
     this.tableName = 'bookmarks';
+  }
+
+  async createMultipleTx(data) {
+    try {
+      return await connection.transaction({
+        method: 'addBookmarks',
+        tables: [this.tableName],
+        data: {
+          bookmarks: data,
+        },
+      });
+    } catch (error) {
+      console.error(`Error in createMultipleTx: ${error.message}`);
+      throw error;
+    }
   }
 
   async search(query, skip = 0, limit = 50) {
@@ -193,7 +224,21 @@ export default class BookmarkStorage {
     return response.map((item) => item.keywords);
   }
 
-  async getBrokenBookmarks(skip = 0, limit = 50) {
+  async updateStatusByIds(status, ids) {
+    return connection.update({
+      in: this.tableName,
+      set: {
+        httpStatus: status,
+      },
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  }
+
+  async getBookmarksByHttpStatusCode(statuses, skip = 0, limit = 50) {
     return connection.select({
       from: this.tableName,
       limit,
@@ -203,14 +248,14 @@ export default class BookmarkStorage {
         type: 'desc',
       },
       where: {
-        error: {
-          '!=': 0,
+        httpStatus: {
+          in: statuses,
         },
       },
     });
   }
 
-  async getAttributes(include, sort, term = '') {
+  async getAttributes(include, sort = 'count:desc', term = '') {
     const [sortColumn, sortDirection] = sort.split(':');
     const result = [];
     if (include.domain) {

@@ -8,7 +8,7 @@
       <div class="absolute right-2 top-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
         <div class="flex space-x-2">
           <button
-            class="-translate-y-8 rounded-full bg-pink-500 p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-150 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+            class="-translate-y-8 rounded-full bg-red-500 p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-150 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('remove', bookmark)"
           >
             <trash-icon class="size-4" />

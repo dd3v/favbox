@@ -41,7 +41,7 @@
                 class="mr-2 size-4"
                 aria-hidden="true"
               />
-              Masonry
+              Gallery
             </button>
           </MenuItem>
           <MenuItem v-slot="{ active }">

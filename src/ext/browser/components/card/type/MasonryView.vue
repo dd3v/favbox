@@ -11,7 +11,7 @@
       <div class="flex items-center bg-black/80 p-2">
         <bookmark-favicon
           :bookmark="bookmark"
-          class="size-3 fill-white"
+          class="size-4 fill-white"
         />
         <span class="mx-3 truncate text-xs font-semibold text-white">{{
           bookmark.domain
@@ -22,7 +22,7 @@
         </h1>
         <p class="break-words py-2 text-gray-700 dark:text-neutral-300">
           {{ bookmark.description }} <br>
-          {{ bookmark.error }} - {{ bookmark.folderName }} - {{ bookmark.folder }}
+          {{ bookmark.httpStatus }} - {{ bookmark.image }} - {{ bookmark.folderName }} - {{ bookmark.folder }}
         </p>
         <div class="flex flex-wrap gap-1">
           <app-badge

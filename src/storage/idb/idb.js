@@ -73,10 +73,10 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
         default: 0,
       },
-      error: {
+      httpStatus: {
         notNull: true,
         dataType: DATA_TYPE.Number,
-        default: 0,
+        default: 200,
       },
       createdAt: {
         dataType: DATA_TYPE.String,

@@ -18,7 +18,7 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed inset-0 bg-black/25" />
+        <div class="fixed inset-0 bg-[rgba(255,_255,_255,_0.19)] backdrop-blur-[13px] backdrop-saturate-[200%]" />
       </TransitionChild>
       <div class="fixed inset-0 overflow-y-auto">
         <div
@@ -34,39 +34,31 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-neutral-900"
+              class="w-full max-w-md overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-neutral-900"
             >
               <DialogTitle
                 as="h3"
-                class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-400"
+                class="flex items-center text-lg font-medium leading-6 text-gray-900 dark:text-gray-400"
               >
-                💬 Welcome!
+                <PixelHeartIcon class="mr-2" />
+                Welcome!
               </DialogTitle>
               <div class="mt-2">
-                <p class="text-sm text-gray-500">
-                  We're scanning your existing bookmarks and gathering
-                  information about the pages for more efficient performance. It
-                  will take a while...
+                <p class="py-1 text-sm text-black">
+                  The app is scanning your bookmarks and gathering information about the pages to make everything run smoother and faster.
+                  This process may take a little time depending on how many bookmarks you have, your internet speed, and device performance.
                 </p>
-                <div
-                  class="my-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"
-                >
-                  <div
-                    class="rounded-full bg-rose-400 p-0.5 text-center text-xs font-medium leading-none text-white"
-                    :style="{ width: `${progress}%` }"
-                  >
-                    {{ progress }}%
-                  </div>
-                </div>
+                <p class="py-4 text-sm text-black">
+                  Thank you for your patience!
+                </p>
+                <AppProgress
+                  :progress="progress"
+                />
               </div>
               <div class="mt-4 flex justify-end">
-                <button
-                  type="button"
-                  class="inline-flex justify-center rounded-md border border-rose-400 bg-rose-400 px-6 py-2 text-white shadow-sm outline-none ring-0 transition hover:bg-transparent hover:text-rose-400 focus:ring-0 active:text-rose-400"
-                  @click="close"
-                >
-                  Got it!
-                </button>
+                <AppButton @click="close">
+                  OK
+                </AppButton>
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -76,6 +68,9 @@
   </TransitionRoot>
 </template>
 <script setup>
+import AppButton from '@/components/app/AppButton.vue';
+import AppProgress from '@/components/app/AppProgress.vue';
+
 import { ref, watch } from 'vue';
 import {
   TransitionRoot,
@@ -84,12 +79,13 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/vue';
+import PixelHeartIcon from '@/components/icons/PixelHeartIcon.vue';
 
 const props = defineProps({
   progress: {
     type: Number,
     required: true,
-    default: 0,
+    default: 10,
   },
 });
 const isOpen = ref(true);

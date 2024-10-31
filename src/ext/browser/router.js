@@ -17,9 +17,9 @@ const routes = [
     meta: { page: 2 },
   },
   {
-    path: '/trash',
-    name: 'TrashView',
-    component: () => import('./views/TrashView.vue'),
+    path: '/health-check',
+    name: 'HealthCheckView',
+    component: () => import('./views/HealthCheckView.vue'),
     meta: { page: 3 },
   },
   {

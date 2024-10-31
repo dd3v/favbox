@@ -10,14 +10,41 @@ import ping from './ping';
 const ICON_SAVED = '/icons/icon32_saved.png';
 const ICON_NOT_SAVED = '/icons/icon32.png';
 
-(async () => {
+chrome.runtime.onInstalled.addListener(async () => {
   await initStorage();
-  const bookmarkStorage = new BookmarkStorage();
-
-  chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.session.clear();
+  await chrome.alarms.create('healthcheck', { periodInMinutes: 0.5 });
+  await chrome.storage.local.set({
+    healthcheck: {
+      date: new Date().toString(),
+      executionTime: 0,
+      total: 0,
+    },
   });
+});
 
+chrome.runtime.onStartup.addListener(async () => {
+  await initStorage();
+  console.warn('Wake up..');
+  const alarm = await chrome.alarms.get('healthcheck');
+  if (!alarm) {
+    await chrome.alarms.create('healthcheck', { periodInMinutes: 0.5 });
+  }
+});
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === 'healthcheck') {
+    await chrome.storage.local.set({
+      healthcheck: {
+        date: new Date().toString(),
+        executionTime: 0,
+        total: 0,
+      },
+    });
+  }
+});
+
+(async () => {
+  const bookmarkStorage = new BookmarkStorage();
   // https://developer.chrome.com/docs/extensions/reference/tabs/#event-onUpdated
   chrome.tabs.onUpdated.addListener(async (tabId, info) => {
     if (info.status === 'loading') {

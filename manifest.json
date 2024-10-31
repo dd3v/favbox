@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "FavBox",
   "description": "Clear and modern bookmarking tool.",
-  "version": "2.1.0",
-  "permissions": ["bookmarks", "activeTab", "tabs", "storage"],
+  "version": "2.0",
+  "permissions": ["bookmarks", "activeTab", "tabs", "storage", "alarms"],
   "host_permissions": [
     "<all_urls>"
   ],
@@ -17,7 +17,7 @@
     "default_popup": "ext/popup/index.html"
   },
   "background": {
-    "service_worker": "ext/background/index.js"
+    "service_worker": "ext/sw/index.js"
   },
   "content_scripts": [
     {
