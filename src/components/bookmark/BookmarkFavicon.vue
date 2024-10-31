@@ -1,5 +1,8 @@
 <template>
-  <GlobeIcon v-if="fallback || !bookmark.favicon" />
+  <GlobeIcon
+    v-if="fallback || !bookmark.favicon"
+    class="size-4 fill-black"
+  />
   <img
     v-else
     :src="bookmark.favicon"

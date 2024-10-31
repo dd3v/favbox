@@ -7,14 +7,12 @@
           v-model="bookmark.title"
           type="text"
           placeholder="Page title"
-          class="w-full rounded-md border-gray-200 pl-10 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600"
+          class="h-9 w-full rounded-md border-gray-200 pl-10 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600"
         >
-        <span
-          class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-700"
-        >
+        <span class="pointer-events-none absolute inset-y-0 left-0 grid w-10 place-content-center text-gray-700">
           <bookmark-favicon
             :bookmark="bookmark"
-            class="size-4 fill-gray-700 dark:fill-gray-100"
+            class="size-4 fill-black"
           />
         </span>
       </label>
@@ -27,24 +25,24 @@
         <div class="relative mt-1">
           <div class="w-full">
             <ComboboxInput
-              class="w-full rounded-md border-gray-200 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600"
+              class="h-9 w-full rounded-md border-gray-200 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600"
               :display-value="(folder) => folder?.title"
               @change="query = $event.target.value"
             />
-            <ComboboxButton
-              class="absolute inset-y-0 right-0 flex items-center pr-2"
-            >
+            <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon
                 class="size-5 text-gray-700"
                 aria-hidden="true"
               />
             </ComboboxButton>
           </div>
-          <TransitionRoot
-            leave="transition ease-in duration-100"
-            leave-from="opacity-100"
-            leave-to="opacity-0"
-            @after-leave="query = ''"
+          <transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="translate-y-1 opacity-0"
+            enter-to-class="translate-y-0 opacity-100"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="translate-y-0 opacity-100"
+            leave-to-class="translate-y-1 opacity-0"
           >
             <ComboboxOptions
               class="absolute z-10 mt-1 max-h-44 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-neutral-800"
@@ -92,7 +90,7 @@
                 </li>
               </ComboboxOption>
             </ComboboxOptions>
-          </TransitionRoot>
+          </transition>
         </div>
       </Combobox>
     </div>
@@ -104,13 +102,29 @@
         placeholder="Enter a tag and press enter or tab"
       />
     </div>
-    <div class="relative my-4 flex w-full justify-between">
-      <button
-        class="inline-block w-full shrink-0 rounded-md border border-rose-400 bg-rose-400 px-12 py-2 text-white shadow-sm outline-none ring-0 transition hover:bg-transparent hover:text-rose-400 focus:ring-0 active:text-rose-400"
+    <fieldset
+      v-if="bookmark.keywords && bookmark.keywords.length"
+      class="rounded-md border p-3"
+    >
+      <legend>
+        Tag seggestions baded on content page
+      </legend>
+      <AppBadge
+        v-for="(value, key) in bookmark.keywords"
+        :key="key"
+        class="m-1"
+      >
+        {{ value }}
+      </AppBadge>
+    </fieldset>
+
+    <div class="my-4 flex w-full justify-between">
+      <AppButton
+        class="w-full"
         @click="$emit('submit', bookmark)"
       >
         Save bookmark
-      </button>
+      </AppButton>
     </div>
   </div>
 </template>
@@ -122,11 +136,12 @@ import {
   ComboboxButton,
   ComboboxOptions,
   ComboboxOption,
-  TransitionRoot,
 } from '@headlessui/vue';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
+import AppBadge from '@/components/app/AppBadge.vue';
+import AppButton from '@/components/app/AppButton.vue';
 
 const props = defineProps({
   modelValue: {
