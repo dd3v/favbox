@@ -19,6 +19,7 @@ const importBookmarks = async () => {
     console.warn('🕒 Sync in current session already finished..');
     return;
   }
+  // TODO: generators?
   const bookmarks = await bookmarkHelper.getBookmarksFlatten();
   console.warn('Bookmarks', bookmarks);
   let batch = [];
@@ -26,7 +27,7 @@ const importBookmarks = async () => {
   for (const b of bookmarks) {
     batch.push(b);
     processed += 1;
-    if (batch.length % 100 === 0 || processed === total) {
+    if (batch.length % 1000 === 0 || processed === total) {
       try {
         const browserBookmarkKeyList = batch.map((i) => parseInt(i.id, 10));
         const extBookmarksKeyList = await bookmarkStorage.getIds(browserBookmarkKeyList);

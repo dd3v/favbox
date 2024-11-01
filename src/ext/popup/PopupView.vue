@@ -33,7 +33,6 @@
 </template>
 <script setup>
 import { onMounted, ref } from 'vue';
-import { HeartIcon } from '@heroicons/vue/24/solid';
 import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmark';

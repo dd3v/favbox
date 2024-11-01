@@ -1,18 +1,16 @@
 <template>
   <div class="flex w-full overflow-y-hidden">
-    <section class="flex">
-      <attribute-list
-        v-model="query"
-        v-model:sort="attrsSort"
-        v-model:includes="attrsIncludes"
-        v-model:term="attrsTerm"
-        class="sticky top-0 flex h-full w-64"
-        :items="attrs"
-      />
-    </section>
-    <div class="flex h-screen w-full flex-col overflow-hidden">
+    <AttributeList
+      v-model="query"
+      v-model:sort="attrsSort"
+      v-model:includes="attrsIncludes"
+      v-model:term="attrsTerm"
+      class="p-1 py-2"
+      :items="attributes"
+    />
+    <div class="flex h-screen w-full flex-col overflow-hidden p-2">
       <div class="sticky top-0 z-10 flex w-auto flex-row space-x-3">
-        <search-term
+        <SearchTerm
           ref="searchInputRef"
           v-model="query"
           placeholder="Search your bookmarks.. ⏎"
@@ -21,7 +19,7 @@
       </div>
       <app-infinite-scroll
         ref="scroll"
-        class="size-full overflow-y-auto"
+        class="size-full overflow-y-auto py-2"
         :limit="50"
         @scroll:end="paginate"
       >
@@ -67,7 +65,7 @@
 </template>
 <script setup>
 import {
-  toRaw, reactive, ref, watch, onMounted,
+  reactive, ref, watch, onMounted,
 } from 'vue';
 import { notify } from 'notiwind';
 import AppDrawer from '@/components/app/AppDrawer.vue';
@@ -89,7 +87,10 @@ const bookmarkStorage = new BookmarkStorage();
 
 const bookmarkFolders = ref(await bookmarkHelper.getFolders());
 
-const temp = ref([]);
+console.warn('folders', bookmarkFolders.value);
+
+console.warn('tree folders', await bookmarkHelper.getFoldersTree());
+
 
 const currentBookmark = ref({});
 const drawer = ref(null);
@@ -101,15 +102,15 @@ const bookmarks = ref([]);
 
 const query = ref([]);
 
-const attrs = ref([]);
-const attrsSort = ref('name:asc');
+const attributes = ref([]);
+const attrsSort = ref('count:desc');
 const attrsIncludes = reactive({
   domain: true, folder: true, tag: true, keyword: true, locale: false, type: false,
 });
 const attrsTerm = ref('');
 
 const searchInputRef = ref(null);
-const showSync = ref(true);
+const showSync = ref(false);
 const syncProgress = ref(0);
 const empty = ref(false);
 const tags = ref([]);
@@ -190,15 +191,10 @@ watch([attrsSort, attrsTerm, attrsIncludes], async ([newSort, newTerm, newInclud
   console.warn('newSort', newSort);
   console.warn('newTerm', newTerm);
   console.warn('newIncludes', newIncludes);
-
-  const result = await bookmarkStorage.getAttributes(attrsIncludes, attrsSort.value, attrsTerm.value);
-
-  attrs.value = result;
+  const [sortColumn, sortDirection] = newSort.split(':');
+  const result = await bookmarkStorage.getAttributes(attrsIncludes, sortColumn, sortDirection, attrsTerm.value, 0, 200);
+  attributes.value = result;
 }, { deep: true });
-
-watch(attrsTerm, () => {
-  console.log('attrsTerm', attrsTerm.value);
-});
 
 watch(query, (newVal) => {
   console.warn('query', newVal);
@@ -212,11 +208,12 @@ watch(
 );
 
 onMounted(async () => {
-  const result = await bookmarkStorage.getAttributes(attrsIncludes, attrsSort.value, attrsTerm.value);
-
-  attrs.value = result;
-
-  console.warn('attrs', attrs.value);
+  drawer.value.open();
+  const [sortColumn, sortDirection] = attrsSort.value.split(':');
+  const result = await bookmarkStorage.getAttributes(attrsIncludes, sortColumn, sortDirection, attrsTerm.value, 0, 200);
+  attributes.value = result;
+  console.warn('attrs', attributes.value);
+  await bookmarkStorage.refreshAttributes();
 });
 
 chrome.runtime.onMessage.addListener(async (message) => {
@@ -227,7 +224,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
       syncProgress.value = message.data.progress;
     }
     bookmarks.value = await bookmarkStorage.search(query.value);
-    attrs.value = await bookmarkStorage.getAttributes(attrsIncludes, attrsSort.value, attrsTerm.value);
   }
 });
 </script>

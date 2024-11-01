@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex w-full items-center overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 px-1 shadow-sm focus-within:border-gray-300 dark:bg-neutral-800"
+    class="flex h-9 w-full items-center overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 bg-white px-1 shadow-sm focus-within:border-gray-300 dark:bg-neutral-800"
   >
     <ul class="flex gap-1">
       <li
@@ -28,7 +28,7 @@
       type="text"
       maxlength="25"
       :placeholder="modelValue.length ? '' : placeholder"
-      class="w-full min-w-max appearance-none border-0 px-2 py-1 text-sm focus:outline-none focus:ring-0"
+      class="w-full min-w-max flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-sm placeholder:text-xs focus:outline-none focus:ring-0"
       @keydown.enter="add"
       @keydown.tab.prevent="add"
       @keydown.delete="removeLast"

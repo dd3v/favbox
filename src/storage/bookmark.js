@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import connection from './idb/connection';
 
 function addBookmarks(ctx) {
@@ -13,23 +14,36 @@ function addBookmarks(ctx) {
   });
 }
 
+function addAttributes(ctx) {
+  ctx.start();
+
+  ctx.insert({
+    into: 'attributes',
+    values: ctx.data.attributes,
+    validation: false,
+    skipDataCheck: true,
+    ignore: true,
+    upsert: true,
+    return: true,
+  });
+}
+// eslint-disable-next-line no-restricted-globals
+self.addAttributes = addAttributes;
+
 // eslint-disable-next-line no-restricted-globals
 self.addBookmarks = addBookmarks;
 
 export default class BookmarkStorage {
-  constructor() {
-    this.tableName = 'bookmarks';
-  }
-
   async createMultipleTx(data) {
     try {
-      return await connection.transaction({
+      await connection.transaction({
         method: 'addBookmarks',
-        tables: [this.tableName],
+        tables: ['bookmarks'],
         data: {
           bookmarks: data,
         },
       });
+      await this.refreshAttributes();
     } catch (error) {
       console.error(`Error in createMultipleTx: ${error.message}`);
       throw error;
@@ -70,7 +84,8 @@ export default class BookmarkStorage {
     }
 
     return connection.select({
-      from: this.tableName,
+      from: 'bookmarks',
+      distinct: true,
       limit,
       skip,
       order: {
@@ -83,14 +98,14 @@ export default class BookmarkStorage {
 
   async create(entity) {
     return connection.insert({
-      into: this.tableName,
+      into: 'bookmarks',
       values: [entity],
     });
   }
 
   async update(id, data) {
     return connection.update({
-      in: this.tableName,
+      in: 'bookmarks',
       set: data,
       where: {
         id: Number(id),
@@ -100,7 +115,7 @@ export default class BookmarkStorage {
 
   async removeByIds(ids) {
     const result = await connection.remove({
-      from: this.tableName,
+      from: 'bookmarks',
       where: {
         id: {
           in: ids,
@@ -112,14 +127,14 @@ export default class BookmarkStorage {
 
   async remove(id) {
     return connection.remove({
-      from: this.tableName,
+      from: 'bookmarks',
       where: { id: Number(id) },
     });
   }
 
   async count(id) {
     return connection.count({
-      from: this.tableName,
+      from: 'bookmarks',
       where: {
         id: Number(id),
       },
@@ -128,7 +143,7 @@ export default class BookmarkStorage {
 
   async createMultiple(data) {
     return connection.insert({
-      into: this.tableName,
+      into: 'bookmarks',
       values: data,
       validation: false,
       skipDataCheck: true,
@@ -138,7 +153,7 @@ export default class BookmarkStorage {
 
   async getIds(ids) {
     const response = await connection.select({
-      from: this.tableName,
+      from: 'bookmarks',
       where: {
         id: {
           in: ids,
@@ -150,7 +165,7 @@ export default class BookmarkStorage {
 
   async updateFolders(folder) {
     return connection.update({
-      in: this.tableName,
+      in: 'bookmarks',
       set: {
         folderName: folder.title,
         folder,
@@ -164,7 +179,7 @@ export default class BookmarkStorage {
 
   async getById(id) {
     const response = await connection.select({
-      from: this.tableName,
+      from: 'bookmarks',
       limit: 1,
       where: {
         id: parseInt(id, 10),
@@ -176,7 +191,7 @@ export default class BookmarkStorage {
 
   async getByUrl(url) {
     const response = await connection.select({
-      from: this.tableName,
+      from: 'bookmarks',
       limit: 1,
       where: {
         url: String(url),
@@ -188,7 +203,7 @@ export default class BookmarkStorage {
 
   async getTags() {
     const response = await connection.select({
-      from: this.tableName,
+      from: 'bookmarks',
       flatten: ['tags'],
       groupBy: 'tags',
       order: {
@@ -199,34 +214,9 @@ export default class BookmarkStorage {
     return response.map((item) => item.tags);
   }
 
-  async getDomains() {
-    const response = await connection.select({
-      from: this.tableName,
-      groupBy: 'domain',
-      order: {
-        by: 'domain',
-        type: 'asc',
-      },
-    });
-    return response.map((item) => item.domain);
-  }
-
-  async getKeywords() {
-    const response = await connection.select({
-      from: this.tableName,
-      flatten: ['keywords'],
-      groupBy: 'keywords',
-      order: {
-        by: 'keywords',
-        type: 'asc',
-      },
-    });
-    return response.map((item) => item.keywords);
-  }
-
   async updateStatusByIds(status, ids) {
     return connection.update({
-      in: this.tableName,
+      in: 'bookmarks',
       set: {
         httpStatus: status,
       },
@@ -240,7 +230,7 @@ export default class BookmarkStorage {
 
   async getBookmarksByHttpStatusCode(statuses, skip = 0, limit = 50) {
     return connection.select({
-      from: this.tableName,
+      from: 'bookmarks',
       limit,
       skip,
       order: {
@@ -255,138 +245,148 @@ export default class BookmarkStorage {
     });
   }
 
-  async getAttributes(include, sort = 'count:desc', term = '') {
-    const [sortColumn, sortDirection] = sort.split(':');
+  async getAttributes(includes, sortColumn = 'count', sortDirection = 'desc', term = '', skip = 0, limit = 200) {
+    const whereConditions = {};
+    const keys = Object.entries(includes).reduce((acc, [key, value]) => {
+      if (value === true) {
+        acc.push(key);
+      }
+      return acc;
+    }, []);
+
+    if (keys.length === 0) {
+      return [];
+    }
+    Object.assign(whereConditions, { key: { in: keys } });
+    Object.assign(whereConditions, term ? { value: { like: `%${term}%` } } : {});
+
+    return connection.select({
+      from: 'attributes',
+      where: Object.keys(whereConditions).length === 0 ? null : whereConditions,
+      skip,
+      limit,
+      order: {
+        by: sortColumn,
+        type: sortDirection,
+      },
+    });
+  }
+
+  async refreshAttributes() {
+    console.time('Execution time attributes');
+
     const result = [];
-    if (include.domain) {
-      console.warn('include domain');
-      const flattenDomains = await connection.select({
-        from: this.tableName,
-        aggregate: {
-          count: ['id'],
-          list: ['id'],
-        },
-        where: term ? { domain: { like: `%${term}%` } } : null,
-        groupBy: 'domain',
-      });
-      const domains = flattenDomains.map((item) => ({
-        key: 'domain', value: item.domain, id: `domain${item.id}`, count: item['count(id)'], list: item['list(id)'],
-      }));
-      result.push(...domains);
-    }
-    if (include.tag) {
-      let flattenTags = await connection.select({
-        from: this.tableName,
-        flatten: ['tags'],
-        groupBy: 'tags',
-        aggregate: {
-          count: ['id'],
-          list: ['id'],
-        },
-        where: term ? { tags: { like: `%${term}%` } } : null,
-      });
-      flattenTags = term ? flattenTags.filter((item) => item.tags.includes(term)) : flattenTags;
-      const tags = flattenTags.map((item) => {
-        const uniqueList = [...new Set(item['list(id)'])];
-        return {
-          key: 'tag',
-          value: item.tags,
-          id: `tag${item.id}`,
-          count: uniqueList.length,
-          list: uniqueList,
-        };
-      });
-      result.push(...tags);
-    }
-    if (include.keyword) {
-      let flattenKeywords = await connection.select({
-        from: this.tableName,
-        flatten: ['keywords'],
-        groupBy: 'keywords',
-        aggregate: {
-          count: ['id'],
-          list: ['id'],
-        },
-      });
-      flattenKeywords = term ? flattenKeywords.filter((item) => item.keywords.includes(term)) : flattenKeywords;
-      const keywords = flattenKeywords.map((item) => {
-        const uniqueList = [...new Set(item['list(id)'])];
-        return {
-          key: 'keyword',
-          value: item.keywords,
-          id: `keyword${item.id}`,
-          count: uniqueList.length,
-          list: uniqueList,
-        };
-      });
-      result.push(...keywords);
-    }
-    if (include.type) {
-      const flattenTypes = await connection.select({
-        from: this.tableName,
-        groupBy: 'type',
-        aggregate: {
-          count: ['id'],
-          list: ['id'],
-        },
-        where: term ? { type: { like: `%${term}%` } } : null,
-      });
-      const types = flattenTypes.map((item) => ({
-        key: 'type', value: item.type, id: `type${item.id}`, count: item['count(id)'], list: item['list(id)'],
-      }));
 
-      result.push(...types);
-    }
-    if (include.locale) {
-      const conditions = [{ locale: { '!=': 'null' } }];
-      if (term) {
-        conditions.push({ locale: { like: `%${term}%` } });
-      }
-      const flattenLocales = await connection.select({
-        from: this.tableName,
-        where: conditions,
-        groupBy: 'locale',
-        aggregate: {
-          count: ['id'],
-          list: ['id'],
-        },
-      });
-      const locales = flattenLocales.map((item) => ({
-        key: 'locale', value: item.locale, id: `locale${item.id}`, count: item['count(id)'], list: item['list(id)'],
-      }));
+    console.warn('include domain');
+    const flattenDomains = await connection.select({
+      from: 'bookmarks',
+      aggregate: { count: ['id'], list: ['id'] },
+      groupBy: 'domain',
+    });
 
-      result.push(...locales);
-    }
-    if (include.folder) {
-      const flattenFolders = await connection.select({
-        from: this.tableName,
-        groupBy: 'folderName',
-        aggregate: {
-          count: ['id'],
-          list: ['id'],
-        },
-        where: term ? { folderName: { like: `%${term}%` } } : null,
-      });
-      const folders = flattenFolders.map((item) => ({
-        key: 'folder', value: item.folderName, id: `folder${item.id}`, count: item['count(id)'], list: item['list(id)'],
-      }));
+    console.warn('flattenDomains', flattenDomains);
 
-      result.push(...folders);
-    }
-    if (sortColumn === 'count') {
-      if (sortDirection === 'asc') {
-        result.sort((a, b) => a.count - b.count);
-      } else {
-        result.sort((a, b) => b.count - a.count);
-      }
-    }
-    if (sortColumn === 'name') {
-      if (sortDirection === 'asc') {
-        result.sort((a, b) => a.value.localeCompare(b.value));
-      } else {
-        result.sort((a, b) => b.value.localeCompare(a.value));
-      }
-    }
+    const domains = flattenDomains.map((item) => ({
+      key: 'domain', value: item.domain, id: `domain-${item.domain}`, count: item['count(id)'], list: item['list(id)'],
+    }));
+    result.push(...domains);
+
+    const flattenTags = await connection.select({
+      from: 'bookmarks',
+      flatten: ['tags'],
+      groupBy: 'tags',
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+    });
+    const tags = flattenTags.map((item) => {
+      const uniqueList = [...new Set(item['list(id)'])];
+      return {
+        key: 'tag',
+        value: item.tags,
+        id: `tag${item.tags}`,
+        count: uniqueList.length,
+        list: uniqueList,
+      };
+    });
+    result.push(...tags);
+
+    const flattenKeywords = await connection.select({
+      from: 'bookmarks',
+      flatten: ['keywords'],
+      groupBy: 'keywords',
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+    });
+    const keywords = flattenKeywords.map((item) => {
+      const uniqueList = [...new Set(item['list(id)'])];
+      return {
+        key: 'keyword',
+        value: item.keywords,
+        id: `keyword${item.keywords}`,
+        count: uniqueList.length,
+        list: uniqueList,
+      };
+    });
+    result.push(...keywords);
+
+    const flattenTypes = await connection.select({
+      from: 'bookmarks',
+      groupBy: 'type',
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+    });
+    const types = flattenTypes.map((item) => ({
+      key: 'type', value: item.type, id: `type-${item.type}`, count: item['count(id)'], list: item['list(id)'],
+    }));
+
+    result.push(...types);
+
+    const conditions = [{ locale: { '!=': 'null' } }];
+
+    const flattenLocales = await connection.select({
+      from: 'bookmarks',
+      where: conditions,
+      groupBy: 'locale',
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+    });
+    const locales = flattenLocales.map((item) => ({
+      key: 'locale', value: item.locale, id: `locale${item.locale}`, count: item['count(id)'], list: item['list(id)'],
+    }));
+
+    result.push(...locales);
+
+    const flattenFolders = await connection.select({
+      from: 'bookmarks',
+      groupBy: 'folderName',
+      aggregate: {
+        count: ['id'],
+        list: ['id'],
+      },
+    });
+    const folders = flattenFolders.map((item) => ({
+      key: 'folder', value: item.folderName, id: `folder${item.folderName}`, count: item['count(id)'], list: item['list(id)'],
+    }));
+
+    result.push(...folders);
+
+    await connection.transaction({
+      method: 'addAttributes',
+      tables: ['attributes'],
+      data: {
+        attributes: result,
+      },
+    });
+
+    console.timeEnd('Execution time attributes');
     return result;
   }
 }

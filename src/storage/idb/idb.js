@@ -96,9 +96,41 @@ const getDb = () => {
     },
   };
 
+  const tblAttributes = {
+    name: 'attributes',
+    columns: {
+      id: {
+        primaryKey: true,
+        autoIncrement: false,
+        dataType: DATA_TYPE.String,
+      },
+      key: {
+        notNull: true,
+        dataType: DATA_TYPE.String,
+        enableSearch: true,
+      },
+      value: {
+        notNull: true,
+        dataType: DATA_TYPE.String,
+        enableSearch: true,
+      },
+      count: {
+        notNull: true,
+        dataType: DATA_TYPE.Number,
+        enableSearch: true,
+      },
+      list: {
+        dataType: DATA_TYPE.Array,
+        multiEntry: true,
+        default: [],
+        enableSearch: true,
+      },
+    },
+  };
+
   const database = {
     name: 'favbox_database',
-    tables: [tblBookmarks],
+    tables: [tblBookmarks, tblAttributes],
   };
   return database;
 };

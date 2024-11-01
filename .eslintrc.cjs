@@ -18,6 +18,7 @@ module.exports = {
     'vue/no-v-model-argument': 'off',
     'no-plusplus': 'off',
     'no-continue': 'off',
+    'object-curly-newline': 'off',
     'no-restricted-syntax': [
       'error',
       'ForInStatement',

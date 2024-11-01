@@ -1,7 +1,7 @@
 export default {
   mounted(el, binding) {
     const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip bg-black text-white text-xs rounded shadow-md py-1 px-2 absolute whitespace-nowrap z-50 opacity-0 transition-opacity duration-300';
+    tooltip.className = 'tooltip bg-black text-white text-xs rounded shadow-md py-1 px-2 absolute whitespace-nowrap z-0 opacity-0 transition-opacity duration-300';
     tooltip.textContent = binding.value.text;
     el.tooltip = tooltip;
     document.body.appendChild(tooltip);

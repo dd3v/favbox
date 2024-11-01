@@ -1,8 +1,8 @@
 <template>
   <div
-    class="flex h-screen w-64 flex-col bg-white"
+    class="flex h-screen w-full max-w-64 flex-col bg-white"
   >
-    <div class="flex w-full space-x-1 px-1">
+    <div class="flex w-full">
       <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 flex items-center pl-2">
           <FilterIcon class="size-5 text-gray-400 dark:text-gray-200" />
@@ -11,7 +11,7 @@
           v-model="term"
           autocomplete="off"
           type="text"
-          class="w-full rounded-md border-gray-200 px-9 text-gray-700 shadow-sm outline-none placeholder:text-xs focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600 sm:text-sm"
+          class="h-9 w-full rounded-md border-gray-200 px-9 text-gray-700 shadow-sm outline-none placeholder:text-xs focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600 sm:text-sm"
         >
         <Popover class="relative">
           <PopoverButton
@@ -50,14 +50,14 @@
                   <app-radio
                     v-model="sort"
                     label="Name ↑ (A-Z)"
-                    value="name:asc"
+                    value="value:asc"
                     name="sort"
                     class="text-gray-800 dark:text-gray-200"
                   />
                   <app-radio
                     v-model="sort"
                     label="Name ↓ (Z-A)"
-                    value="name:desc"
+                    value="value:desc"
                     name="sort"
                     class="text-gray-800 dark:text-gray-200"
                   />
@@ -129,11 +129,7 @@
       </div>
     </div>
 
-    <transition-group
-      tag="ul"
-      name="fade"
-      class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto"
-    >
+    <ul class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1">
       <li
         v-for="(item, key) in list"
         :key="item.id + key"
@@ -141,12 +137,13 @@
         <label
           :key="item.id + key"
           :for="item.id + key"
-          :class="{'bg-red-100': selected(item.key, item.value)}"
+          :class="{'bg-neutral-100': selected(item.key, item.value)}"
           class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
         >
           <component
             :is="getIcon(item)"
-            class="size-4"
+            v-tooltip="{ text: getTooltip(item), position: 'top' }"
+            class="size-4 shrink-0"
           />
           <input
             :id="item.id + key"
@@ -157,13 +154,13 @@
             :checked="selected(item.key, item.value)"
             @input="update(item.key, item.value)"
           >
-          <span class="truncate"> {{ item.value }} </span>
+          <span class="truncate px-1"> {{ item.value }} </span>
           <span
-            class="ml-auto size-5 rounded-lg text-center"
+            class="ml-auto"
           >{{ item.count }}</span>
         </label>
       </li>
-    </transition-group>
+    </ul>
   </div>
 </template>
 <script setup>
@@ -214,9 +211,20 @@ const iconMap = {
   type: TypeIcon,
 };
 
+const tooltipMap = {
+  keyword: 'Filter by keywords',
+  locale: 'Filter by language',
+  domain: 'Filter by website',
+  folder: 'Filter by folder',
+  tag: 'Filter by tag',
+  type: 'Filter by content type (like articles or videos) based on page metadata',
+};
+
 const popoverButtonRef = ref(null);
 
 const getIcon = (item) => iconMap[item.key];
+
+const getTooltip = (item) => tooltipMap[item.key];
 
 const selected = (key, value) => props.modelValue.some((item) => item.key === key && item.value === value);
 

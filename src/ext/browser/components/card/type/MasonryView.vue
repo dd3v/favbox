@@ -22,7 +22,11 @@
         </h1>
         <p class="break-words py-2 text-gray-700 dark:text-neutral-300">
           {{ bookmark.description }} <br>
-          {{ bookmark.httpStatus }} - {{ bookmark.image }} - {{ bookmark.folderName }} - {{ bookmark.folder }}
+          <pre>
+
+            {{ bookmark.httpStatus }} - {{ bookmark.image }} - {{ bookmark.folderName }} - {{ bookmark.folder }}
+
+          </pre>
         </p>
         <div class="flex flex-wrap gap-1">
           <app-badge

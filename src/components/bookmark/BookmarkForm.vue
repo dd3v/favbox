@@ -18,81 +18,56 @@
       </label>
     </div>
     <div class="relative">
-      <Combobox
-        v-model="bookmark.folder"
-        :default-value="folders[0]"
-      >
+      <Listbox v-model="bookmark.folder">
         <div class="relative mt-1">
-          <div class="w-full">
-            <ComboboxInput
-              class="h-9 w-full rounded-md border-gray-200 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600"
-              :display-value="(folder) => folder?.title"
-              @change="query = $event.target.value"
-            />
-            <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronUpDownIcon
-                class="size-5 text-gray-700"
+          <ListboxButton
+            class="relative w-full cursor-default rounded-md border border-gray-200 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300"
+          >
+            <span class="block truncate">{{ bookmark.folder?.title }}</span>
+            <span
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+            >
+              <UpDownIcon
+                class="size-5 text-gray-400"
                 aria-hidden="true"
               />
-            </ComboboxButton>
-          </div>
-          <transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="translate-y-1 opacity-0"
-            enter-to-class="translate-y-0 opacity-100"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="translate-y-0 opacity-100"
-            leave-to-class="translate-y-1 opacity-0"
-          >
-            <ComboboxOptions
-              class="absolute z-10 mt-1 max-h-44 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-neutral-800"
-            >
-              <div
-                v-if="filteredFolders.length === 0 && query !== ''"
-                class="relative cursor-default select-none px-4 py-2"
-              >
-                Nothing found.
-              </div>
+            </span>
+          </ListboxButton>
 
-              <ComboboxOption
-                v-for="folder in filteredFolders"
+          <transition
+            leave-active-class="transition duration-100 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+          >
+            <ListboxOptions
+              class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white text-xs shadow-lg ring-1 ring-black/5 focus:outline-none"
+            >
+              <ListboxOption
+                v-for="folder in folders"
+                v-slot="{ active, selected }"
                 :key="folder.id"
-                v-slot="{ selected, active }"
-                as="template"
                 :value="folder"
+                as="template"
               >
                 <li
-                  class="relative cursor-pointer select-none py-2 pl-10 pr-4 text-gray-700 dark:text-neutral-400"
-                  :class="{ 'bg-neutral-50 dark:bg-neutral-700': active }"
+                  :class="[
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-900',
+                    'relative cursor-default select-none py-2',
+                  ]"
                 >
                   <span
-                    class="block truncate"
-                    :class="{
-                      'font-medium': selected,
-                      'font-normal': !selected,
-                    }"
-                  >
-                    {{ folder.title }}
-                  </span>
-                  <span
-                    v-if="selected"
-                    class="absolute inset-y-0 left-0 flex items-center pl-3"
-                    :class="{
-                      'text-gray-900': active,
-                      'text-gray-700': !active,
-                    }"
-                  >
-                    <CheckIcon
-                      class="size-5"
-                      aria-hidden="true"
-                    />
-                  </span>
+                    :class="[
+                      selected ? 'font-medium' : 'font-normal',
+                      'block truncate',
+                    ]"
+                    :style="{'padding-left': (0.1 + folder.depth) + 'rem'}"
+                  >{{ folder.title }} </span>
                 </li>
-              </ComboboxOption>
-            </ComboboxOptions>
+              </ListboxOption>
+            </ListboxOptions>
           </transition>
         </div>
-      </Combobox>
+      </Listbox>
     </div>
     <div class="relative">
       <app-tag-input
@@ -129,15 +104,14 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import {
-  Combobox,
-  ComboboxInput,
-  ComboboxButton,
-  ComboboxOptions,
-  ComboboxOption,
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  ListboxOption,
 } from '@headlessui/vue';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
+import UpDownIcon from '@/components/icons/UpDownIcon.vue';
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 import AppBadge from '@/components/app/AppBadge.vue';
@@ -146,14 +120,6 @@ import AppButton from '@/components/app/AppButton.vue';
 const props = defineProps({
   modelValue: {
     type: Object,
-    default: () => ({
-      id: null,
-      title: null,
-      url: null,
-      favicon: null,
-      folder: {},
-      tags: [],
-    }),
     required: true,
   },
   folders: {
@@ -172,14 +138,4 @@ const bookmark = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
-const folders = computed({
-  get: () => props.folders,
-});
-const query = ref('');
-const filteredFolders = computed(() => (query.value === ''
-  ? folders.value
-  : folders.value.filter((folder) => folder.title
-    .toLowerCase()
-    .replace(/\s+/g, '')
-    .includes(query.value.toLowerCase().replace(/\s+/g, '')))));
 </script>

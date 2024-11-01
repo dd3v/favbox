@@ -1,14 +1,3 @@
-/**
-* A helper object for working with bookmarks.
-*
-* @typedef {Object} bookmarkHelper
-* @property {Function} total - Counts the total number of bookmarks (excluding folders).
-* @property {Function} getAllBookmarksFromNode - Recursively collects all bookmarks and their URLs from the given node.
-* @property {Function} getFoldersTreeByBookmark - Retrieves the tree of folder names and IDs for a given bookmark ID.
-* @property {Function} getFolders - Retrieves all folders from the bookmarks.
-* @property {Function} getFoldersFlatten - Retrieves the titles of all folders in the bookmarks tree as a flat array.
-* @property {Function} getBookmarksFlatten - Retrieves all bookmarks as a flat array.
-*/
 const bookmarkHelper = {
   /**
   * Counts the total number of bookmarks (excluding folders).
@@ -85,7 +74,7 @@ const bookmarkHelper = {
   getFolders: async () => {
     const tree = await chrome.bookmarks.getTree();
     const folders = [];
-    function getFolders(bookmarks) {
+    function getFolders(bookmarks, depth = 0) {
       for (const bookmark of bookmarks) {
         if (bookmark.children) {
           if (bookmark.title !== '') {
@@ -95,24 +84,50 @@ const bookmarkHelper = {
               parentId: bookmark.parentId,
               dateAdded: bookmark.dateAdded,
               title: bookmark.title,
+              depth,
             });
           }
-          getFolders(bookmark.children);
+          getFolders(bookmark.children, depth + 1);
         }
       }
     }
     getFolders(tree);
     return folders;
   },
+
   /**
-  * Retrieves the titles of all folders in the bookmarks tree as a flat array.
+  * Retrieves the tree of all folders.
   *
-  * @returns {Promise<string[]>}
+  * @returns {Promise<Object[]>}
   */
-  getFoldersFlatten: async () => {
-    const folders = await this.getFolders();
-    return folders.map((item) => item.title);
+  getFoldersTree: async () => {
+    const tree = await chrome.bookmarks.getTree();
+    const map = new Map();
+    const folders = [];
+
+    const buildMap = (bookmarks) => {
+      for (const { id, parentId, title, children, url } of bookmarks) {
+        if (title && !url) {
+          const node = { id, parentId, title, children: [] };
+          map.set(id, node);
+          if (parentId === '0') {
+            folders.push(node);
+          }
+        }
+        if (children) {
+          buildMap(children);
+        }
+      }
+    };
+    buildMap(tree);
+    for (const item of map.values()) {
+      if (item.parentId !== '0' && map.has(item.parentId)) {
+        map.get(item.parentId).children.push(item);
+      }
+    }
+    return folders;
   },
+
   /**
   * Retrieves all bookmarks from the browser and flattens the hierarchical structure into array.
   *
