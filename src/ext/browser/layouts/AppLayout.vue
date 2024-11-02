@@ -6,7 +6,6 @@
         <router-view v-slot="{ Component }">
           <component
             :is="Component"
-            v-motion-fade
           />
         </router-view>
       </suspense>
@@ -25,9 +24,9 @@ import ASide from '@/ext/browser/components/ASide.vue';
 import SyncErrorIcon from '@/components/icons/SyncErrorIcon.vue';
 
 const menu = [
-  { name: 'BookmarksView', label: 'Bookmarks', icon: BookmarkIcon },
-  { name: 'FavoritesView', label: 'Favorites', icon: PinnedIcon },
-  { name: 'HealthCheckView', label: 'HealthCheckView', icon: SyncErrorIcon },
+  { name: 'BookmarksView', label: 'Bookmarks', icon: BookmarkIcon, tooltip: 'View all bookmarks' },
+  { name: 'PinnedView', label: 'Pinned', icon: PinnedIcon, tooltip: 'View pinned bookmarks' },
+  { name: 'HealthCheckView', label: 'Health Check', icon: SyncErrorIcon, tooltip: 'Bookmarks with potential issues' },
 ];
 
 onErrorCaptured((e) => {

@@ -11,6 +11,7 @@
         v-for="(item, key) in items"
         :key="item.key"
         :ref="el => setMenuItemRef(el, item.name)"
+        v-tooltip="{ text: item.tooltip, position: 'right', delay: 1000 }"
         class=""
         @click="handleClick"
       >

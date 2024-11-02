@@ -103,6 +103,33 @@ export default class BookmarkStorage {
     });
   }
 
+  async getPinnedBookmarks(limit = 50, skip = 0) {
+    return connection.select({
+      from: 'bookmarks',
+      limit,
+      skip,
+      order: {
+        by: 'id',
+        type: 'desc',
+      },
+      where: {
+        pinned: 1,
+      },
+    });
+  }
+
+  async updatePinStatusById(id, status) {
+    return connection.update({
+      in: 'bookmarks',
+      set: {
+        pinned: parseInt(status, 10),
+      },
+      where: {
+        id: Number(id),
+      },
+    });
+  }
+
   async update(id, data) {
     return connection.update({
       in: 'bookmarks',
@@ -263,6 +290,7 @@ export default class BookmarkStorage {
     return connection.select({
       from: 'attributes',
       where: Object.keys(whereConditions).length === 0 ? null : whereConditions,
+      // distinct: true,
       skip,
       limit,
       order: {
@@ -376,8 +404,11 @@ export default class BookmarkStorage {
       key: 'folder', value: item.folderName, id: `folder${item.folderName}`, count: item['count(id)'], list: item['list(id)'],
     }));
 
+    console.warn('refresh folders', folders);
+
     result.push(...folders);
 
+    await connection.clear('attributes');
     await connection.transaction({
       method: 'addAttributes',
       tables: ['attributes'],

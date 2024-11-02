@@ -24,7 +24,7 @@
           {{ bookmark.description }} <br>
           <pre>
 
-            {{ bookmark.httpStatus }} - {{ bookmark.image }} - {{ bookmark.folderName }} - {{ bookmark.folder }}
+            {{ bookmark.pinned }} - {{ bookmark.httpStatus }} - {{ bookmark.image }} - {{ bookmark.folderName }} - {{ bookmark.folder }}
 
           </pre>
         </p>

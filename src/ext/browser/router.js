@@ -11,9 +11,9 @@ const routes = [
     },
   },
   {
-    path: '/favorites',
-    name: 'FavoritesView',
-    component: () => import('./views/FavoritesView.vue'),
+    path: '/pinned',
+    name: 'PinnedView',
+    component: () => import('./views/PinnedView.vue'),
     meta: { page: 2 },
   },
   {

@@ -39,6 +39,7 @@
             :bookmark="bookmark"
             @remove="handleRemoveBookmark"
             @edit="edit"
+            @pin="pin"
           />
         </bookmark-layout>
       </app-infinite-scroll>
@@ -160,6 +161,12 @@ const edit = (e) => {
   currentBookmark.value = e;
   console.warn('edit', e);
   drawer.value.open();
+};
+
+const pin = (bookmark) => {
+  const status = bookmark.pinned ? 0 : 1;
+  bookmark.pinned = status;
+  bookmarkStorage.updatePinStatusById(bookmark.id, status);
 };
 
 const handleSubmit = async (bookmark) => {

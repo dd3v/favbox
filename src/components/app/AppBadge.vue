@@ -1,13 +1,13 @@
 <template>
   <div
     :class="badgeClass"
-    class="inline-flex cursor-pointer items-center space-x-1 truncate text-nowrap rounded-md px-2.5 py-1 font-medium ring-1 ring-inset"
+    class="inline-flex cursor-pointer items-center space-x-1 truncate text-nowrap rounded-sm px-2 py-0.5 font-medium ring-1 ring-inset"
   >
     <slot />
     <button
       v-if="closable"
       :class="closeButtonClass"
-      class="size-4 items-center justify-center"
+      class="size-3 items-center justify-center"
       @click="handleClose"
     >
       <svg

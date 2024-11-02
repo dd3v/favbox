@@ -88,6 +88,7 @@
         v-for="(value, key) in bookmark.keywords"
         :key="key"
         class="m-1"
+        @click="addToTags"
       >
         {{ value }}
       </AppBadge>

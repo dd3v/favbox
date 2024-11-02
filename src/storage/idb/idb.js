@@ -68,10 +68,14 @@ const getDb = () => {
         default: [],
         enableSearch: true,
       },
-      favorite: {
+      pinned: {
         notNull: true,
         dataType: DATA_TYPE.Number,
         default: 0,
+      },
+      notes: {
+        dataType: DATA_TYPE.String,
+        notNull: false,
       },
       httpStatus: {
         notNull: true,
