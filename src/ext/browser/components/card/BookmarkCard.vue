@@ -8,31 +8,36 @@
       <div class="absolute right-2 top-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
         <div class="flex space-x-2">
           <button
-            class="-translate-y-8 rounded-full bg-red-500 p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-150 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+            v-tooltip="{ text: 'Delete', position: 'bottom', delay: 300 }"
+            class="-translate-y-8 rounded-md bg-red-500 p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-150 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('remove', bookmark)"
           >
             <trash-icon class="size-4" />
           </button>
           <button
-            class="-translate-y-8 rounded-full bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-300 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+            v-tooltip="{ text: 'Take a screenshot', position: 'bottom', delay: 300 }"
+            class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-300 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('secreenshot', bookmark)"
           >
             <ScreenshotIcon class="size-4" />
           </button>
           <button
-            class="-translate-y-8 rounded-full bg-black  p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-500 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+            v-tooltip="{ text: 'Pin bookmark', position: 'bottom', delay: 300 }"
+            class="-translate-y-8 rounded-md bg-black  p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-500 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('pinned', bookmark)"
           >
             <PinnedIcon class="size-4" />
           </button>
           <button
-            class="-translate-y-8 rounded-full bg-black p-1.5 text-white opacity-100 shadow-md transition-transform  delay-100 duration-700 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+            v-tooltip="{ text: 'Similar bookmarks', position: 'bottom', delay: 300 }"
+            class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform  delay-100 duration-700 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('search', bookmark)"
           >
             <SearchIcon class="size-4" />
           </button>
           <button
-            class="-translate-y-8 rounded-full bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-1000 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+            v-tooltip="{ text: 'Update', position: 'bottom', delay: 300 }"
+            class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-1000 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('edit', bookmark)"
           >
             <EditIcon class="size-4" />
