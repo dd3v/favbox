@@ -61,6 +61,21 @@
       v-if="showSync"
       :progress="syncProgress"
     />
+    <AppConfirmation ref="deleteConfirmation">
+      <template #title>
+        Delete bookmark
+      </template>
+      <template #description>
+        Are you sure you want to delete this bookmark? This action cannot be undone. Removing the bookmark from FavBox
+        will also delete it from your browser.
+      </template>
+      <template #cancel>
+        Cancel
+      </template>
+      <template #confirm>
+        Delete
+      </template>
+    </AppConfirmation>
   </div>
 </template>
 <script setup>
@@ -81,6 +96,7 @@ import BookmarkForm from '@/components/bookmark/BookmarkForm.vue';
 import tagHelper from '@/helpers/tags';
 import BookmarksSync from '@/ext/browser/components/BookmarksSync.vue';
 import BookmarkCard from '@/ext/browser/components/card/BookmarkCard.vue';
+import AppConfirmation from '@/components/app/AppConfirmation.vue';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
@@ -91,7 +107,6 @@ console.warn('folders', bookmarkFolders.value);
 
 console.warn('tree folders', await bookmarkHelper.getFoldersTree());
 
-
 const currentBookmark = ref({});
 const drawer = ref(null);
 
@@ -99,6 +114,7 @@ const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
 
 const scroll = ref(null);
 const bookmarks = ref([]);
+const deleteConfirmation = ref(null);
 
 const query = ref([]);
 
@@ -116,6 +132,9 @@ const empty = ref(false);
 const tags = ref([]);
 
 const handleRemoveBookmark = async (bookmark) => {
+  if (await deleteConfirmation.value.request() === false) {
+    return;
+  }
   try {
     await chrome.bookmarks.remove(String(bookmark.id));
   } catch (e) {
