@@ -1,136 +1,98 @@
 <template>
-  <div
-    v-if="editor"
-  >
-    <div class="flex flex-wrap items-center gap-x-4  p-4 text-gray-700">
+  <div v-if="editor">
+    <div class="flex flex-wrap items-center gap-1 p-1 text-xs text-black">
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('bold') }"
+        class="p-1"
+        :class="{ 'rounded bg-black text-white': editor.isActive('bold') }"
         @click="editor.chain().focus().toggleBold().run()"
       >
-        B
+        <PhTextB class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('italic') }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('italic') }"
         @click="editor.chain().focus().toggleItalic().run()"
       >
-        I
+        <PhTextItalic class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('strike') }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('strike') }"
         @click="editor.chain().focus().toggleStrike().run()"
       >
-        S
+        <PhTextStrikethrough class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('underline') }"
         class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('underline') }"
         @click="editor.chain().focus().toggleUnderline().run()"
       >
-        U
-      </button>
-
-      <button
-        type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('heading', { level: 1 }) }"
-        @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-      >
-        H1
+        <PhTextUnderline class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('heading', { level: 2 }) }"
-        @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-      >
-        H2
-      </button>
-      <button
-        type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('heading', { level: 3 }) }"
-        @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
-      >
-        H3
-      </button>
-      <button
-        type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('heading', { level: 4 }) }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('heading', { level: 4 }) }"
         @click="editor.chain().focus().toggleHeading({ level: 4 }).run()"
       >
-        H4
+        <PhTextHFour class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('heading', { level: 5 }) }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('heading', { level: 5 }) }"
         @click="editor.chain().focus().toggleHeading({ level: 5 }).run()"
       >
-        H5
+        <PhTextHFive class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('heading', { level: 6 }) }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('heading', { level: 6 }) }"
         @click="editor.chain().focus().toggleHeading({ level: 6 }).run()"
       >
-        H6
+        <PhTextHSix class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('bulletList') }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('bulletList') }"
         @click="editor.chain().focus().toggleBulletList().run()"
       >
-        Bullet list
+        <PhListBullets class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('orderedList') }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('orderedList') }"
         @click="editor.chain().focus().toggleOrderedList().run()"
       >
-        Ordered list
+        <PhListNumbers class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('codeBlock') }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('codeBlock') }"
         @click="editor.chain().focus().toggleCodeBlock().run()"
       >
-        Code block
+        <PhCode class="size-4" />
       </button>
       <button
         type="button"
-        :class="{ 'rounded bg-gray-200': editor.isActive('blockquote') }"
+        class="p-1"
+        :class="{ 'rounded bg-black p-1 text-white': editor.isActive('blockquote') }"
         @click="editor.chain().focus().toggleBlockquote().run()"
       >
-        Blockquote
-      </button>
-      <button
-        type="button"
-        @click="editor.chain().focus().setHorizontalRule().run()"
-      >
-        Horizontal rule
-      </button>
-      <button
-        type="button"
-        @click="editor.chain().focus().setHardBreak().run()"
-      >
-        Hard break
-      </button>
-      <button
-        type="button"
-        @click="editor.chain().focus().undo().run()"
-      >
-        Undo
-      </button>
-      <button
-        type="button"
-        @click="editor.chain().focus().redo().run()"
-      >
-        Redo
+        <PhQuotes class="size-4" />
       </button>
     </div>
     <editor-content
       :editor="editor"
-      class="max-h-52 overflow-y-auto overflow-x-hidden"
+      class=""
     />
   </div>
 </template>
@@ -140,11 +102,24 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
+import PhTextB from '~icons/ph/text-b';
+import PhTextItalic from '~icons/ph/text-italic';
+import PhTextStrikethrough from '~icons/ph/text-strikethrough';
+import PhTextUnderline from '~icons/ph/text-underline';
+import PhTextHFour from '~icons/ph/text-h-four';
+import PhTextHFive from '~icons/ph/text-h-five';
+import PhTextHSix from '~icons/ph/text-h-six';
+import PhQuotes from '~icons/ph/quotes';
+import PhListNumbers from '~icons/ph/list-numbers';
+import PhListBullets from '~icons/ph/list-bullets';
+import PhCode from '~icons/ph/code';
 
 const props = defineProps({
-  modelValue: String,
+  modelValue: {
+    type: String,
+    default: '',
+  },
 });
-
 const emit = defineEmits(['update:modelValue']);
 
 const editor = useEditor({
@@ -155,7 +130,7 @@ const editor = useEditor({
   extensions: [StarterKit, Underline, Highlight, Typography],
   editorProps: {
     attributes: {
-      class: 'prose text-xs m-5 focus:outline-none ',
+      class: 'prose text-xs min-h-32 p-2 focus:outline-none ',
     },
   },
 

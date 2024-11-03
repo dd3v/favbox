@@ -4,7 +4,7 @@
     class="group relative mb-3 min-h-max max-w-md rounded-lg border border-neutral-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800"
   >
     <div
-      class="relative h-24 w-full rounded-t-lg bg-cover bg-center"
+      class="relative h-32 w-full rounded-t-lg bg-cover bg-center"
       :style="{ backgroundImage: `url(${bookmark.image})` }"
     >
       <div class="absolute inset-0 flex items-center rounded-t-lg bg-white/50 p-4 backdrop-blur-sm">
@@ -22,7 +22,10 @@
         </div>
       </div>
     </div>
-    <TextEditor v-model="bookmark.notes" />
+    <TextEditor
+      :key="bookmark.id"
+      v-model="bookmark.notes"
+    />
   </div>
 </template>
 
