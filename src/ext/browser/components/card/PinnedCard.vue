@@ -1,46 +1,80 @@
 <template>
   <div
-    v-motion-slide-visible-once-bottom
-    class="group relative mb-3 min-h-max max-w-md rounded-lg border border-neutral-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800"
+    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
+    :class="[active ? 'bg-gray-100' : 'bg-white']"
   >
-    <div
-      class="relative h-32 w-full rounded-t-lg bg-cover bg-center"
-      :style="{ backgroundImage: `url(${bookmark.image})` }"
-    >
-      <div class="absolute inset-0 flex items-center rounded-t-lg bg-white/50 p-4 backdrop-blur-sm">
-        <div class="text-black">
-          <h1 class="text-sm font-semibold">
-            {{ bookmark.title }}
-          </h1>
-          <p class="mt-1 flex items-center text-xs">
-            <bookmark-favicon
-              :bookmark="bookmark"
-              class="mr-1 size-4 fill-current text-black"
-            />
-            <span>{{ bookmark.domain }}</span>
-          </p>
-        </div>
+    <div class="mb-1 flex items-center text-sm text-gray-900 dark:text-neutral-100">
+      {{ bookmark.title }}
+    </div>
+    <div class="mt-2 flex items-center justify-between text-xs text-gray-700 dark:text-neutral-400">
+      <div class="flex items-center space-x-2">
+        <bookmark-favicon
+          :bookmark="bookmark"
+          class="size-3"
+        />
+        <span>{{ bookmark.domain }}</span>
+      </div>
+      <div class="flex items-center">
+        <UitCalender class="mr-1" />
+        <span>{{ formatDate(bookmark.updatedAt) }}</span>
       </div>
     </div>
-    <TextEditor
-      :key="bookmark.id"
-      v-model="bookmark.notes"
-    />
+
+    <div class="absolute right-2 top-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
+      <div class="flex space-x-2">
+        <button
+          v-tooltip="{ text: 'Delete', position: 'bottom', delay: 300 }"
+          class="-translate-y-8 rounded-md bg-red-500 p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-150 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+          @click="$emit('remove', bookmark)"
+        >
+          <CarbonTrashCan class="size-4" />
+        </button>
+        <button
+          v-tooltip="{ text: 'Pin bookmark', position: 'bottom', delay: 300 }"
+          class="-translate-y-8 rounded-md p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-300 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+          :class="[
+            bookmark.pinned === 0 ? 'bg-black' : 'bg-purple-500 '
+          ]"
+          @click="$emit('pin', bookmark)"
+        >
+          <CarbonPin class="size-4" />
+        </button>
+        <button
+          v-tooltip="{ text: 'Open', position: 'bottom', delay: 300 }"
+          class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-500 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+          @click="$emit('open', bookmark)"
+        >
+          <CarbonNewTab class="size-4" />
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
-import BookmarkImage from '@/ext/browser/components/card/BookmarkImage.vue';
-import TextEditor from '@/ext/browser/components/TextEditor.vue';
+
+import CarbonTrashCan from '~icons/carbon/trash-can';
+import CarbonPin from '~icons/carbon/pin';
+import CarbonNewTab from '~icons/carbon/new-tab';
+import UitCalender from '~icons/uit/calender';
 
 const props = defineProps({
   bookmark: {
     type: Object,
     required: true,
   },
+  active: {
+    type: Boolean,
+    default: false,
+  },
 });
+
+defineEmits(['remove', 'pin', 'edit']);
+
+const formatDate = (date) => new Date(date).toLocaleDateString();
+
 const bookmark = computed({
   get: () => props.bookmark,
 });

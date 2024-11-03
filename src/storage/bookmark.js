@@ -103,18 +103,29 @@ export default class BookmarkStorage {
     });
   }
 
-  async getPinnedBookmarks(limit = 50, skip = 0) {
+  async getPinnedBookmarks(skip = 0, limit = 50, term = '') {
+    const whereConditions = {
+      pinned: 1,
+    };
+
+    if (term) {
+      Object.assign(whereConditions, {
+        notes: { like: `%${term}%` },
+        or: {
+          title: { like: `%${term}%` },
+        },
+      });
+    }
+
     return connection.select({
       from: 'bookmarks',
       limit,
       skip,
       order: {
-        by: 'id',
+        by: 'updatedAt',
         type: 'desc',
       },
-      where: {
-        pinned: 1,
-      },
+      where: whereConditions,
     });
   }
 
@@ -123,6 +134,7 @@ export default class BookmarkStorage {
       in: 'bookmarks',
       set: {
         pinned: parseInt(status, 10),
+        updatedAt: new Date().toISOString(),
       },
       where: {
         id: Number(id),
@@ -251,6 +263,19 @@ export default class BookmarkStorage {
         id: {
           in: ids,
         },
+      },
+    });
+  }
+
+  async updateNotesById(id, notes) {
+    return connection.update({
+      in: 'bookmarks',
+      set: {
+        notes,
+        updatedAt: new Date().toISOString(),
+      },
+      where: {
+        id: parseInt(id, 10),
       },
     });
   }
