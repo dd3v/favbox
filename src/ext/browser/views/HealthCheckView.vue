@@ -20,18 +20,18 @@
       >
         <ul
           role="list"
-          class="mt-8 space-y-4 text-gray-900"
+          class="mt-8 space-y-4 font-thin text-gray-900"
         >
           <li class="flex items-center gap-x-1">
-            <CalendarIcon class="size-4" />
+            <UitCalender class="size-4" />
             <span>Last checked on: {{ healthcheck?.date ?? 'TBD' }}</span>
           </li>
           <li class="flex items-center gap-x-1">
-            <BookmarkIcon class="size-4" />
+            <UitBookmark class="size-4" />
             <span>Total bookmarks checked: {{ healthcheck?.total ?? 'TBD' }}</span>
           </li>
           <li class="flex items-center gap-x-1">
-            <ClockIcon class="size-4" />
+            <UitClock class="size-4" />
             <span>Time taken: {{ healthcheck?.executionTime ?? 'TBD' }}</span>
           </li>
         </ul>
@@ -69,9 +69,10 @@ import initStorage from '@/storage/idb/idb';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import HealthCheckCard from '@/ext/browser/components/card/HealthCheckCard.vue';
 import { HTTP_STATUS } from '@/helpers/httpStatus';
-import BookmarkIcon from '@/components/icons/BookmarkIcon.vue';
-import CalendarIcon from '@/components/icons/CalendarIcon.vue';
-import ClockIcon from '@/components/icons/ClockIcon.vue';
+
+import UitBookmark from '~icons/uit/bookmark';
+import UitClock from '~icons/uit/clock';
+import UitCalender from '~icons/uit/calender';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();

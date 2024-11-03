@@ -27,7 +27,7 @@
             <span
               class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
             >
-              <UpDownIcon
+              <HeroiconsChevronUpDown
                 class="size-5 text-gray-400"
                 aria-hidden="true"
               />
@@ -112,11 +112,11 @@ import {
   ListboxOptions,
   ListboxOption,
 } from '@headlessui/vue';
-import UpDownIcon from '@/components/icons/UpDownIcon.vue';
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 import AppBadge from '@/components/app/AppBadge.vue';
 import AppButton from '@/components/app/AppButton.vue';
+import HeroiconsChevronUpDown from '~icons/heroicons/chevron-up-down';
 
 const props = defineProps({
   modelValue: {

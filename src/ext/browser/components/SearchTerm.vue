@@ -38,17 +38,15 @@
 
 <script setup>
 import AppBadge from '@/components/app/AppBadge.vue';
-import KeywordIcon from '@/components/icons/KeywordIcon.vue';
-import LangIcon from '@/components/icons/LangIcon.vue';
-import UrlIcon from '@/components/icons/UrlIcon.vue';
-import FolderIcon from '@/components//icons/FolderIcon.vue';
-import TagIcon from '@/components/icons/TagIcon.vue';
-import TypeIcon from '@/components/icons/TypeIcon.vue';
-import SearchIcon from '@/components/icons/SearchIcon.vue';
-
 import { ref } from 'vue';
 
-const term = ref('');
+import PhHashStraightLight from '~icons/ph/hash-straight-light';
+import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
+import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
+import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
+import PhFileMagnifyingGlassLight from '~icons/ph/file-magnifying-glass-light';
+import PhTranslateLight from '~icons/ph/translate-light';
+import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
 
 const props = defineProps({
   placeholder: {
@@ -61,6 +59,7 @@ const props = defineProps({
   },
 });
 
+const term = ref('');
 const inputRef = ref('');
 const emit = defineEmits(['update:modelValue']);
 
@@ -85,19 +84,19 @@ const add = () => {
 const getIcon = (key) => {
   switch (key) {
     case 'type':
-      return TypeIcon;
+      return PhFileMagnifyingGlassLight;
     case 'locale':
-      return LangIcon;
+      return PhTranslateLight;
     case 'folder':
-      return FolderIcon;
+      return PhFolderSimpleLight;
     case 'keyword':
-      return KeywordIcon;
+      return PhListMagnifyingGlassLight;
     case 'tag':
-      return TagIcon;
+      return PhHashStraightLight;
     case 'domain':
-      return UrlIcon;
+      return PhGlobeSimpleLight;
     default:
-      return SearchIcon;
+      return PhMagnifyingGlassLight;
   }
 };
 

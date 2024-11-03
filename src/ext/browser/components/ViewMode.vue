@@ -34,9 +34,9 @@
             ]"
             @click="view = 'masonry'"
           >
-            <MasonryIcon
+            <CircumGrid42
               :active="active"
-              class="mr-2 size-4"
+              class="mr-2 size-5"
               aria-hidden="true"
             />
             Gallery
@@ -52,9 +52,9 @@
             ]"
             @click="view = 'card'"
           >
-            <GridIcon
+            <CircumGrid41
               :active="active"
-              class="mr-2 size-4"
+              class="mr-2 size-5"
               aria-hidden="true"
             />
             Cards
@@ -70,9 +70,9 @@
             ]"
             @click="view = 'list'"
           >
-            <ListIcon
+            <CircumGrid2H
               :active="active"
-              class="mr-2 size-4"
+              class="mr-2 size-5"
               aria-hidden="true"
             />
             List
@@ -87,11 +87,11 @@ import {
   Menu, MenuButton, MenuItems, MenuItem,
 } from '@headlessui/vue';
 
-import MasonryIcon from '@/components/icons/MasonryIcon.vue';
-import GridIcon from '@/components/icons/GridIcon.vue';
-import ListIcon from '@/components/icons/ListIcon.vue';
-
 import { computed } from 'vue';
+
+import CircumGrid42 from '~icons/circum/grid-4-2';
+import CircumGrid41 from '~icons/circum/grid-4-1';
+import CircumGrid2H from '~icons/circum/grid-2-h';
 
 const props = defineProps({
   modelValue: {
@@ -109,13 +109,13 @@ const icon = computed({
   get: () => {
     switch (view.value) {
       case 'card':
-        return GridIcon;
+        return CircumGrid41;
       case 'list':
-        return ListIcon;
+        return CircumGrid2H;
       case 'masonry':
-        return MasonryIcon;
+        return CircumGrid42;
       default:
-        return MasonryIcon;
+        return CircumGrid42;
     }
   },
 });

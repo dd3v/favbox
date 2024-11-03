@@ -40,7 +40,7 @@
                 as="h3"
                 class="flex items-center text-lg font-medium leading-6 text-gray-900 dark:text-gray-400"
               >
-                <PixelHeartIcon class="mr-2" />
+                <PixelarticonsHeart class="mr-2" />
                 Welcome!
               </DialogTitle>
               <div class="mt-2">
@@ -79,7 +79,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/vue';
-import PixelHeartIcon from '@/components/icons/PixelHeartIcon.vue';
+import PixelarticonsHeart from '~icons/pixelarticons/heart';
 
 const props = defineProps({
   progress: {

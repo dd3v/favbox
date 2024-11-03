@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="sticky top-0 flex h-full min-h-screen w-12 min-w-12 flex-col items-center justify-center border-neutral-800 align-middle shadow-inner dark:border-r dark:bg-neutral-900"
+    class="sticky top-0 flex h-full min-h-screen w-14 min-w-14 flex-col items-center justify-center border-neutral-800 align-middle shadow-inner dark:border-r dark:bg-neutral-900"
   >
     <div
       ref="indicatorRef"
@@ -23,7 +23,7 @@
         >
           <component
             :is="item.icon"
-            class="pointer-events-none size-6 text-gray-700 dark:text-neutral-300"
+            class="pointer-events-none size-6 text-black  dark:text-neutral-300"
           />
         </router-link>
       </li>

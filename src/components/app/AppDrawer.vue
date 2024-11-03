@@ -49,10 +49,16 @@
                     >
                       <span class="absolute -inset-2.5" />
                       <span class="sr-only">Close panel</span>
-                      <CloseIcon
-                        size="4"
-                        aria-hidden="true"
-                      />
+                      <svg
+                        class="size-6"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1em"
+                        height="1em"
+                        viewBox="0 0 24 24"
+                      ><path
+                        fill="currentColor"
+                        d="m6.4 18.308l-.708-.708l5.6-5.6l-5.6-5.6l.708-.708l5.6 5.6l5.6-5.6l.708.708l-5.6 5.6l5.6 5.6l-.708.708l-5.6-5.6z"
+                      /></svg>
                     </button>
                   </div>
                 </TransitionChild>
@@ -76,7 +82,6 @@
 </template>
 
 <script setup>
-import CloseIcon from '@/components/icons/CloseIcon.vue';
 import {
   Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot,
 } from '@headlessui/vue';

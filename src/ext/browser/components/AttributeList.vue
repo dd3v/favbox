@@ -5,7 +5,7 @@
     <div class="flex w-full">
       <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-          <FilterIcon class="size-5 text-gray-400 dark:text-gray-200" />
+          <MaterialSymbolsLightCategorySearchOutline class="size-5 text-gray-400 dark:text-gray-200" />
         </div>
         <input
           v-model="term"
@@ -19,11 +19,11 @@
             class="pointer-events-auto absolute inset-y-0 -top-9 right-0 flex items-center pr-2 focus:outline-none focus:ring-0"
           >
             <div class="flex flex-wrap items-center gap-x-1 text-sm text-gray-400 dark:text-neutral-600">
-              <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white px-1.5 py-1 font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
-                <CmdIcon />
+              <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                <MaterialSymbolsLightKeyboardCommandKey />
               </kbd>
-              <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white px-1.5 py-1 font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
-                /
+              <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                <IconoirSlash />
               </kbd>
             </div>
           </PopoverButton>
@@ -40,7 +40,7 @@
             >
               <div class="flex flex-col space-y-4 p-4">
                 <div class="flex items-center space-x-2">
-                  <SortIcon class="size-5 text-gray-800 dark:text-gray-200" />
+                  <PhArrowsDownUp class="size-5 text-gray-800 dark:text-gray-200" />
                   <h3 class="text-sm text-gray-800 dark:text-gray-200">
                     Sort By
                   </h3>
@@ -80,7 +80,7 @@
                 <div class="border-t border-gray-200 dark:border-gray-700" />
 
                 <div class="flex items-center space-x-2">
-                  <IncludeIcon class="size-5 text-gray-800 dark:text-gray-200" />
+                  <PhListChecks class="size-5 text-gray-800 dark:text-gray-200" />
                   <h3 class="text-sm text-gray-800 dark:text-gray-200">
                     Includes
                   </h3>
@@ -173,16 +173,18 @@ import {
 } from 'vue';
 import AppRadio from '@/components/app/AppRadio.vue';
 import AppBullet from '@/components/app/AppBullet.vue';
-import KeywordIcon from '@/components/icons/KeywordIcon.vue';
-import LangIcon from '@/components/icons/LangIcon.vue';
-import UrlIcon from '@/components/icons/UrlIcon.vue';
-import FolderIcon from '@/components//icons/FolderIcon.vue';
-import TagIcon from '@/components/icons/TagIcon.vue';
-import TypeIcon from '@/components/icons/TypeIcon.vue';
-import IncludeIcon from '@/components/icons/IncludeIcon.vue';
-import SortIcon from '@/components/icons/SortIcon.vue';
-import FilterIcon from '@/components/icons/FilterIcon.vue';
-import CmdIcon from '@/components/icons/CmdIcon.vue';
+
+import PhListChecks from '~icons/ph/list-checks';
+import PhArrowsDownUp from '~icons/ph/arrows-down-up';
+import IconoirSlash from '~icons/iconoir/slash';
+import MaterialSymbolsLightKeyboardCommandKey from '~icons/material-symbols-light/keyboard-command-key';
+import MaterialSymbolsLightCategorySearchOutline from '~icons/material-symbols-light/category-search-outline';
+import PhHashStraightLight from '~icons/ph/hash-straight-light';
+import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
+import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
+import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
+import PhFileMagnifyingGlassLight from '~icons/ph/file-magnifying-glass-light';
+import PhTranslateLight from '~icons/ph/translate-light';
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -203,12 +205,12 @@ const props = defineProps({
 });
 
 const iconMap = {
-  keyword: KeywordIcon,
-  locale: LangIcon,
-  domain: UrlIcon,
-  folder: FolderIcon,
-  tag: TagIcon,
-  type: TypeIcon,
+  keyword: PhListMagnifyingGlassLight,
+  locale: PhTranslateLight,
+  domain: PhGlobeSimpleLight,
+  folder: PhFolderSimpleLight,
+  tag: PhHashStraightLight,
+  type: PhFileMagnifyingGlassLight,
 };
 
 const tooltipMap = {
@@ -217,7 +219,7 @@ const tooltipMap = {
   domain: 'Filter by website',
   folder: 'Filter by folder',
   tag: 'Filter by tag',
-  type: 'Filter by content type (like articles or videos) based on page metadata',
+  type: 'Filter by content',
 };
 
 const popoverButtonRef = ref(null);

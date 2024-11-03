@@ -18,15 +18,15 @@
 import { onErrorCaptured } from 'vue';
 import { notify } from 'notiwind';
 import AppNotifications from '@/components/app/AppNotifications.vue';
-import BookmarkIcon from '@/components/icons/BookmarkIcon.vue';
-import PinnedIcon from '@/components/icons/PinnedIcon.vue';
 import ASide from '@/ext/browser/components/ASide.vue';
-import SyncErrorIcon from '@/components/icons/SyncErrorIcon.vue';
+import ClarityBookmarkLine from '~icons/clarity/bookmark-line';
+import ClarityPinLine from '~icons/clarity/pin-line';
+import ClarityErrorStandardLine from '~icons/clarity/error-standard-line';
 
 const menu = [
-  { name: 'BookmarksView', label: 'Bookmarks', icon: BookmarkIcon, tooltip: 'View all bookmarks' },
-  { name: 'PinnedView', label: 'Pinned', icon: PinnedIcon, tooltip: 'View pinned bookmarks' },
-  { name: 'HealthCheckView', label: 'Health Check', icon: SyncErrorIcon, tooltip: 'Bookmarks with potential issues' },
+  { name: 'BookmarksView', label: 'Bookmarks', icon: ClarityBookmarkLine, tooltip: 'View all bookmarks' },
+  { name: 'PinnedView', label: 'Pinned', icon: ClarityPinLine, tooltip: 'View pinned bookmarks' },
+  { name: 'HealthCheckView', label: 'Health Check', icon: ClarityErrorStandardLine, tooltip: 'Bookmarks with potential issues' },
 ];
 
 onErrorCaptured((e) => {

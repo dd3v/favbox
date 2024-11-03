@@ -1,5 +1,5 @@
 <template>
-  <GlobeIcon
+  <PhGlobeSimpleLight
     v-if="fallback || !bookmark.favicon"
     class="size-4 fill-black"
   />
@@ -12,7 +12,7 @@
 </template>
 <script setup>
 import { ref } from 'vue';
-import GlobeIcon from '@/components/icons/GlobeIcon.vue';
+import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 
 defineProps({
   bookmark: {

@@ -27,6 +27,8 @@ module.exports = {
     ],
     'no-use-before-define': ['error', { functions: false }],
     'no-param-reassign': ['error', { props: false }],
+    'import/no-unresolved': ['error', { ignore: ['^~icons/'] }],
+    'import/extensions': ['error', { ignore: ['^~icons/'] }],
   },
   overrides: [
     {

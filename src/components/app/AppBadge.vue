@@ -1,7 +1,7 @@
 <template>
   <div
     :class="badgeClass"
-    class="inline-flex cursor-pointer items-center space-x-1 truncate text-nowrap rounded-sm px-2 py-0.5 font-medium ring-1 ring-inset"
+    class="inline-flex cursor-pointer items-center space-x-1 truncate text-nowrap rounded-sm px-2 py-0.5 ring-1 ring-inset"
   >
     <slot />
     <button

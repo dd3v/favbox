@@ -34,7 +34,7 @@
       class="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 shadow-md transition-opacity duration-150 ease-out group-hover:opacity-100"
       @click="$emit('onDelete', bookmark)"
     >
-      <trash-icon class="size-4" />
+      <CarbonTrashCan class="size-4" />
     </button>
   </div>
 </template>
@@ -43,7 +43,7 @@
 import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
 import AppBadge from '@/components/app/AppBadge.vue';
 import { getStatusMessage } from '@/helpers/httpStatus';
-import TrashIcon from '@/components/icons/TrashIcon.vue';
+import CarbonTrashCan from '~icons/carbon/trash-can';
 
 defineProps({
   bookmark: {
