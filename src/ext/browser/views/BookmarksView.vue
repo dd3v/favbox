@@ -14,7 +14,21 @@
           ref="searchInputRef"
           v-model="query"
           placeholder="Search your bookmarks.. ⏎"
-        />
+        >
+          <template #kbd>
+            <button
+              class="m-0 inline-flex appearance-none items-center space-x-1 border-none bg-transparent p-0"
+              @click="handleCommandPallete"
+            >
+              <span class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-lg shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                ⌘
+              </span>
+              <span class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                K
+              </span>
+            </button>
+          </template>
+        </SearchTerm>
         <ViewMode v-model="displayType" />
       </div>
       <app-infinite-scroll
@@ -77,6 +91,11 @@
         Delete
       </template>
     </AppConfirmation>
+    <CommandPalette
+      ref="commandPalleteRef"
+      v-model="query"
+      @onVisibilityToggle="commandPaleteVisibilityHandler"
+    />
   </div>
 </template>
 <script setup>
@@ -98,6 +117,7 @@ import tagHelper from '@/helpers/tags';
 import BookmarksSync from '@/ext/browser/components/BookmarksSync.vue';
 import BookmarkCard from '@/ext/browser/components/card/BookmarkCard.vue';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
+import CommandPalette from '@/ext/browser/components/CommandPalette.vue';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
@@ -110,6 +130,7 @@ console.warn('tree folders', await bookmarkHelper.getFoldersTree());
 
 const currentBookmark = ref({});
 const drawer = ref(null);
+const commandPalleteRef = ref(null);
 
 const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
 
@@ -192,9 +213,17 @@ const handleSubmit = async (bookmark) => {
   }
 };
 
+const handleCommandPallete = () => commandPalleteRef.value.toggle();
+
+const commandPaleteVisibilityHandler = (status) => {
+  if (status === false) {
+    setTimeout(() => searchInputRef.value.focus(), 500);
+  }
+};
+
 const paginate = async (skip) => {
   try {
-    console.warn('load', skip);
+    console.warn('skip', skip);
     bookmarks.value.push(
       ...(await bookmarkStorage.search(query.value, skip, 50)),
     );
@@ -234,12 +263,12 @@ watch(
 );
 
 onMounted(async () => {
-  drawer.value.open();
+  // drawer.value.open();
   const [sortColumn, sortDirection] = attrsSort.value.split(':');
   const result = await bookmarkStorage.getAttributes(attrsIncludes, sortColumn, sortDirection, attrsTerm.value, 0, 200);
   attributes.value = result;
   console.warn('attrs', attributes.value);
-  await bookmarkStorage.refreshAttributes();
+  // await bookmarkStorage.refreshAttributes();
 });
 
 chrome.runtime.onMessage.addListener(async (message) => {

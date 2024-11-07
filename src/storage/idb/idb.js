@@ -55,7 +55,7 @@ const getDb = () => {
       keywords: {
         dataType: DATA_TYPE.Array,
         multiEntry: true,
-        default: [],
+        default: null,
         enableSearch: true,
       },
       image: {
@@ -65,7 +65,7 @@ const getDb = () => {
       tags: {
         dataType: DATA_TYPE.Array,
         multiEntry: true,
-        default: [],
+        default: null,
         enableSearch: true,
       },
       pinned: {

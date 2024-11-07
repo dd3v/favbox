@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 /* eslint-disable class-methods-use-this */
 import connection from './idb/connection';
 
@@ -27,10 +28,9 @@ function addAttributes(ctx) {
     return: true,
   });
 }
-// eslint-disable-next-line no-restricted-globals
-self.addAttributes = addAttributes;
 
-// eslint-disable-next-line no-restricted-globals
+// because of global state jsstore
+self.addAttributes = addAttributes;
 self.addBookmarks = addBookmarks;
 
 export default class BookmarkStorage {
@@ -43,7 +43,7 @@ export default class BookmarkStorage {
           bookmarks: data,
         },
       });
-      await this.refreshAttributes();
+      // await this.refreshAttributes();
     } catch (error) {
       console.error(`Error in createMultipleTx: ${error.message}`);
       throw error;
@@ -52,37 +52,43 @@ export default class BookmarkStorage {
 
   async search(query, skip = 0, limit = 50) {
     const queryParams = {};
-    const whereConditions = {};
+    const whereConditions = [];
     query.forEach(({ key, value }) => {
       (queryParams[key] ??= []).push(value);
     });
-
-    Object.assign(whereConditions, queryParams?.folder ? { folderName: { in: queryParams.folder } } : {});
-    Object.assign(whereConditions, queryParams?.tag ? { tags: { in: queryParams.tag } } : {});
-    Object.assign(whereConditions, queryParams?.domain ? { domain: { in: queryParams.domain } } : {});
-    Object.assign(whereConditions, queryParams?.keyword ? { keywords: { in: queryParams.keyword } } : {});
-    Object.assign(whereConditions, queryParams?.type ? { type: { in: queryParams.type } } : {});
-    Object.assign(whereConditions, queryParams?.locale ? { locale: { in: queryParams.locale } } : {});
-
+    const conditions = [
+      { key: 'folder', condition: { folderName: { in: queryParams.folder } } },
+      { key: 'tag', condition: { tags: { in: queryParams.tag } } },
+      { key: 'domain', condition: { domain: { in: queryParams.domain } } },
+      { key: 'keyword', condition: { keywords: { in: queryParams.keyword } } },
+      { key: 'type', condition: { type: { in: queryParams.type } } },
+      { key: 'locale', condition: { locale: { in: queryParams.locale } } },
+    ];
+    conditions.forEach(({ key, condition }) => {
+      if (queryParams[key]) {
+        whereConditions.push(condition);
+      }
+    });
     if (queryParams?.term) {
       const [term] = queryParams.term;
-      Object.assign(whereConditions, {
-        title: { like: `%${term}%` },
+      const regexPattern = term.split(/\s+/).map((word) => `(?=.*${word})`).join('');
+      const regex = new RegExp(`^${regexPattern}.*$`, 'i');
+      whereConditions.push({
+        title: { regex },
         or: {
-          description: { like: `%${term}%` },
+          description: { regex },
           or: {
-            keywords: { in: [term] },
+            url: { regex },
             or: {
-              tags: { in: [term] },
+              domain: { like: `%${term}%` },
               or: {
-                domain: { like: `%${term}%` },
+                keywords: { regex },
               },
             },
           },
         },
       });
     }
-
     return connection.select({
       from: 'bookmarks',
       distinct: true,
@@ -92,7 +98,7 @@ export default class BookmarkStorage {
         by: 'id',
         type: 'desc',
       },
-      where: Object.keys(whereConditions).length === 0 ? null : whereConditions,
+      where: whereConditions.length === 0 ? null : whereConditions,
     });
   }
 
@@ -104,19 +110,23 @@ export default class BookmarkStorage {
   }
 
   async getPinnedBookmarks(skip = 0, limit = 50, term = '') {
-    const whereConditions = {
-      pinned: 1,
-    };
-
+    const whereConditions = [{ pinned: 1 }];
     if (term) {
-      Object.assign(whereConditions, {
-        notes: { like: `%${term}%` },
+      const regexPattern = term.split(/\s+/).map((word) => `(?=.*${word})`).join('');
+      const regex = new RegExp(`^${regexPattern}.*$`, 'i');
+      whereConditions.push({
+        notes: { regex },
         or: {
-          title: { like: `%${term}%` },
+          title: { regex },
+          or: {
+            description: { regex },
+            or: {
+              domain: { like: `%${term}%` },
+            },
+          },
         },
       });
     }
-
     return connection.select({
       from: 'bookmarks',
       limit,
@@ -325,6 +335,26 @@ export default class BookmarkStorage {
     });
   }
 
+  async searchAttributes(key, value, skip, limit = 50) {
+    const whereConditions = [{ key }];
+    if (value) {
+      whereConditions.push({
+        value: { like: `${value}%` },
+      });
+    }
+    return connection.select({
+      from: 'attributes',
+      distinct: true,
+      limit,
+      skip,
+      where: whereConditions,
+      order: {
+        by: 'value',
+        type: 'asc',
+      },
+    });
+  }
+
   async refreshAttributes() {
     console.time('Execution time attributes');
 
@@ -348,6 +378,11 @@ export default class BookmarkStorage {
       from: 'bookmarks',
       flatten: ['tags'],
       groupBy: 'tags',
+      where: {
+        keywords: {
+          '!=': 'null',
+        },
+      },
       aggregate: {
         count: ['id'],
         list: ['id'],
@@ -369,11 +404,17 @@ export default class BookmarkStorage {
       from: 'bookmarks',
       flatten: ['keywords'],
       groupBy: 'keywords',
+      where: {
+        keywords: {
+          '!=': 'null',
+        },
+      },
       aggregate: {
         count: ['id'],
         list: ['id'],
       },
     });
+    console.warn('KEYWORDS', flattenKeywords);
     const keywords = flattenKeywords.map((item) => {
       const uniqueList = [...new Set(item['list(id)'])];
       return {

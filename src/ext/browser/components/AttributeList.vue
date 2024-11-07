@@ -19,11 +19,11 @@
             class="pointer-events-auto absolute inset-y-0 -top-9 right-0 flex items-center pr-2 focus:outline-none focus:ring-0"
           >
             <div class="flex flex-wrap items-center gap-x-1 text-sm text-gray-400 dark:text-neutral-600">
-              <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
-                <MaterialSymbolsLightKeyboardCommandKey />
+              <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-lg shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                ⌘
               </kbd>
               <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
-                <IconoirSlash />
+                /
               </kbd>
             </div>
           </PopoverButton>
@@ -176,8 +176,6 @@ import AppBullet from '@/components/app/AppBullet.vue';
 
 import PhListChecks from '~icons/ph/list-checks';
 import PhArrowsDownUp from '~icons/ph/arrows-down-up';
-import IconoirSlash from '~icons/iconoir/slash';
-import MaterialSymbolsLightKeyboardCommandKey from '~icons/material-symbols-light/keyboard-command-key';
 import MaterialSymbolsLightCategorySearchOutline from '~icons/material-symbols-light/category-search-outline';
 import PhHashStraightLight from '~icons/ph/hash-straight-light';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';

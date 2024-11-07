@@ -10,9 +10,9 @@
       class="m-5 flex h-5/6 flex-col items-center justify-center space-y-3 p-5"
     >
       <div
-        class="text-2xl text-black"
+        class="text-2xl font-thin text-black"
       >
-        You don't have any broken bookmarks in your browser.
+        Looks like there are no broken bookmarks in your browser.
       </div>
       <div
         v-if="healthcheck?.date"

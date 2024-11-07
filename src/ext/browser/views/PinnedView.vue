@@ -1,6 +1,8 @@
 <template>
   <div class="flex h-screen">
-    <div class="w-1/3 space-y-3 border-r border-gray-300 bg-white">
+    <div
+      class="w-1/3 space-y-3 border-r border-gray-300 bg-white"
+    >
       <div class="relative w-full p-2">
         <label for="title">
           <input
@@ -43,6 +45,12 @@
         v-if="currentBookmark?.id"
         v-model="currentBookmark.notes"
       />
+      <div
+        v-if="bookmarks.length === 0"
+        class="m-5 flex h-5/6 flex-col items-center justify-center space-y-3 p-5"
+      >
+        <span class="text-2xl font-thin text-black">Your local storage is currently empty. Please pin  bookmarks to get started.</span>
+      </div>
     </div>
   </div>
 </template>

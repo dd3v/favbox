@@ -33,6 +33,9 @@
       @keydown.tab.prevent="add"
       @keydown.delete="removeLast"
     >
+    <div class="flex flex-wrap items-center gap-x-1 text-sm text-gray-400 dark:text-neutral-600">
+      <slot name="kbd" />
+    </div>
   </div>
 </template>
 
@@ -119,6 +122,10 @@ const getColor = (key) => {
   }
 };
 
+const focus = () => {
+  inputRef.value.focus();
+};
+
 const onClose = (key, value) => {
   const data = [...props.modelValue];
   const index = data.findIndex((item) => item.key === key && item.value === value);
@@ -127,5 +134,7 @@ const onClose = (key, value) => {
     emit('update:modelValue', data);
   }
 };
+
+defineExpose({ focus });
 
 </script>

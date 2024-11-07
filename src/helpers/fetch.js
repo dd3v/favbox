@@ -7,13 +7,13 @@ const fetchHelper = {
   * A helper for making HTTP requests with a timeout.
   *
   * @param {string} url - The URL to fetch.
-  * @param {number} [timeout=10000] - The timeout in milliseconds before aborting the request. Defaults to 10000ms..
+  * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms..
   *
   * @returns {Promise<Object>} The result of the fetch request.
   * @returns {string|null} return.html - The HTML content of the response if successful, or `null` if an error occurred.
   * @returns {number} return.status -  HTTP status code.
   */
-  fetch: async (url, timeout = 10000) => {
+  fetch: async (url, timeout = 20000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {

@@ -27,7 +27,7 @@ const importBookmarks = async () => {
   for (const b of bookmarks) {
     batch.push(b);
     processed += 1;
-    if (batch.length % 1000 === 0 || processed === total) {
+    if (batch.length % 300 === 0 || processed === total) {
       try {
         const browserBookmarkKeyList = batch.map((i) => parseInt(i.id, 10));
         const extBookmarksKeyList = await bookmarkStorage.getIds(browserBookmarkKeyList);

@@ -140,7 +140,7 @@ export default class MetadataParser {
   */
   getKeywords() {
     const keywords = this.#dom.querySelector('meta[name="keywords"]')?.getAttribute('content');
-    if (!keywords) return [];
+    if (!keywords) return null;
     return keywords.split(',').map((keyword) => keyword.trim().toLowerCase()).filter((keyword) => keyword.length > 0);
   }
 
@@ -150,10 +150,6 @@ export default class MetadataParser {
   * @returns {Promise<string|null>} - A promise that resolves to the locale of the document or null if not found.
   */
   async getLocale() {
-    const htmlLang = this.#dom?.documentElement?.lang?.split(/[_-]/).shift()?.toUpperCase();
-    if (htmlLang) {
-      return htmlLang;
-    }
     const metaLocale = this.#dom.querySelector('meta[property="og:locale"]')?.getAttribute('content').split(/[_-]/)?.shift()
       ?.toUpperCase();
     if (metaLocale) {
