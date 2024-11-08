@@ -1,6 +1,7 @@
 import { DATA_TYPE } from 'jsstore';
 import connection from './connection';
 
+// using string for primary key to save compatible between Firefox and Chrome
 const getDb = () => {
   const tblBookmarks = {
     name: 'bookmarks',
@@ -8,16 +9,17 @@ const getDb = () => {
       id: {
         primaryKey: true,
         autoIncrement: false,
-        dataType: DATA_TYPE.Number,
+        dataType: DATA_TYPE.String,
       },
       folder: {
         dataType: DATA_TYPE.Object,
         enableSearch: true,
+        notNull: false,
       },
       folderId: {
-        dataType: DATA_TYPE.Number,
+        dataType: DATA_TYPE.String,
         enableSearch: true,
-        notNull: true,
+        notNull: false,
       },
       folderName: {
         dataType: DATA_TYPE.String,

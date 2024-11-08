@@ -3,7 +3,13 @@
   "name": "FavBox",
   "description": "Clear and modern bookmarking tool.",
   "version": "2.0",
-  "permissions": ["bookmarks", "activeTab", "tabs", "storage", "alarms"],
+  "permissions": [
+    "bookmarks",
+    "activeTab",
+    "tabs",
+    "storage",
+    "alarms"
+  ],
   "host_permissions": [
     "<all_urls>"
   ],
@@ -21,15 +27,23 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["ext/content/content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "ext/content/content.js"
+      ],
       "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["ext/browser/index.html"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "ext/browser/index.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

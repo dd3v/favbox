@@ -158,7 +158,7 @@ export default class MetadataParser {
     const elements = Array.from(this.#dom.querySelectorAll('button, label, h1, h2, h3, h4, h5, h6, p'));
     const description = elements.map((el) => el.textContent).concat([this.getDescription() || '', this.getKeywords() || '']).join(' ');
     if (description.trim()) {
-      const result = await chrome.i18n.detectLanguage(description);
+      const result = await browser.i18n.detectLanguage(description);
       if (result.languages?.length) {
         console.warn(description, result.languages);
         return result.languages[0].language.toUpperCase();
@@ -172,12 +172,12 @@ export default class MetadataParser {
   * @returns {Promise<Object>} - A promise that resolves to an object representing the bookmark entity.
   */
   async getFavboxBookmark() {
-    const [folder] = await chrome.bookmarks.get(this.#bookmark.parentId);
+    const [folder] = await browser.bookmarks.get(this.#bookmark.parentId);
     const foldersTree = await bookmarkHelper.getFoldersTreeByBookmark(this.#bookmark.id);
     const entity = {
-      id: parseInt(this.#bookmark.id, 10),
+      id: this.#bookmark.id,
       folder,
-      folderId: parseInt(this.#bookmark.parentId, 10),
+      folderId: this.#bookmark.parentId,
       folderName: foldersTree.titles.at(-1),
       title: tagHelper.getTitle(this.#bookmark.title),
       description: this.getDescription(),

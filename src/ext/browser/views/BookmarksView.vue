@@ -158,14 +158,15 @@ const handleRemoveBookmark = async (bookmark) => {
     return;
   }
   try {
-    await chrome.bookmarks.remove(String(bookmark.id));
+    console.warn(bookmark.id.toString());
+    await browser.bookmarks.remove(bookmark.id.toString());
   } catch (e) {
     console.error(e);
-    // If for some reason we are not able to remove the bookmark from Google Chrome
-    await bookmarkStorage.remove(parseInt(bookmark.id, 10));
+    // If for some reason we are not able to remove the bookmark from Google Browser.
+    await bookmarkStorage.remove(bookmark.id.toString());
   } finally {
     bookmarks.value = bookmarks.value.filter(
-      (item) => parseInt(item.id, 10) !== parseInt(bookmark.id, 10),
+      (item) => item.id.toString() !== bookmark.id.toString(),
     );
     notify(
       {
@@ -191,13 +192,13 @@ const pin = (bookmark) => {
 };
 
 const handleSubmit = async (bookmark) => {
+  console.warn('save bookmark', bookmark);
   try {
     console.warn(bookmark);
-    await chrome.bookmarks.update(String(bookmark.id), {
+    await browser.bookmarks.update(String(bookmark.id), {
       title: tagHelper.toString(bookmark.title, bookmark.tags),
-      url: bookmark.url,
     });
-    await chrome.bookmarks.move(String(bookmark.id), {
+    await browser.bookmarks.move(String(bookmark.id), {
       parentId: String(bookmark.folder.id),
     });
     notify(
@@ -268,10 +269,10 @@ onMounted(async () => {
   const result = await bookmarkStorage.getAttributes(attrsIncludes, sortColumn, sortDirection, attrsTerm.value, 0, 200);
   attributes.value = result;
   console.warn('attrs', attributes.value);
-  // await bookmarkStorage.refreshAttributes();
+  await bookmarkStorage.refreshAttributes();
 });
 
-chrome.runtime.onMessage.addListener(async (message) => {
+browser.runtime.onMessage.addListener(async (message) => {
   // handle updates from service worker
   if (message.action === 'refresh') {
     if (message.data?.progress && message.data.progress <= 100) {

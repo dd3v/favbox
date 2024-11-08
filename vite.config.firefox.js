@@ -4,12 +4,12 @@ import { resolve } from 'path';
 import { crx } from '@crxjs/vite-plugin';
 import Icons from 'unplugin-icons/vite';
 import AutoImport from 'unplugin-auto-import/vite';
-import manifest from './manifest.chrome.json';
+import manifest from './manifest.firefox.json';
 
 export default defineConfig({
   plugins: [
     vue(),
-    crx({ manifest }),
+    crx({ browser: 'firefox', manifest }),
     Icons({
       autoInstall: true,
     }),
@@ -29,7 +29,7 @@ export default defineConfig({
   root: resolve(__dirname, 'src'),
   publicDir: resolve(__dirname, 'public'),
   build: {
-    outDir: resolve(__dirname, 'dist/chrome'),
+    outDir: resolve(__dirname, 'dist/firefox'),
     rollupOptions: {
       input: {
         app: '/ext/browser/index.html',

@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'getHTML') {
     sendResponse({ html: document.documentElement.outerHTML });
   }
@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // let port;
 // function connect() {
 //   console.warn('Keep alive connection..');
-//   port = chrome.runtime.connect({ name: 'favbox' });
+//   port = browser.runtime.connect({ name: 'favbox' });
 //   port.onDisconnect.addListener(connect);
 //   port.onMessage.addListener((msg) => {
 //     console.log('received', msg, 'from bg');
@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 const div = document.createElement('div');
 div.setAttribute('id', `favbox-app-container-${Math.floor(Math.random() * 100)}`);
 const shadowRoot = div.attachShadow({ mode: 'open' });
-import('@/assets/styles/cmdk.css')
+require('@/assets/styles/cmdk.css')
   .then((content) => {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(content.default);
@@ -36,6 +36,7 @@ import('@/assets/styles/cmdk.css')
   .catch((error) => {
     console.error('error', error);
   });
+
 const appContainer = document.createElement('div');
 shadowRoot.appendChild(appContainer);
 const app = createApp(App);

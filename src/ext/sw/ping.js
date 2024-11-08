@@ -14,10 +14,10 @@ const ping = () => {
     port.disconnect();
   };
 
-  // https://developer.chrome.com/blog/longer-esw-lifetimes/
+  // https://developer.browser.com/blog/longer-esw-lifetimes/
   // https://bugs.chromium.org/p/chromium/issues/detail?id=1152255
   // https://bugs.chromium.org/p/chromium/issues/detail?id=1189678
-  chrome.runtime.onConnect.addListener((port) => {
+  browser.runtime.onConnect.addListener((port) => {
     if (port.name !== 'favbox') return;
     port.onMessage.addListener(onMessage);
     port.onDisconnect.addListener(deleteTimer);

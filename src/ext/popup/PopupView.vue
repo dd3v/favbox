@@ -42,7 +42,7 @@ const storage = new BookmarkStorage();
 
 const tags = await storage.getTags();
 const folders = await bookmarkHelper.getFolders();
-const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
 const bookmark = ref({});
 bookmark.value = await storage.getByUrl(tab.url);
 
@@ -60,13 +60,13 @@ if (bookmark.value === null) {
 const handleSubmit = async (data) => {
   try {
     if (data.id === null) {
-      await chrome.bookmarks.create({
+      await browser.bookmarks.create({
         title: tagHelper.toString(data.title, data.tags),
         parentId: data.folder.id,
         url: data.url,
       });
     } else {
-      await chrome.bookmarks.update(String(data.id), {
+      await browser.bookmarks.update(String(data.id), {
         title: tagHelper.toString(data.title, data.tags),
         url: data.url,
       });
@@ -74,7 +74,7 @@ const handleSubmit = async (data) => {
         title: tagHelper.toString(data.title, data.tags),
         url: data.url,
       });
-      await chrome.bookmarks.move(String(data.id), { parentId: data.folder.id });
+      await browser.bookmarks.move(String(data.id), { parentId: data.folder.id });
     }
     if (import.meta.env.MODE === 'production') {
       window.close();
@@ -83,7 +83,7 @@ const handleSubmit = async (data) => {
     console.error(e);
   }
 };
-const openApp = () => chrome.tabs.create({ url: '/ext/browser/index.html', index: tab.index + 1 });
+const openApp = () => browser.tabs.create({ url: '/ext/browser/index.html', index: tab.index + 1 });
 onMounted(async () => {
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     document.documentElement.classList.add('dark');

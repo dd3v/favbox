@@ -5,7 +5,7 @@ const bookmarkHelper = {
   * @returns {Promise<number>}
   */
   total: async () => {
-    const items = await chrome.bookmarks.getTree();
+    const items = await browser.bookmarks.getTree();
     let count = 0;
     function countBookmarks(bookmarks) {
       bookmarks.forEach((bookmark) => {
@@ -33,7 +33,7 @@ const bookmarkHelper = {
   getAllBookmarksFromNode(node) {
     let items = [];
     if (node.url) {
-      items.push({ id: parseInt(node.id, 10), url: node.url });
+      items.push({ id: node.id, url: node.url });
     }
     if (node.children) {
       for (const child of node.children) {
@@ -52,9 +52,9 @@ const bookmarkHelper = {
     const ids = [];
     const titles = [];
     async function getParent(pid) {
-      const [bookmarkItem] = await chrome.bookmarks.get(pid);
+      const [bookmarkItem] = await browser.bookmarks.get(pid);
       if (bookmarkItem && !bookmarkItem.url && bookmarkItem.title) {
-        ids.push(parseInt(bookmarkItem.id, 10));
+        ids.push(bookmarkItem.id);
         titles.push(bookmarkItem.title);
       }
       if (bookmarkItem && bookmarkItem.parentId) {
@@ -72,7 +72,7 @@ const bookmarkHelper = {
   * @returns {Promise<Object[]>}
   */
   getFolders: async () => {
-    const tree = await chrome.bookmarks.getTree();
+    const tree = await browser.bookmarks.getTree();
     const folders = [];
     function getFolders(bookmarks, depth = 0) {
       for (const bookmark of bookmarks) {
@@ -101,7 +101,7 @@ const bookmarkHelper = {
   * @returns {Promise<Object[]>}
   */
   getFoldersTree: async () => {
-    const tree = await chrome.bookmarks.getTree();
+    const tree = await browser.bookmarks.getTree();
     const map = new Map();
     const folders = [];
 
@@ -134,7 +134,7 @@ const bookmarkHelper = {
   * @returns {Promise<Array>}
   */
   getBookmarksFlatten: async () => {
-    const bookmarksTree = await chrome.bookmarks.getTree();
+    const bookmarksTree = await browser.bookmarks.getTree();
     const flatBookmarks = [];
     function processNode(node) {
       if (node.url) {

@@ -100,7 +100,7 @@ const open = () => {
 
 const handleSearch = async () => {
   console.warn('Term:', term.value);
-  const response = await chrome.runtime.sendMessage({
+  const response = await browser.runtime.sendMessage({
     type: 'search',
     data: { term: term.value },
   });
@@ -152,7 +152,7 @@ const setActive = (key, item) => {
 
 watch(showModal, async () => {
   if (showModal.value === true) {
-    const response = await chrome.runtime.sendMessage({
+    const response = await browser.runtime.sendMessage({
       type: 'search',
       data: { term: term.value },
     });

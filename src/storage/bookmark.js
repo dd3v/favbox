@@ -95,7 +95,7 @@ export default class BookmarkStorage {
       limit,
       skip,
       order: {
-        by: 'id',
+        by: 'dateAdded',
         type: 'desc',
       },
       where: whereConditions.length === 0 ? null : whereConditions,
@@ -147,7 +147,7 @@ export default class BookmarkStorage {
         updatedAt: new Date().toISOString(),
       },
       where: {
-        id: Number(id),
+        id,
       },
     });
   }
@@ -157,7 +157,7 @@ export default class BookmarkStorage {
       in: 'bookmarks',
       set: data,
       where: {
-        id: Number(id),
+        id,
       },
     });
   }
@@ -177,7 +177,7 @@ export default class BookmarkStorage {
   async remove(id) {
     return connection.remove({
       from: 'bookmarks',
-      where: { id: Number(id) },
+      where: { id },
     });
   }
 
@@ -185,7 +185,7 @@ export default class BookmarkStorage {
     return connection.count({
       from: 'bookmarks',
       where: {
-        id: Number(id),
+        id,
       },
     });
   }
@@ -209,7 +209,7 @@ export default class BookmarkStorage {
         },
       },
     });
-    return response.map((i) => parseInt(i.id, 10));
+    return response.map((i) => i.id);
   }
 
   async updateFolders(folder) {
@@ -218,10 +218,10 @@ export default class BookmarkStorage {
       set: {
         folderName: folder.title,
         folder,
-        folderId: parseInt(folder.id, 10),
+        folderId: folder.id,
       },
       where: {
-        folderId: parseInt(folder.id, 10),
+        folderId: folder.id,
       },
     });
   }
@@ -231,7 +231,7 @@ export default class BookmarkStorage {
       from: 'bookmarks',
       limit: 1,
       where: {
-        id: parseInt(id, 10),
+        id,
       },
     });
 
@@ -285,7 +285,7 @@ export default class BookmarkStorage {
         updatedAt: new Date().toISOString(),
       },
       where: {
-        id: parseInt(id, 10),
+        id,
       },
     });
   }

@@ -82,7 +82,7 @@ const scroll = ref(null);
 let healthcheck = {};
 
 try {
-  const result = await chrome.storage.local.get('healthcheck');
+  const result = await browser.storage.local.get('healthcheck');
   healthcheck = result.healthcheck || null;
 } catch (e) {
   console.error(e);
@@ -112,13 +112,13 @@ const onDelete = async (bookmark) => {
     return;
   }
   try {
-    await chrome.bookmarks.remove(String(bookmark.id));
+    await browser.bookmarks.remove(String(bookmark.id));
   } catch (e) {
     console.error(e);
-    await bookmarkStorage.remove(parseInt(bookmark.id, 10));
+    await bookmarkStorage.remove(bookmark.id);
   } finally {
     bookmarks.value = bookmarks.value.filter(
-      (item) => parseInt(item.id, 10) !== parseInt(bookmark.id, 10),
+      (item) => item.id !== bookmark.id,
     );
   }
 };
