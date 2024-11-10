@@ -32,13 +32,6 @@
             <CarbonPin class="size-4" />
           </button>
           <button
-            v-tooltip="{ text: 'Similar bookmarks', position: 'bottom', delay: 300 }"
-            class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform  delay-100 duration-700 ease-out group-hover:translate-y-2 group-hover:opacity-100"
-            @click="$emit('search', bookmark)"
-          >
-            <CarbonSearch class="size-4" />
-          </button>
-          <button
             v-tooltip="{ text: 'Update', position: 'bottom', delay: 300 }"
             class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-1000 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('edit', bookmark)"
@@ -59,7 +52,6 @@ import MasonryView from '@/ext/browser/components/card/type/MasonryView.vue';
 import CarbonTrashCan from '~icons/carbon/trash-can';
 import CarbonDropPhoto from '~icons/carbon/drop-photo';
 import CarbonPin from '~icons/carbon/pin';
-import CarbonSearch from '~icons/carbon/search';
 import CarbonEdit from '~icons/carbon/edit';
 
 const props = defineProps({

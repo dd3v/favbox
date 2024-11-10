@@ -30,7 +30,7 @@
               active
                 ? 'bg-neutral-50 text-gray-700 dark:bg-neutral-800  dark:text-neutral-400'
                 : 'text-gray-700 dark:text-neutral-400',
-              'group flex w-full items-center rounded-md p-2',
+              'group flex w-full items-center rounded-md p-2 text-xs',
             ]"
             @click="view = 'masonry'"
           >
@@ -48,7 +48,7 @@
               active
                 ? 'bg-neutral-50 text-gray-700 dark:bg-neutral-800 dark:text-neutral-400'
                 : 'text-gray-700 dark:text-neutral-400',
-              'group flex w-full items-center rounded-md p-2',
+              'group flex w-full items-center rounded-md p-2 text-xs',
             ]"
             @click="view = 'card'"
           >
@@ -66,7 +66,7 @@
               active
                 ? 'bg-neutral-50 text-gray-700 dark:bg-neutral-800 dark:text-neutral-400'
                 : 'text-gray-700 dark:text-neutral-400',
-              'group flex w-full items-center rounded-md p-2',
+              'group flex w-full items-center rounded-md p-2 text-xs',
             ]"
             @click="view = 'list'"
           >

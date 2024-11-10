@@ -7,7 +7,7 @@
       :value="value"
       class="size-4 rounded-full border-gray-300 text-black focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:checked:bg-black dark:focus:ring-offset-gray-800"
     >
-    <span class="text-gray-800 dark:text-neutral-100">{{ label }}</span>
+    <span class="text-xs text-black dark:text-white">{{ label }}</span>
   </label>
 </template>
 <script setup>

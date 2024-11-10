@@ -62,9 +62,9 @@
                     </button>
                   </div>
                 </TransitionChild>
-                <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
+                <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl dark:bg-black">
                   <div class="px-4 sm:px-6">
-                    <DialogTitle class="text-base font-semibold leading-6 text-gray-900">
+                    <DialogTitle class="text-base font-semibold leading-6 text-black dark:text-white">
                       <slot name="title" />
                     </DialogTitle>
                   </div>

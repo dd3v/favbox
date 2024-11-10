@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import '@/assets/styles/app.css';
+import '@/assets/app.css';
 import masonry from 'vue-next-masonry';
 import Notifications from 'notiwind';
 import { MotionPlugin } from '@vueuse/motion';

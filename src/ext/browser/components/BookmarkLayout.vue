@@ -2,7 +2,7 @@
   <masonry
     v-if="displayType === 'masonry'"
     :resolve-slot="true"
-    :cols="{ default: 4, 1000: 2, 700: 1 }"
+    :cols="{ 3840: 10, 2560: 7, 1920: 4, 992: 3, 768: 2, 576: 1 }"
     :gutter="10"
   >
     <slot />

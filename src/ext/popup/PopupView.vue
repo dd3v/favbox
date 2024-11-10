@@ -1,32 +1,33 @@
 <template>
-  <div class="h-auto w-72 space-y-5 bg-gray-50 p-3 dark:bg-neutral-900">
-    <div class="flex justify-between">
+  <div class="h-auto w-72 bg-white shadow-sm dark:bg-black">
+    <div class="flex justify-between border-b px-3 py-2 dark:border-neutral-800">
       <h4 class="font-sans text-xl dark:text-white">
         FavBox
       </h4>
       <div class="flex self-end">
         <button
-          class="group relative inline-flex items-center justify-center overflow-hidden rounded-md border border-rose-400 p-2 py-1 font-medium text-rose-400 shadow-md transition duration-300 ease-out"
+          class="group relative inline-flex items-center justify-center overflow-hidden rounded-md border border-black bg-black p-2 py-1 font-medium text-black shadow-md transition duration-300 ease-out dark:bg-white"
           @click="openApp"
         >
           <span
-            class="ease absolute inset-0 flex size-full -translate-x-full items-center justify-center bg-rose-400 text-white duration-300 group-hover:translate-x-0"
-          />
+            class="ease absolute inset-0 flex size-full -translate-x-full items-center justify-center bg-black text-white duration-300 group-hover:translate-x-0 dark:bg-white"
+          >
+            <EvaBookmarkFill class="size-5 text-white dark:text-black" />
+          </span>
           <span
-            class="ease absolute flex size-full items-center justify-center text-rose-400 transition-all duration-300 group-hover:translate-x-full"
-          >OPEN</span>
-          <span class="invisible relative">Open App</span>
+            class="ease absolute flex size-full items-center justify-center text-xs text-white transition-all duration-300 group-hover:translate-x-full dark:text-black"
+          >Get started</span>
+          <span class="invisible relative">Get started</span>
         </button>
       </div>
     </div>
-    <div>
-      <bookmark-form
-        v-model="bookmark"
-        :folders="folders"
-        :tags="tags"
-        @submit="handleSubmit"
-      />
-    </div>
+    <bookmark-form
+      v-model="bookmark"
+      :folders="folders"
+      :tags="tags"
+      class="px-3 py-5"
+      @submit="handleSubmit"
+    />
   </div>
 </template>
 <script setup>
@@ -36,6 +37,8 @@ import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmark';
 import initStorage from '@/storage/idb/idb';
 import BookmarkStorage from '@/storage/bookmark';
+
+import EvaBookmarkFill from '~icons/eva/bookmark-fill';
 
 await initStorage();
 const storage = new BookmarkStorage();

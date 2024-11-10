@@ -1,17 +1,17 @@
 <template>
   <div
-    class="flex h-screen w-full max-w-64 flex-col bg-white"
+    class="flex h-screen w-full max-w-64 flex-col bg-white dark:bg-black"
   >
     <div class="flex w-full">
       <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-          <MaterialSymbolsLightCategorySearchOutline class="size-5 text-gray-400 dark:text-gray-200" />
+          <MaterialSymbolsLightCategorySearchOutline class="size-5 text-black dark:text-white" />
         </div>
         <input
           v-model="term"
           autocomplete="off"
           type="text"
-          class="h-9 w-full rounded-md border-gray-200 px-9 text-gray-700 shadow-sm outline-none placeholder:text-xs focus:border-gray-300 focus:ring-0 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 focus:dark:border-neutral-600 sm:text-sm"
+          class="h-9 w-full rounded-md border-gray-200 px-9 text-xs text-black shadow-sm outline-none placeholder:text-xs focus:border-gray-300 focus:ring-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
         >
         <Popover class="relative">
           <PopoverButton
@@ -36,12 +36,12 @@
             leave-to-class="translate-y-1 opacity-0"
           >
             <PopoverPanel
-              class="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 dark:bg-neutral-900 dark:text-neutral-400"
+              class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 dark:bg-neutral-900 dark:text-neutral-400"
             >
               <div class="flex flex-col space-y-4 p-4">
                 <div class="flex items-center space-x-2">
                   <PhArrowsDownUp class="size-5 text-gray-800 dark:text-gray-200" />
-                  <h3 class="text-sm text-gray-800 dark:text-gray-200">
+                  <h3 class="text-xs text-gray-800 dark:text-gray-200">
                     Sort By
                   </h3>
                 </div>
@@ -52,36 +52,32 @@
                     label="Name ↑ (A-Z)"
                     value="value:asc"
                     name="sort"
-                    class="text-gray-800 dark:text-gray-200"
                   />
                   <app-radio
                     v-model="sort"
                     label="Name ↓ (Z-A)"
                     value="value:desc"
                     name="sort"
-                    class="text-gray-800 dark:text-gray-200"
                   />
                   <app-radio
                     v-model="sort"
                     label="Count ↑ (0-9)"
                     value="count:asc"
                     name="sort"
-                    class="text-gray-800 dark:text-gray-200"
                   />
                   <app-radio
                     v-model="sort"
                     label="Count ↓ (9-0)"
                     value="count:desc"
                     name="sort"
-                    class="text-gray-800 dark:text-gray-200"
                   />
                 </div>
 
                 <div class="border-t border-gray-200 dark:border-gray-700" />
 
                 <div class="flex items-center space-x-2">
-                  <PhListChecks class="size-5 text-gray-800 dark:text-gray-200" />
-                  <h3 class="text-sm text-gray-800 dark:text-gray-200">
+                  <PhListChecks class="size-5 text-gray-800 dark:text-white" />
+                  <h3 class="text-xs text-black dark:text-white">
                     Includes
                   </h3>
                 </div>
@@ -97,7 +93,7 @@
                           :size="3"
                           :color="getColor(key)"
                         />
-                        <span>{{ key.charAt(0).toUpperCase() + key.slice(1) }}</span>
+                        <span class="text-xs text-black dark:text-white">{{ key.charAt(0).toUpperCase() + key.slice(1) }}</span>
                       </SwitchLabel>
                       <Switch
                         v-model="includes[key]"
@@ -115,21 +111,19 @@
                 </div>
               </div>
 
-              <div>
-                <button
-                  class="block w-full rounded-b-lg border-t border-gray-200 bg-gray-50 p-2 text-center text-sm font-medium text-gray-600 shadow-sm transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                  @click="close"
-                >
-                  Close
-                </button>
-              </div>
+              <button
+                class="block size-full cursor-pointer rounded-b-lg border-t border-gray-200 bg-gray-50 p-2 text-center text-sm font-medium text-gray-600 shadow-sm transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-900 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
+                @click="close"
+              >
+                Close
+              </button>
             </PopoverPanel>
           </Transition>
         </Popover>
       </div>
     </div>
 
-    <ul class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1">
+    <ul class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1 text-xs">
       <li
         v-for="(item, key) in list"
         :key="item.id + key"
@@ -137,8 +131,8 @@
         <label
           :key="item.id + key"
           :for="item.id + key"
-          :class="{'bg-neutral-100': selected(item.key, item.value)}"
-          class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+          :class="{'bg-neutral-100 dark:bg-neutral-900': selected(item.key, item.value)}"
+          class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900"
         >
           <component
             :is="getIcon(item)"

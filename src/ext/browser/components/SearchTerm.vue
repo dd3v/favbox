@@ -1,23 +1,26 @@
 <template>
   <div
-    class="flex h-9 w-full items-center overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 bg-white px-1 shadow-sm focus-within:border-gray-300 dark:bg-neutral-800"
+    class="flex h-9 w-full items-center overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 bg-white px-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
   >
-    <ul class="flex gap-1">
+    <ul class="flex items-center gap-1">
       <li
         v-for="(tag, tagKey) in modelValue"
         :key="tagKey"
+        class="flex items-center"
       >
         <AppBadge
           v-motion-fade
           closable
           :color="getColor(tag.key)"
+          class="flex items-center"
           @onClose="onClose(tag.key, tag.value)"
         >
           <div class="flex items-center">
             <component
               :is="getIcon(tag.key)"
               class="mr-1 size-4"
-            /> {{ tag.value }}
+            />
+            {{ tag.value }}
           </div>
         </AppBadge>
       </li>
@@ -28,12 +31,12 @@
       type="text"
       maxlength="25"
       :placeholder="modelValue.length ? '' : placeholder"
-      class="w-full min-w-max flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-sm placeholder:text-xs focus:outline-none focus:ring-0"
+      class="w-full min-w-max flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-xs placeholder:text-xs focus:outline-none focus:ring-0"
       @keydown.enter="add"
       @keydown.tab.prevent="add"
       @keydown.delete="removeLast"
     >
-    <div class="flex flex-wrap items-center gap-x-1 text-sm text-gray-400 dark:text-neutral-600">
+    <div class="flex flex-wrap items-center gap-x-1 text-xs text-gray-400 dark:text-neutral-600">
       <slot name="kbd" />
     </div>
   </div>

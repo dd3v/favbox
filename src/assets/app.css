@@ -16,7 +16,5 @@
 
 ::-webkit-scrollbar-thumb {
   cursor: pointer;
-  background-color: #000;
-  border-radius: 2px;
+  background-color: #585858
 }
-

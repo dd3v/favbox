@@ -135,7 +135,7 @@ const getDb = () => {
   };
 
   const database = {
-    name: 'favbox_database',
+    name: 'favbox_database_v2',
     tables: [tblBookmarks, tblAttributes],
   };
   return database;

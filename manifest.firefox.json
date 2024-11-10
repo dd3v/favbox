@@ -22,7 +22,7 @@
     "action": {
         "default_icon": {
             "16": "icons/icon16.png",
-            "32": "icons/icon16.png"
+            "32": "icons/icon32.png"
         },
         "default_title": "FavBox",
         "default_popup": "ext/popup/index.html",
@@ -33,8 +33,8 @@
                 "size": 16
             },
             {
-                "light": "icons/icon16.png",
-                "dark": "icons/icon16.png",
+                "light": "icons/icon32.png",
+                "dark": "icons/icon32.png",
                 "size": 32
             }
         ]

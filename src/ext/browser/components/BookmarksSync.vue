@@ -34,21 +34,21 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full max-w-md overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-neutral-900"
+              class="w-full max-w-md overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-black"
             >
               <DialogTitle
                 as="h3"
-                class="flex items-center text-lg font-medium leading-6 text-gray-900 dark:text-gray-400"
+                class="flex items-center text-lg font-medium leading-6 text-gray-900 dark:text-white"
               >
                 <PixelarticonsHeart class="mr-2" />
                 Welcome!
               </DialogTitle>
               <div class="mt-2">
-                <p class="py-1 text-sm text-black">
+                <p class="py-1 text-sm text-black dark:text-white">
                   The app is scanning your bookmarks and gathering information about the pages to make everything run smoother and faster.
-                  This process may take a little time depending on how many bookmarks you have, your internet speed, and device performance.
+                  This process may take a little time depending on how many bookmarks you have, your network and device performance.
                 </p>
-                <p class="py-4 text-sm text-black">
+                <p class="py-4 text-sm text-black dark:text-white">
                   Thank you for your patience!
                 </p>
                 <AppProgress

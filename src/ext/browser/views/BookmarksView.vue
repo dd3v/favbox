@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full overflow-y-hidden">
+  <div class="flex w-full overflow-y-hidden dark:bg-black">
     <AttributeList
       v-model="query"
       v-model:sort="attrsSort"
@@ -39,9 +39,9 @@
       >
         <div
           v-if="empty"
-          class="flex h-5/6 items-center justify-center text-6xl font-black text-gray-200"
+          class="flex h-5/6 items-center justify-center text-6xl font-thin text-gray-200 dark:text-white"
         >
-          Empty
+          No results found.
         </div>
         <bookmark-layout
           :display-type="displayType"

@@ -1,16 +1,16 @@
 <template>
   <app-infinite-scroll
     ref="scroll"
-    class="size-full space-y-3 overflow-y-auto p-3"
+    class="size-full space-y-3 overflow-y-auto bg-white p-3 dark:bg-black"
     :limit="50"
     @scroll:end="paginate"
   >
     <div
       v-if="bookmarks.length === 0"
-      class="m-5 flex h-5/6 flex-col items-center justify-center space-y-3 p-5"
+      class="m-5 flex h-5/6 flex-col items-center justify-center space-y-3  p-5 "
     >
       <div
-        class="text-2xl font-thin text-black"
+        class="text-2xl font-thin text-black dark:text-white"
       >
         Looks like there are no broken bookmarks in your browser.
       </div>
@@ -20,7 +20,7 @@
       >
         <ul
           role="list"
-          class="mt-8 space-y-4 font-thin text-gray-900"
+          class="mt-8 space-y-4 font-thin text-gray-900 dark:text-neutral-500"
         >
           <li class="flex items-center gap-x-1">
             <UitCalender class="size-4" />

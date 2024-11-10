@@ -1,7 +1,7 @@
 <template>
   <div
     v-motion-slide-visible-once-bottom
-    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
+    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid bg-white p-3 shadow-sm dark:border-neutral-900 dark:bg-neutral-950"
   >
     <a
       :href="bookmark.url"
@@ -9,11 +9,11 @@
       class="w-full"
     >
       <div
-        class="mb-2 inline-flex items-center text-sm font-semibold text-gray-900 dark:text-neutral-100"
+        class="mb-2 inline-flex items-center text-sm font-semibold text-black dark:text-white"
       >
         <bookmark-favicon
           :bookmark="bookmark"
-          class="size-5 fill-gray-700 dark:fill-gray-100 md:mr-1 md:size-4"
+          class="mr-1 size-4 fill-gray-700 text-sm dark:fill-gray-100"
         />
         {{ bookmark.title }}
       </div>
@@ -21,7 +21,7 @@
         <span class="text-xs text-gray-900 dark:text-neutral-100">{{
           bookmark.domain
         }}</span>
-        <p class="my-2 break-words text-gray-700 dark:text-neutral-300">
+        <p class="my-2 break-words text-xs text-gray-700 dark:text-neutral-500">
           {{ bookmark.description }}
         </p>
         <div class="flex space-x-2">

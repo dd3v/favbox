@@ -21,9 +21,7 @@
         <div class="fixed bg-transparent" />
       </TransitionChild>
       <div class="fixed inset-0 overflow-y-auto">
-        <div
-          class="flex min-h-full items-center justify-center p-4 text-center"
-        >
+        <div class="flex min-h-full items-center justify-center p-4 text-center">
           <TransitionChild
             as="template"
             enter="duration-300 ease-out"
@@ -34,32 +32,32 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="flex min-h-96 w-full max-w-md  overflow-hidden rounded-lg border bg-white/60 align-middle shadow-2xl backdrop-blur-lg transition-all dark:bg-neutral-900"
+              class="flex min-h-96 w-full max-w-md overflow-hidden  rounded-lg border bg-white/60 align-middle text-xs text-black shadow-2xl backdrop-blur-lg transition-all placeholder:text-xs dark:border-black dark:bg-black/20 dark:text-white"
             >
               <div
                 class="flex w-full flex-col items-start justify-center"
                 @keydown.down.prevent="navigateDown"
                 @keydown.up.prevent="navigateUp"
                 @keydown.enter.prevent="selectActiveItem"
-                @keydown.backspace.prevent="handleBackspace"
+                @keydown.backspace="handleBackspace"
               >
-                <div class="flex w-full items-center border-b px-3">
-                  <span class="mr-0 size-4 shrink-0 text-neutral-400">
+                <div class="flex w-full items-center border-b px-3 dark:border-neutral-900">
+                  <span class="mr-0 size-4 shrink-0 text-black dark:text-white">
                     <PhMagnifyingGlassLight />
                   </span>
                   <input
                     ref="commandInput"
                     v-model="searchTerm"
                     type="text"
-                    class="flex h-11 w-full rounded-md border-0 bg-transparent px-2 py-3 text-sm outline-none placeholder:text-neutral-400 focus:border-0 focus:outline-none focus:ring-0"
-                    placeholder="Type a command or search..."
+                    class="flex h-11 w-full rounded-md border-0 bg-transparent px-2 py-3 text-xs outline-none placeholder:text-xs placeholder:text-black focus:border-0 focus:outline-none focus:ring-0 dark:placeholder:text-white"
+                    placeholder="Search..."
                     autocomplete="off"
                     autocorrect="off"
                     spellcheck="false"
                   >
                   <span
                     v-if="selectedCommand?.key"
-                    class="mr-0 shrink-0 rounded-md bg-gray-200 p-1 text-xs"
+                    class="mr-0 shrink-0 rounded-md bg-gray-200 p-1 text-xs dark:bg-black dark:text-white"
                   >
                     {{ selectedCommand.value }}
                   </span>
@@ -79,9 +77,9 @@
                       v-for="(item, index) in filteredItems"
                       :key="index"
                       ref="suggestionRef"
-                      class="flex cursor-pointer items-center gap-x-1 rounded-md p-2 text-gray-700 transition-opacity duration-300 ease-in-out active:bg-white/40 active:ring-1 active:ring-gray-200 dark:text-neutral-400 dark:active:bg-neutral-800"
+                      class="flex cursor-pointer items-center gap-x-1 rounded-md p-2 text-black dark:text-white"
                       :class="{
-                        'bg-white/40 ring-1 ring-gray-200': activeIndex === index
+                        'bg-gray-500/10 ring-0 dark:bg-black/50': activeIndex === index
                       }"
                       @click="selectItem(item)"
                       @mouseenter="activeIndex = index"
@@ -95,18 +93,40 @@
                   </ul>
                   <div
                     v-else
-                    class="flex min-h-full items-center justify-center p-4 font-thin text-black antialiased"
+                    class="flex min-h-full items-center justify-center p-4 text-xs font-thin text-black dark:text-white"
                   >
                     No results found.
                   </div>
                 </AppInfiniteScroll>
 
-                <div class="flex w-full border-t bg-white/10 p-2 text-gray-600">
-                  <span class="mx-0.5 size-6 rounded-md bg-gray-200 p-1">↑</span>
-                  <span class="mx-0.5 size-6 rounded-md bg-gray-200 p-1">↓</span>
-                  <span class="mx-0.5 size-6 rounded-md bg-gray-200 p-1">↵</span>
-                  <span class="mx-0.5 size-6 rounded-md bg-gray-200 p-1">←</span>
-                  <span class="mx-0.5 ml-auto  rounded-md bg-gray-200 p-1 text-xs">esc</span>
+                <div
+                  class="flex w-full border-t bg-white/10 p-2 text-gray-600 dark:border-black dark:bg-neutral-900/20"
+                >
+                  <span
+                    class="mx-0.5 size-6 rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                  >
+                    ↑
+                  </span>
+                  <span
+                    class="mx-0.5 size-6 rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                  >
+                    ↓
+                  </span>
+                  <span
+                    class="mx-0.5 size-6 rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                  >
+                    ↵
+                  </span>
+                  <span
+                    class="mx-0.5 size-6 rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                  >
+                    ←
+                  </span>
+                  <span
+                    class="mx-0.5 ml-auto  rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                  >
+                    esc
+                  </span>
                 </div>
               </div>
             </DialogPanel>
@@ -119,7 +139,8 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import BookmarkStorage from '@/storage/bookmark';
-import { Dialog,
+import {
+  Dialog,
   TransitionRoot,
   TransitionChild,
   DialogPanel,
@@ -226,15 +247,16 @@ const selectActiveItem = () => {
   }
 };
 
-const handleBackspace = () => {
+const handleBackspace = (event) => {
   if (searchTerm.value === '') {
     if (selectedCommand.value) {
       selectedCommand.value = null;
       activeIndex.value = -1;
       searchTerm.value = '';
+      event.preventDefault();
     }
   } else {
-    searchTerm.value = searchTerm.value.slice(0, -1);
+    return true;
   }
 };
 

@@ -1,12 +1,12 @@
 <template>
   <div
-    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
-    :class="[active ? 'bg-gray-100' : 'bg-white']"
+    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid p-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
+    :class="[active ? 'bg-gray-100 dark:bg-neutral-600' : 'bg-white dark:bg-neutral-950']"
   >
-    <div class="mb-1 flex items-center text-sm text-gray-900 dark:text-neutral-100">
+    <div class="mb-1 flex items-center text-sm text-black dark:text-white">
       {{ bookmark.title }}
     </div>
-    <div class="mt-2 flex items-center justify-between text-xs text-gray-700 dark:text-neutral-400">
+    <div class="mt-2 flex items-center justify-between text-xs text-black dark:text-white">
       <div class="flex items-center space-x-2">
         <bookmark-favicon
           :bookmark="bookmark"
