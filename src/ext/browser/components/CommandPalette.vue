@@ -268,6 +268,8 @@ watch(searchTerm, (newValue) => {
 
 const close = () => {
   isOpen.value = false;
+  searchTerm.value = '';
+  selectedCommand.value = null;
   emit('onVisibilityToggle', false);
 };
 
@@ -285,7 +287,6 @@ const hotKey = (event) => {
 
 watch([selectedCommand, searchTerm], () => {
   console.warn(selectedCommand);
-
   if (selectedCommand.value && selectedCommand.value.key !== 'command') {
     const updatedValue = [...props.modelValue];
     updatedValue.push({ key: selectedCommand.value.key, value: selectedCommand.value.value });
