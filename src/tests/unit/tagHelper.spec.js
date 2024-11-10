@@ -20,7 +20,7 @@ describe('Test tag helper', () => {
     expect(tagHelper.getTags(string)).toEqual(['php', 'test']);
   });
 
-  it('returns empty array if the string does not contain separator', () => {
+  it('returns null if the string does not contain separator', () => {
     const string = '🧪 PhpStorm Tips & Tricks #php #test';
     expect(tagHelper.getTags(string)).toEqual([]);
   });
@@ -46,5 +46,38 @@ describe('Test tag helper', () => {
         )} #hello world #qqq #test`,
       ),
     ).toEqual(['hello world', 'qqq', 'test']);
+  });
+
+  it('returns empty title when input is an empty string', () => {
+    expect(tagHelper.toString('', [])).toEqual('', []);
+  });
+
+  it('returns null when getTags receives an empty string', () => {
+    expect(tagHelper.getTags('')).toEqual([]);
+  });
+
+  it('returns null if the string has no tags after separator', () => {
+    const string = `Test ${String.fromCodePoint(0x1f3f7)}`;
+    expect(tagHelper.getTags(string)).toEqual([]);
+  });
+
+  it('returns correct title and empty tags if string only contains separator', () => {
+    const string = `Hello ${String.fromCodePoint(0x1f3f7)}`;
+    expect(tagHelper.getTitle(string)).toEqual('Hello');
+    expect(tagHelper.getTags(string)).toEqual([]);
+  });
+
+  it('handles tags with special characters correctly', () => {
+    const string = `Test ${String.fromCodePoint(0x1f3f7)} #tag_one #tag-two #tag.three #tag@four`;
+    expect(tagHelper.getTags(string)).toEqual(['tag_one', 'tag-two', 'tag.three', 'tag@four']);
+  });
+
+  it('trims extra spaces around tags', () => {
+    const string = `  Test   ${String.fromCodePoint(0x1f3f7)}   #tag1   #tag2 `;
+    expect(tagHelper.getTags(string)).toEqual(['tag1', 'tag2']);
+  });
+
+  it('returns title if tags array contains only empty strings', () => {
+    expect(tagHelper.toString('Title', ['', ''])).toEqual('Title');
   });
 });

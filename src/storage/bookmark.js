@@ -379,7 +379,7 @@ export default class BookmarkStorage {
       flatten: ['tags'],
       groupBy: 'tags',
       where: {
-        keywords: {
+        tags: {
           '!=': 'null',
         },
       },
