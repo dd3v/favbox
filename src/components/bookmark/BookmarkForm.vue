@@ -92,7 +92,7 @@
         v-for="(value, key) in bookmark.keywords"
         :key="key"
         class="m-1"
-        @click="addToTags"
+        @click="addToTags(value)"
       >
         {{ value }}
       </AppBadge>
@@ -138,6 +138,15 @@ const props = defineProps({
   },
 });
 const emit = defineEmits(['update:modelValue', 'submit']);
+
+const addToTags = (value) => {
+  const { modelValue } = props;
+  if (!modelValue.tags.includes(value)) {
+    modelValue.tags.push(value);
+    emit('update:modelValue', modelValue);
+  }
+};
+
 const bookmark = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
