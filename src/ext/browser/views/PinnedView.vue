@@ -32,8 +32,7 @@
             <PinnedCard
               :bookmark="bookmark"
               :active="bookmark.id === currentBookmark?.id"
-              @remove="remove"
-              @edit="edit"
+              @open="open"
               @pin="pin"
             />
           </li>
@@ -58,29 +57,31 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import BookmarkStorage from '@/storage/bookmark';
-import initStorage from '@/storage/idb/idb';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import PinnedCard from '@/ext/browser/components/card/PinnedCard.vue';
 import TextEditor from '@/ext/browser/components/TextEditor.vue';
 import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
 
-await initStorage();
 const bookmarkStorage = new BookmarkStorage();
 const scroll = ref(null);
 const bookmarks = ref([]);
 const searchTerm = ref('');
 const currentBookmark = ref(null);
 
-const remove = () => {
-  console.warn('remove');
+const open = (bookmark) => {
+  window.open(bookmark.url, '_blank');
 };
 
-const edit = () => {
-  console.warn('edit');
-};
-
-const pin = () => {
-  console.warn('pin');
+const pin = (bookmark) => {
+  const status = bookmark.pinned ? 0 : 1;
+  bookmark.pinned = status;
+  try {
+    bookmarkStorage.updatePinStatusById(bookmark.id, status);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    bookmarks.value = bookmarks.value.filter((item) => item.id !== bookmark.id);
+  }
 };
 
 const openEditor = (bookmark) => {
