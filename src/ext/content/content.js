@@ -1,7 +1,7 @@
 let port;
 function connect() {
   console.warn('Keep alive connection..');
-  port = chrome.runtime.connect({ name: 'favbox' });
+  port = browser.runtime.connect({ name: 'favbox' });
   port.onDisconnect.addListener(connect);
   port.onMessage.addListener((msg) => {
     console.log('received', msg, 'from bg');

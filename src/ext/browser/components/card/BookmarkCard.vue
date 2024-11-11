@@ -8,21 +8,21 @@
       <div class="absolute right-2 top-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
         <div class="flex space-x-2">
           <button
-            v-tooltip="{ text: 'Delete', position: 'bottom', delay: 300 }"
+            v-tooltip="{ text: 'Delete', position: 'bottom', delay: 1000 }"
             class="-translate-y-8 rounded-md bg-red-500 p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-150 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('remove', bookmark)"
           >
             <CarbonTrashCan class="size-4" />
           </button>
           <button
-            v-tooltip="{ text: 'Take a screenshot', position: 'bottom', delay: 300 }"
+            v-tooltip="{ text: 'Take a screenshot', position: 'bottom', delay: 1000 }"
             class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-300 ease-out group-hover:translate-y-2 group-hover:opacity-100"
-            @click="$emit('secreenshot', bookmark)"
+            @click="$emit('screenshot', bookmark)"
           >
             <CarbonDropPhoto class="size-4" />
           </button>
           <button
-            v-tooltip="{ text: 'Pin bookmark', position: 'bottom', delay: 300 }"
+            v-tooltip="{ text: 'Pin bookmark', position: 'bottom', delay: 1000 }"
             class="-translate-y-8 rounded-md  p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-500 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             :class="[
               bookmark.pinned === 0 ? 'bg-black' : 'bg-purple-500 '
@@ -32,7 +32,7 @@
             <CarbonPin class="size-4" />
           </button>
           <button
-            v-tooltip="{ text: 'Update', position: 'bottom', delay: 300 }"
+            v-tooltip="{ text: 'Update', position: 'bottom', delay: 1000 }"
             class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-1000 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             @click="$emit('edit', bookmark)"
           >
@@ -66,7 +66,7 @@ const props = defineProps({
     default: 'masonry',
   },
 });
-defineEmits(['remove', 'edit', 'pin']);
+defineEmits(['remove', 'edit', 'pin', 'screenshot']);
 
 const displayComponent = computed({
   get: () => {

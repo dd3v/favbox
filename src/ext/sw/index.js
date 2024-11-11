@@ -14,12 +14,28 @@ const bookmarkStorage = new BookmarkStorage();
 
 // https://developer.chrome.com/docs/extensions/develop/migrate/to-service-workers
 const waitUntil = async (promise) => {
-  const keepAlive = setInterval(chrome.runtime.getPlatformInfo, 25 * 1000);
+  const keepAlive = setInterval(browser.runtime.getPlatformInfo, 25 * 1000);
   try {
     await promise;
   } finally {
     clearInterval(keepAlive);
   }
+};
+
+const captureScreenshotByUrl = async (bookmark) => {
+  const tab = await browser.tabs.create({ url: bookmark.url, active: true });
+  await new Promise((resolve) => {
+    browser.tabs.onUpdated.addListener(function listener(tabId, info) {
+      if (tabId === tab.id && info.status === 'complete') {
+        browser.tabs.onUpdated.removeListener(listener);
+        resolve();
+      }
+    });
+  });
+  const dataUrl = await browser.tabs.captureVisibleTab(tab.windowId, { format: 'jpeg', quality: 10 });
+  await browser.tabs.remove(tab.id);
+  await bookmarkStorage.updateImageById(bookmark.id, dataUrl);
+  return dataUrl;
 };
 
 browser.runtime.onInstalled.addListener(async () => {
@@ -79,7 +95,7 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
     if (entity.image === null && activeTab) {
       try {
         console.warn('📸 No image, take a screenshot', activeTab);
-        const screenshot = await browser.tabs.captureVisibleTab(activeTab.windowId, { format: 'png' });
+        const screenshot = await browser.tabs.captureVisibleTab(activeTab.windowId, { format: 'jpeg', quality: 10 });
         entity.image = screenshot;
       } catch (e) {
         console.error('📸', e);
@@ -179,12 +195,14 @@ browser.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     switch (message.action) {
-      case 'getBookmark':
-        sendResponse({ success: true });
-        break;
-      case 'search':
-        console.warn('handle search..');
-        sendResponse({ bookmarks: [] });
+      case 'screenshot':
+        try {
+          console.warn('handle take a screenshot..');
+          const image = await captureScreenshotByUrl(message.bookmark);
+          sendResponse({ image, error: null });
+        } catch (e) {
+          sendResponse({ image: null, error: e.message });
+        }
         break;
       default:
         console.warn('Unknown message type:', message);

@@ -290,6 +290,18 @@ export default class BookmarkStorage {
     });
   }
 
+  async updateImageById(id, image) {
+    return connection.update({
+      in: 'bookmarks',
+      set: {
+        image,
+      },
+      where: {
+        id,
+      },
+    });
+  }
+
   async getBookmarksByHttpStatusCode(statuses, skip = 0, limit = 50) {
     return connection.select({
       from: 'bookmarks',

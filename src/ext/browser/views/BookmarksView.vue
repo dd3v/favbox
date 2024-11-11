@@ -51,7 +51,8 @@
             :key="key"
             :display-type="displayType"
             :bookmark="bookmark"
-            @remove="handleRemoveBookmark"
+            @remove="remove"
+            @screenshot="screenshot"
             @edit="edit"
             @pin="pin"
           />
@@ -76,7 +77,10 @@
       v-if="showSync"
       :progress="syncProgress"
     />
-    <AppConfirmation ref="deleteConfirmation">
+    <AppConfirmation
+      key="delete"
+      ref="deleteConfirmation"
+    >
       <template #title>
         Delete bookmark
       </template>
@@ -89,6 +93,23 @@
       </template>
       <template #confirm>
         Delete
+      </template>
+    </AppConfirmation>
+    <AppConfirmation
+      key="screenshot"
+      ref="screenshotRef"
+    >
+      <template #title>
+        Take a screenshot
+      </template>
+      <template #description>
+        The browser extension will open a new tab, wait for the page to load, then capture a screenshot and save the current preview.
+      </template>
+      <template #cancel>
+        Cancel
+      </template>
+      <template #confirm>
+        Ok
       </template>
     </AppConfirmation>
     <CommandPalette
@@ -131,6 +152,7 @@ console.warn('tree folders', await bookmarkHelper.getFoldersTree());
 const currentBookmark = ref({});
 const drawer = ref(null);
 const commandPalleteRef = ref(null);
+const screenshotRef = ref(null);
 
 const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
 
@@ -153,7 +175,7 @@ const syncProgress = ref(0);
 const empty = ref(false);
 const tags = ref([]);
 
-const handleRemoveBookmark = async (bookmark) => {
+const remove = async (bookmark) => {
   if (await deleteConfirmation.value.request() === false) {
     return;
   }
@@ -212,6 +234,19 @@ const handleSubmit = async (bookmark) => {
   } catch (e) {
     console.error(e);
   }
+};
+
+const screenshot = async (bookmark) => {
+  if (await screenshotRef.value.request() === false) {
+    return;
+  }
+  // ff issue https://bugzilla.mozilla.org/show_bug.cgi?id=1795932
+  const response = await browser.runtime.sendMessage({ action: 'screenshot', bookmark: JSON.parse(JSON.stringify(bookmark)) });
+  if (response.error !== null) {
+    throw Error(response.error);
+  }
+  const item = bookmarks.value.find((i) => i.id === bookmark.id);
+  item.image = response.image;
 };
 
 const handleCommandPallete = () => commandPalleteRef.value.toggle();
