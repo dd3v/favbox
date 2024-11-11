@@ -61,6 +61,12 @@ const importBookmarks = async () => {
     }
   }
   await browser.storage.session.set({ import: true });
+  await browser.storage.local.set({
+    healthcheck: {
+      date: new Date().toString(),
+      total,
+    },
+  });
   console.timeEnd('Execution time');
 };
 

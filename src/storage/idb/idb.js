@@ -67,7 +67,7 @@ const getDb = () => {
       tags: {
         dataType: DATA_TYPE.Array,
         multiEntry: true,
-        default: null,
+        default: [],
         enableSearch: true,
       },
       pinned: {

@@ -67,20 +67,20 @@ const scroll = ref(null);
 const bookmarks = ref([]);
 const searchTerm = ref('');
 const currentBookmark = ref(null);
+const skip = ref(0);
 
 const open = (bookmark) => {
   window.open(bookmark.url, '_blank');
 };
 
-const pin = (bookmark) => {
-  const status = bookmark.pinned ? 0 : 1;
-  bookmark.pinned = status;
+const pin = async (bookmark) => {
   try {
-    bookmarkStorage.updatePinStatusById(bookmark.id, status);
+    await bookmarkStorage.updatePinStatusById(bookmark.id, 0);
   } catch (e) {
     console.error(e);
   } finally {
-    bookmarks.value = bookmarks.value.filter((item) => item.id !== bookmark.id);
+    currentBookmark.value = null;
+    bookmarks.value = await bookmarkStorage.getPinnedBookmarks(skip.value, 50, searchTerm.value);
   }
 };
 
@@ -89,10 +89,11 @@ const openEditor = (bookmark) => {
   console.warn(currentBookmark);
 };
 
-const paginate = async (skip) => {
+const paginate = async (offset) => {
   try {
+    skip.value = offset;
     bookmarks.value.push(
-      ...(await bookmarkStorage.getPinnedBookmarks(skip, 50)),
+      ...(await bookmarkStorage.getPinnedBookmarks(skip.value, 50)),
     );
   } catch (e) {
     console.error(e);

@@ -21,7 +21,7 @@ const ping = () => {
     if (port.name !== 'favbox') return;
     port.onMessage.addListener(onMessage);
     port.onDisconnect.addListener(deleteTimer);
-    port.timer = setTimeout(forceReconnect, 150000, port);
+    port.timer = setTimeout(forceReconnect, 30000, port);
   });
 };
 

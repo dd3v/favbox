@@ -30,10 +30,6 @@
             <UitBookmark class="size-4" />
             <span>Total bookmarks checked: {{ healthcheck?.total ?? 'TBD' }}</span>
           </li>
-          <li class="flex items-center gap-x-1">
-            <UitClock class="size-4" />
-            <span>Time taken: {{ healthcheck?.executionTime ?? 'TBD' }}</span>
-          </li>
         </ul>
       </div>
     </div>
@@ -65,7 +61,6 @@
 import { ref, onMounted } from 'vue';
 import BookmarkStorage from '@/storage/bookmark';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
-import initStorage from '@/storage/idb/idb';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import HealthCheckCard from '@/ext/browser/components/card/HealthCheckCard.vue';
 import { HTTP_STATUS } from '@/helpers/httpStatus';
@@ -74,7 +69,6 @@ import UitBookmark from '~icons/uit/bookmark';
 import UitClock from '~icons/uit/clock';
 import UitCalender from '~icons/uit/calender';
 
-await initStorage();
 const bookmarkStorage = new BookmarkStorage();
 const bookmarks = ref([]);
 const confirmation = ref(true);
