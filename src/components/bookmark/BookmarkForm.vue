@@ -28,7 +28,7 @@
           Currently using deeph due to challenges with recursive function calls and rendering the headless-ui component. 😔
           -->
         <ListboxButton
-          class="relative h-9 w-full cursor-default rounded-md border border-gray-200 bg-white pl-3 pr-10 text-left shadow-sm focus:outline-none  dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
+          class="relative h-9 w-full cursor-default rounded-md border border-gray-200 bg-white pl-3 pr-10 text-left shadow-sm focus:border-gray-300 focus:outline-none  dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
         >
           <span class="block truncate text-xs">{{ bookmark.folder?.title }}</span>
           <span

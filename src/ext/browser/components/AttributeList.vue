@@ -122,39 +122,45 @@
         </Popover>
       </div>
     </div>
-
-    <ul class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1 text-xs">
-      <li
-        v-for="(item, key) in list"
-        :key="item.id + key"
-      >
-        <label
+    <AppInfiniteScroll
+      ref="scrollRef"
+      :limit="200"
+      class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1 text-xs"
+      @scroll:end="paginate"
+    >
+      <ul>
+        <li
+          v-for="(item, key) in list"
           :key="item.id + key"
-          :for="item.id + key"
-          :class="{'bg-neutral-100 dark:bg-neutral-900': selected(item.key, item.value)}"
-          class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900"
         >
-          <component
-            :is="getIcon(item)"
-            v-tooltip="{ text: getTooltip(item), position: 'top' }"
-            class="size-4 shrink-0"
-          />
-          <input
-            :id="item.id + key"
-            type="checkbox"
-            class="hidden"
-            name="item"
-            :value="item.value"
-            :checked="selected(item.key, item.value)"
-            @input="update(item.key, item.value)"
+          <label
+            :key="item.id + key"
+            :for="item.id + key"
+            :class="{'bg-neutral-100 dark:bg-neutral-900': selected(item.key, item.value)}"
+            class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900"
           >
-          <span class="truncate px-1"> {{ item.value }} </span>
-          <span
-            class="ml-auto"
-          >{{ item.count }}</span>
-        </label>
-      </li>
-    </ul>
+            <component
+              :is="getIcon(item)"
+              v-tooltip="{ text: getTooltip(item), position: 'top' }"
+              class="size-4 shrink-0"
+            />
+            <input
+              :id="item.id + key"
+              type="checkbox"
+              class="hidden"
+              name="item"
+              :value="item.value"
+              :checked="selected(item.key, item.value)"
+              @input="update(item.key, item.value)"
+            >
+            <span class="truncate px-1"> {{ item.value }} </span>
+            <span
+              class="ml-auto"
+            >{{ item.count }}</span>
+          </label>
+        </li>
+      </ul>
+    </AppInfiniteScroll>
   </div>
 </template>
 <script setup>
@@ -163,11 +169,11 @@ import {
   Switch,
 } from '@headlessui/vue';
 import {
-  computed, defineModel, onMounted, ref, onBeforeUnmount,
+  computed, defineModel, onMounted, ref, onBeforeUnmount, watch,
 } from 'vue';
 import AppRadio from '@/components/app/AppRadio.vue';
 import AppBullet from '@/components/app/AppBullet.vue';
-
+import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import PhListChecks from '~icons/ph/list-checks';
 import PhArrowsDownUp from '~icons/ph/arrows-down-up';
 import MaterialSymbolsLightCategorySearchOutline from '~icons/material-symbols-light/category-search-outline';
@@ -178,7 +184,7 @@ import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
 import PhFileMagnifyingGlassLight from '~icons/ph/file-magnifying-glass-light';
 import PhTranslateLight from '~icons/ph/translate-light';
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'paginate']);
 
 const sort = defineModel('sort', { type: String, required: true });
 const includes = defineModel('includes', { type: Object, required: true });
@@ -215,6 +221,7 @@ const tooltipMap = {
 };
 
 const popoverButtonRef = ref(null);
+const scrollRef = ref(null);
 
 const getIcon = (item) => iconMap[item.key];
 
@@ -223,6 +230,10 @@ const getTooltip = (item) => tooltipMap[item.key];
 const selected = (key, value) => props.modelValue.some((item) => item.key === key && item.value === value);
 
 const list = computed(() => props.items);
+
+const paginate = (skip) => {
+  emit('paginate', skip);
+};
 
 const getColor = (key) => {
   switch (key) {
@@ -272,5 +283,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', popoverKbd);
 });
+
+watch([sort, includes, term], () => {
+  scrollRef.value.scrollUp();
+}, { deep: true });
 
 </script>

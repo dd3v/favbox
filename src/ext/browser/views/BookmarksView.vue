@@ -7,6 +7,7 @@
       v-model:term="attrsTerm"
       class="p-1 py-2"
       :items="attributes"
+      @paginate="paginateAttributes"
     />
     <div class="flex h-screen w-full flex-col overflow-hidden p-2">
       <div class="sticky top-0 z-10 flex w-auto flex-row space-x-3">
@@ -29,13 +30,13 @@
             </button>
           </template>
         </SearchTerm>
-        <ViewMode v-model="displayType" />
+        <ViewMode v-model="viewMode" />
       </div>
       <app-infinite-scroll
         ref="scroll"
         class="size-full overflow-y-auto py-2"
         :limit="50"
-        @scroll:end="paginate"
+        @scroll:end="paginateBookmarks"
       >
         <div
           v-if="empty"
@@ -44,12 +45,12 @@
           No results found.
         </div>
         <bookmark-layout
-          :display-type="displayType"
+          :display-type="viewMode"
         >
           <bookmark-card
             v-for="(bookmark, key) in bookmarks"
             :key="key"
-            :display-type="displayType"
+            :display-type="viewMode"
             :bookmark="bookmark"
             @remove="remove"
             @screenshot="screenshot"
@@ -154,7 +155,7 @@ const drawer = ref(null);
 const commandPalleteRef = ref(null);
 const screenshotRef = ref(null);
 
-const displayType = ref(localStorage.getItem('displayType') ?? 'masonry');
+const viewMode = ref(localStorage.getItem('viewMode') ?? 'masonry');
 
 const scroll = ref(null);
 const bookmarks = ref([]);
@@ -257,7 +258,7 @@ const commandPaleteVisibilityHandler = (status) => {
   }
 };
 
-const paginate = async (skip) => {
+const paginateBookmarks = async (skip) => {
   try {
     console.warn('skip', skip);
     bookmarks.value.push(
@@ -267,7 +268,21 @@ const paginate = async (skip) => {
     console.error(e);
   }
 };
-watch(displayType, () => localStorage.setItem('displayType', displayType.value));
+
+const paginateAttributes = async (skip) => {
+  try {
+    console.warn('paginate attrbiutes', skip);
+    const [sortColumn, sortDirection] = attrsSort.value.split(':');
+    console.warn('paginate attrbiutes', skip, sortColumn, sortDirection);
+    attributes.value.push(
+      ...(await bookmarkStorage.getAttributes(attrsIncludes, sortColumn, sortDirection, attrsTerm.value, skip, 200)),
+    );
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+watch(viewMode, () => localStorage.setItem('viewMode', viewMode.value));
 watch(
   query,
   async () => {

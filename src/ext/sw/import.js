@@ -20,14 +20,18 @@ const importBookmarks = async () => {
     return;
   }
   // TODO: generators?
-  const bookmarks = await bookmarkHelper.getBookmarksFlatten();
-  console.warn('Bookmarks', bookmarks);
+  const bookmarksIterator = await bookmarkHelper.iterateBookmarks();
   let batch = [];
   let processed = 0;
-  for (const b of bookmarks) {
+  for await (const b of bookmarksIterator) {
     batch.push(b);
     processed += 1;
     if (batch.length % 300 === 0 || processed === total) {
+      try {
+        browser.runtime.sendMessage({ action: 'refresh', data: { progress: Math.round((processed / total) * 100) } });
+      } catch (e) {
+        console.warn('ui refresh from sync', e);
+      }
       try {
         const browserBookmarkKeyList = batch.map((i) => i.id);
         const extBookmarksKeyList = await bookmarkStorage.getIds(browserBookmarkKeyList);
@@ -52,11 +56,6 @@ const importBookmarks = async () => {
         console.error(e);
       } finally {
         batch = [];
-      }
-      try {
-        browser.runtime.sendMessage({ action: 'refresh', data: { progress: Math.round((processed / total) * 100) } });
-      } catch (e) {
-        console.warn('ui refresh from sync', e);
       }
     }
   }

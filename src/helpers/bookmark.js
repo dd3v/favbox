@@ -129,23 +129,27 @@ const bookmarkHelper = {
   },
 
   /**
-  * Retrieves all bookmarks from the browser and flattens the hierarchical structure into array.
+  * Retrieves all bookmarks from the browser.
   *
-  * @returns {Promise<Array>}
-  */
-  getBookmarksFlatten: async () => {
+  * @returns {AsyncGenerator<Object>}
+ */
+  async* iterateBookmarks() {
     const bookmarksTree = await browser.bookmarks.getTree();
-    const flatBookmarks = [];
-    function processNode(node) {
+
+    function* processNode(node) {
       if (node.url) {
-        flatBookmarks.push(node);
+        yield node;
       }
       if (node.children && node.children.length > 0) {
-        node.children.forEach(processNode);
+        for (const child of node.children) {
+          yield* processNode(child);
+        }
       }
     }
-    bookmarksTree.forEach(processNode);
-    return flatBookmarks;
+
+    for (const rootNode of bookmarksTree) {
+      yield* processNode(rootNode);
+    }
   },
 };
 export default bookmarkHelper;

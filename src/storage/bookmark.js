@@ -15,22 +15,6 @@ function addBookmarks(ctx) {
   });
 }
 
-function addAttributes(ctx) {
-  ctx.start();
-
-  ctx.insert({
-    into: 'attributes',
-    values: ctx.data.attributes,
-    validation: false,
-    skipDataCheck: true,
-    ignore: true,
-    upsert: true,
-    return: true,
-  });
-}
-
-// because of global state jsstore
-self.addAttributes = addAttributes;
 self.addBookmarks = addBookmarks;
 
 export default class BookmarkStorage {
@@ -487,12 +471,11 @@ export default class BookmarkStorage {
     result.push(...folders);
 
     await connection.clear('attributes');
-    await connection.transaction({
-      method: 'addAttributes',
-      tables: ['attributes'],
-      data: {
-        attributes: result,
-      },
+    await connection.insert({
+      into: 'attributes',
+      values: result,
+      validation: false,
+      skipDataCheck: true,
     });
 
     console.timeEnd('Execution time attributes');
