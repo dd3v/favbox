@@ -51,24 +51,28 @@ export default class MetadataParser {
   }
 
   /**
-  * Retrieves the Apple Touch icon URL from the HTML document.
+  * Retrieves the image from the HTML document.
   *
   * @returns {string|null} - The URL of the Apple Touch icon or null if not found.
   * @private
   */
-  #getAppleTouchImageFromPage() {
-    const htmlElem = this.#dom.querySelector('link[rel="apple-touch-icon"][sizes="152x152"], link[rel="apple-touch-icon"][sizes="180x180"]');
-    const src = (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
+  #searchPagePreview() {
+    const htmlElem = this.#dom.querySelector([
+      'img[id*="post-image"]',
+      'img[class*="cover"]',
+      'img[class*="preview-image"]',
+    ].join(','));
+    const src = (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href') || htmlElem?.getAttribute('src')) ?? null;
     return src;
   }
 
   /**
-  * Retrieves the Open Graph image URL from the HTML document.
+  * Retrieves the Open Graph/Meta image URL from the HTML document.
   *
   * @returns {string|null} - The URL of the Open Graph image or null if not found.
   * @private
   */
-  #getOGImageFromPage() {
+  #getImageFromMeta() {
     const selectors = [
       'meta[property="og:image"]',
       'meta[name="twitter:image"]',
@@ -88,7 +92,7 @@ export default class MetadataParser {
   * @returns {string|null} - The URL of the main image or null if not found.
   */
   getImage() {
-    const src = this.#getOGImageFromPage() || this.#getAppleTouchImageFromPage();
+    const src = this.#getImageFromMeta() || this.#searchPagePreview();
     return src ? new URL(src, this.#bookmark.url).href : null;
   }
 
@@ -150,17 +154,20 @@ export default class MetadataParser {
   * @returns {Promise<string|null>} - A promise that resolves to the locale of the document or null if not found.
   */
   async getLocale() {
+    // const htmlLang = this.#dom?.documentElement?.lang?.split(/[_-]/).shift()?.toUpperCase();
+    // if (htmlLang) {
+    //   return htmlLang;
+    // }
     const metaLocale = this.#dom.querySelector('meta[property="og:locale"]')?.getAttribute('content').split(/[_-]/)?.shift()
       ?.toUpperCase();
     if (metaLocale) {
       return metaLocale;
     }
-    const elements = Array.from(this.#dom.querySelectorAll('button, label, h1, h2, h3, h4, h5, h6, p'));
+    const elements = Array.from(this.#dom.querySelectorAll('button, title, label, h1, h2, h3, h4, h5, h6, p'));
     const description = elements.map((el) => el.textContent).concat([this.getDescription() || '', this.getKeywords() || '']).join(' ');
     if (description.trim()) {
       const result = await browser.i18n.detectLanguage(description);
       if (result.languages?.length) {
-        console.warn(description, result.languages);
         return result.languages[0].language.toUpperCase();
       }
     }
@@ -172,6 +179,7 @@ export default class MetadataParser {
   * @returns {Promise<Object>} - A promise that resolves to an object representing the bookmark entity.
   */
   async getFavboxBookmark() {
+    console.warn(this.getImage());
     const [folder] = await browser.bookmarks.get(this.#bookmark.parentId);
     const foldersTree = await bookmarkHelper.getFoldersTreeByBookmark(this.#bookmark.id);
     const entity = {
