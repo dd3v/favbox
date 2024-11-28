@@ -39,7 +39,7 @@ const captureScreenshotByUrl = async (bookmark) => {
 };
 
 browser.runtime.onInstalled.addListener(async () => {
-  await initStorage();
+  browser.contextMenus.create({ id: 'openPopup', title: 'Bookmark this page', contexts: ['all'] });
   await browser.alarms.create('healthcheck', { periodInMinutes: 0.5 });
 });
 
@@ -55,6 +55,12 @@ browser.runtime.onStartup.addListener(async () => {
 browser.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'healthcheck') {
     console.log('health check');
+  }
+});
+
+browser.contextMenus.onClicked.addListener((info) => {
+  if (info.menuItemId === 'openPopup') {
+    browser.action.openPopup();
   }
 });
 

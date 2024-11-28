@@ -86,7 +86,10 @@ const handleSubmit = async (data) => {
     console.error(e);
   }
 };
-const openApp = () => browser.tabs.create({ url: '/ext/browser/index.html', index: tab.index + 1 });
+const openApp = () => {
+  browser.tabs.create({ url: '/ext/browser/index.html', index: tab.index + 1 });
+  window.close();
+};
 onMounted(async () => {
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     document.documentElement.classList.add('dark');
