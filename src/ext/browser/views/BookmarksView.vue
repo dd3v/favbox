@@ -39,8 +39,8 @@
         @scroll:end="paginateBookmarks"
       >
         <div
-          v-if="empty"
-          class="flex h-5/6 items-center justify-center text-6xl font-thin text-gray-200 dark:text-white"
+          v-if="empty && query.length"
+          class="flex h-5/6 items-center justify-center text-2xl font-thin text-black dark:text-white"
         >
           No results found.
         </div>

@@ -7,7 +7,6 @@
       <div class="flex w-full items-center space-x-5 p-5 text-gray-900 dark:text-neutral-100">
         <div>
           <AppBadge
-            v-tooltip="{ text: getStatusMessage(bookmark.httpStatus), position: 'right' }"
             color="yellow"
           >
             {{ bookmark.httpStatus }}
@@ -27,7 +26,7 @@
       <div class="my-1 ml-5 text-gray-900 dark:text-neutral-100" />
     </a>
     <button
-      v-tooltip="{ text: 'Delete', position: 'left', delay: 500 }"
+      title="Delete"
       class="absolute right-2 top-2 rounded-md bg-red-500 p-1.5 text-white opacity-0 shadow-md transition-opacity duration-150 ease-out group-hover:opacity-100"
       @click="$emit('onDelete', bookmark)"
     >

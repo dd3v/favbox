@@ -4,11 +4,8 @@ import MetadataParser from '@/parser/metadata';
 import fetchHelper from '@/helpers/fetch';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmark';
-import importBookmarks from './import';
+import sync from './sync';
 import ping from './ping';
-
-const ICON_SAVED = '/icons/icon32_saved.png';
-const ICON_NOT_SAVED = '/icons/icon32.png';
 
 const bookmarkStorage = new BookmarkStorage();
 
@@ -41,6 +38,7 @@ const captureScreenshotByUrl = async (bookmark) => {
 browser.runtime.onInstalled.addListener(async () => {
   browser.contextMenus.create({ id: 'openPopup', title: 'Bookmark this page', contexts: ['all'] });
   await browser.alarms.create('healthcheck', { periodInMinutes: 0.5 });
+  waitUntil(sync());
 });
 
 browser.runtime.onStartup.addListener(async () => {
@@ -50,6 +48,7 @@ browser.runtime.onStartup.addListener(async () => {
   if (!alarm) {
     await browser.alarms.create('healthcheck', { periodInMinutes: 0.5 });
   }
+  waitUntil(sync());
 });
 
 browser.alarms.onAlarm.addListener(async (alarm) => {
@@ -64,38 +63,28 @@ browser.contextMenus.onClicked.addListener((info) => {
   }
 });
 
-// https://developer.browser.com/docs/extensions/reference/tabs/#event-onUpdated
-browser.tabs.onUpdated.addListener(async (tabId, info) => {
-  if (info.status === 'loading') {
-    try {
-      const tab = await browser.tabs.get(parseInt(tabId, 10));
-      const result = await browser.bookmarks.search({ url: tab.url });
-      if (result.length) {
-        setIconForOpenTab(tab.url, ICON_SAVED);
-      }
-    } catch (error) {
-      console.error('Error getting tab or updating icon:', error);
-    }
-  }
-});
-
 // https:// developer.browser.com/docs/extensions/reference/bookmarks/#event-onCreated
 browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
+  console.warn('🎉 Handle bookmark create..', id, bookmark);
   if (bookmark.url === undefined) {
     console.warn('bad bookmark data', bookmark);
     return;
   }
+  let response = null;
+  const [activeTab] = await browser.tabs.query({ active: true });
   try {
-    let response = {};
-    const [activeTab] = await browser.tabs.query({ active: true, currentWindow: true });
-    if (activeTab === undefined) {
-      console.log('No tabs. It is weird. Fetching data from internet.. 🌎');
-      response = await fetchHelper.fetch(bookmark.url, 7000);
-    } else {
-      console.warn('requesting html from tab', activeTab);
-      const content = await browser.tabs.sendMessage(activeTab.id, { action: 'getHTML' });
-      response = { html: content?.html, error: 0 };
-      console.warn('response from tab', response);
+    console.warn('activeTab', activeTab);
+    console.warn('requesting html from tab', activeTab);
+    const content = await browser.tabs.sendMessage(activeTab.id, { action: 'getHTML' });
+    response = { html: content?.html, error: 0 };
+    console.warn('response from tab', response);
+  } catch (e) {
+    console.log('No tabs. It is weird. Fetching data from internet.. 🌎');
+    response = await fetchHelper.fetch(bookmark.url, 15000);
+  }
+  try {
+    if (response === null) {
+      throw new Error('No page data: response is null');
     }
     const entity = await (new MetadataParser(bookmark, response)).getFavboxBookmark();
     if (entity.image === null && activeTab) {
@@ -108,13 +97,12 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
       }
     }
     console.warn('Entity', entity);
-    await bookmarkStorage.create(entity);
-    console.log('🎉 Bookmark has been created..');
+    const r = await bookmarkStorage.create(entity);
+    console.log('🎉 Bookmark has been created..', r);
+    refreshUserInterface();
   } catch (e) {
     console.error('🎉', e, id, bookmark);
   }
-  await setIconForOpenTab(bookmark.url, ICON_SAVED);
-  refreshUserInterface();
 });
 
 // https://developer.browser.com/docs/extensions/reference/bookmarks/#event-onChanged
@@ -163,19 +151,16 @@ browser.bookmarks.onMoved.addListener(async (id, moveInfo) => {
 
 // https://developer.browser.com/docs/extensions/reference/bookmarks/#event-onRemoved
 browser.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
+  console.log('🗑️ Handle remove bookmark..', id, removeInfo);
   if (removeInfo.node.children !== undefined) {
     try {
       const items = bookmarkHelper.getAllBookmarksFromNode(removeInfo.node);
       const bookmarksToRemove = items.map((bookmark) => bookmark.id);
-      const tabsToUpdate = items.map((bookmark) => bookmark.url);
       if (bookmarksToRemove.length) {
         const total = await bookmarkStorage.removeByIds(bookmarksToRemove);
-        console.log('🗑️Folder has been removed..', total, id, removeInfo);
+        console.log('🗑️ Folder has been removed..', total, id, removeInfo);
       }
       refreshUserInterface();
-      console.warn(tabsToUpdate);
-      const tabPromises = tabsToUpdate.map((url) => setIconForOpenTab(url, ICON_NOT_SAVED));
-      await Promise.all(tabPromises);
     } catch (e) {
       console.error('🗑️ Remove err', e);
     }
@@ -188,8 +173,6 @@ browser.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
     }
     await bookmarkStorage.remove(id);
     refreshUserInterface();
-    console.warn('deleted bookmark', bookmark);
-    await setIconForOpenTab(bookmark.url, ICON_NOT_SAVED);
     console.log('🗑️ Bookmark has been removed..', id, removeInfo);
   } catch (e) {
     console.error('🗑️', e);
@@ -225,16 +208,4 @@ function refreshUserInterface() {
     console.error('Refresh UI listener not available', e);
   }
 }
-
-async function setIconForOpenTab(url, path) {
-  console.warn('icon by url', url);
-  const urlWithoutAnchor = url.replace(/#.*$/, '');
-  const tabs = await browser.tabs.query({ url: urlWithoutAnchor });
-  console.warn('Update icon by', url, urlWithoutAnchor);
-  for (const tab of tabs) {
-    browser.action.setIcon({ tabId: tab.id, path });
-  }
-}
-
 ping();
-waitUntil(importBookmarks());

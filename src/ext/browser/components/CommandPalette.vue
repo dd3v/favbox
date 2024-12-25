@@ -70,7 +70,7 @@
                   @scroll:end="paginate"
                 >
                   <ul
-                    v-if="filteredItems.length > 0"
+                    v-if="filteredItems.length"
                     class="space-y-2"
                   >
                     <li
@@ -260,11 +260,7 @@ const handleBackspace = (event) => {
   }
 };
 
-watch(searchTerm, (newValue) => {
-  if (newValue === '') {
-    activeIndex.value = -1;
-  }
-});
+watch(searchTerm, () => { activeIndex.value = 0; });
 
 const close = () => {
   isOpen.value = false;
@@ -300,12 +296,7 @@ watch([selectedCommand, searchTerm], () => {
 
 defineExpose({ toggle });
 
-onMounted(() => {
-  document.addEventListener('keydown', hotKey);
-});
+onMounted(() => { document.addEventListener('keydown', hotKey); });
 
-onUnmounted(() => {
-  document.removeEventListener('keydown', hotKey);
-});
-
+onUnmounted(() => { document.removeEventListener('keydown', hotKey); });
 </script>

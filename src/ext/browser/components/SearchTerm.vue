@@ -1,27 +1,23 @@
 <template>
   <div
-    class="flex h-9 w-full items-center overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 bg-white px-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
+    class="flex h-9 w-full overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 bg-white px-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
   >
     <ul class="flex items-center gap-1">
       <li
         v-for="(tag, tagKey) in modelValue"
         :key="tagKey"
-        class="flex items-center"
       >
         <AppBadge
           v-motion-fade
           closable
           :color="getColor(tag.key)"
-          class="flex items-center"
           @onClose="onClose(tag.key, tag.value)"
         >
-          <div class="flex items-center">
-            <component
-              :is="getIcon(tag.key)"
-              class="mr-1 size-4"
-            />
-            {{ tag.value }}
-          </div>
+          <component
+            :is="getIcon(tag.key)"
+            class="mr-1 size-4"
+          />
+          {{ tag.value }}
         </AppBadge>
       </li>
     </ul>
@@ -29,6 +25,9 @@
       ref="inputRef"
       v-model="term"
       type="text"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
       maxlength="25"
       :placeholder="modelValue.length ? '' : placeholder"
       class="w-full min-w-max flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-xs placeholder:text-xs focus:outline-none focus:ring-0"

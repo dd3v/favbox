@@ -141,8 +141,7 @@
           >
             <component
               :is="getIcon(item)"
-              v-tooltip="{ text: getTooltip(item), position: 'top' }"
-              class="size-4 shrink-0"
+              class="size-4"
             />
             <input
               :id="item.id + key"

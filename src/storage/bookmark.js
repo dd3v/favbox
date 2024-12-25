@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable class-methods-use-this */
+import { bookmarks } from 'webextension-polyfill';
 import connection from './idb/connection';
 
 function addBookmarks(ctx) {
@@ -90,6 +91,16 @@ export default class BookmarkStorage {
     return connection.insert({
       into: 'bookmarks',
       values: [entity],
+    });
+  }
+
+  updateAttirbutes(id, data) {
+    return connection.update({
+      in: 'bookmarks',
+      set: data,
+      where: {
+        id,
+      },
     });
   }
 
@@ -389,7 +400,7 @@ export default class BookmarkStorage {
       return {
         key: 'tag',
         value: item.tags,
-        id: `tag${item.tags}`,
+        id: `tag-${item.tags}`,
         count: uniqueList.length,
         list: uniqueList,
       };
@@ -416,7 +427,7 @@ export default class BookmarkStorage {
       return {
         key: 'keyword',
         value: item.keywords,
-        id: `keyword${item.keywords}`,
+        id: `keyword-${item.keywords}`,
         count: uniqueList.length,
         list: uniqueList,
       };
@@ -449,7 +460,7 @@ export default class BookmarkStorage {
       },
     });
     const locales = flattenLocales.map((item) => ({
-      key: 'locale', value: item.locale, id: `locale${item.locale}`, count: item['count(id)'], list: item['list(id)'],
+      key: 'locale', value: item.locale, id: `locale-${item.locale}`, count: item['count(id)'], list: item['list(id)'],
     }));
 
     result.push(...locales);
@@ -463,7 +474,7 @@ export default class BookmarkStorage {
       },
     });
     const folders = flattenFolders.map((item) => ({
-      key: 'folder', value: item.folderName, id: `folder${item.folderName}`, count: item['count(id)'], list: item['list(id)'],
+      key: 'folder', value: item.folderName, id: `folder-${item.folderName}`, count: item['count(id)'], list: item['list(id)'],
     }));
 
     console.warn('refresh folders', folders);
