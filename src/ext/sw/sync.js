@@ -5,7 +5,7 @@ import initStorage from '@/storage/idb/idb';
 import MetadataParser from '@/parser/metadata';
 import bookmarkHelper from '@/helpers/bookmark';
 
-const importBookmarks = async () => {
+const sync = async () => {
   // if (await fetchHelper.ping() === false) {
   //   return;
   // }
@@ -14,8 +14,8 @@ const importBookmarks = async () => {
   const bookmarkStorage = new BookmarkStorage();
   const total = await bookmarkHelper.total();
   console.log('⭐️ Total bookmarks', total);
-  const storage = await browser.storage.session.get('import');
-  if (storage?.import) {
+  const { import: isImported } = await browser.storage.session.get('import');
+  if (isImported) {
     console.warn('🕒 Sync in current session already finished..');
     return;
   }
@@ -69,4 +69,4 @@ const importBookmarks = async () => {
   console.timeEnd('Execution time');
 };
 
-export default importBookmarks;
+export default sync;

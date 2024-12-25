@@ -18,3 +18,20 @@
   cursor: pointer;
   background-color: #585858
 }
+
+@layer utilities {
+  .light-bg {
+    background: linear-gradient(90deg, #33b6f332, #8286fd5e, #ab812557);
+    background-size: 300% 300%;
+    animation: gradient 6s alternate infinite;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0%;
+    }
+    100% {
+      background-position: 100%;
+    }
+  }
+}

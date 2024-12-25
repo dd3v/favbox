@@ -38,19 +38,23 @@
     >
       <div
         v-if="showSuggestionContainer"
-        class="z-10 max-h-48 w-full overflow-y-auto rounded-md border border-gray-200 bg-white shadow-md dark:border-neutral-700 dark:bg-neutral-800"
+        class="z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white text-xs shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-neutral-900 dark:text-neutral-400"
       >
         <ul>
           <li
             v-for="(suggestion, index) in filteredSuggestions"
             :key="index"
             ref="suggestionRef"
-            class="block cursor-pointer px-4 py-2 hover:bg-neutral-50 dark:hover:bg-neutral-600"
-            :class="{ 'bg-neutral-50 dark:bg-neutral-700': highlightedSuggestionIndex === index }"
+            class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-800"
+            :class="{'bg-neutral-100 dark:bg-neutral-800': highlightedSuggestionIndex === index }"
             role="option"
             @click="add"
+            @mouseenter="highlightedSuggestionIndex = index"
           >
-            <span class="dark:text-white">{{ suggestion }}</span>
+            <div class="inline-flex items-center space-x-1 dark:text-white">
+              <PhHashStraightLight class="size-4" />
+              <span>{{ suggestion }}</span>
+            </div>
           </li>
         </ul>
       </div>
@@ -63,6 +67,7 @@ import {
   ref, computed, watch, onMounted, onUnmounted, nextTick,
 } from 'vue';
 import AppBadge from '@/components/app/AppBadge.vue';
+import PhHashStraightLight from '~icons/ph/hash-straight-light';
 
 const props = defineProps({
   max: { type: Number, default: 5 },

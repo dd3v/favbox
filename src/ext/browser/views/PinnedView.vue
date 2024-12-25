@@ -4,18 +4,16 @@
       class="w-1/3 space-y-3 border-r border-gray-300 bg-white dark:border-neutral-900 dark:bg-black"
     >
       <div class="relative w-full p-2">
-        <label for="title">
-          <input
-            id="title"
-            v-model="searchTerm"
-            type="text"
-            placeholder="Search something.."
-            class="h-9 w-full rounded-md border-gray-200 pl-7 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
-          >
-          <span class="pointer-events-none absolute inset-y-0 left-1 grid w-10 place-content-center text-black dark:text-white">
-            <PhMagnifyingGlassLight />
-          </span>
-        </label>
+        <input
+          id="title"
+          v-model="searchTerm"
+          type="text"
+          placeholder="Search something.."
+          class="h-9 w-full rounded-md border-gray-200 pl-7 text-xs text-gray-700 shadow-sm outline-none focus:border-gray-300 focus:ring-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
+        >
+        <span class="pointer-events-none absolute inset-y-0 left-1 grid w-10 place-content-center text-black dark:text-white">
+          <PhMagnifyingGlassLight />
+        </span>
       </div>
       <AppInfiniteScroll
         ref="scroll"
@@ -86,7 +84,6 @@ const pin = async (bookmark) => {
 
 const openEditor = (bookmark) => {
   currentBookmark.value = bookmark;
-  console.warn(currentBookmark);
 };
 
 const paginate = async (offset) => {
