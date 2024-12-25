@@ -10,6 +10,7 @@
         </router-view>
       </suspense>
     </main>
+    <button @click="exportFile">Export</button>
     <app-notifications />
   </div>
 </template>
@@ -32,6 +33,18 @@ const menu = [
 onErrorCaptured((e) => {
   notify({ group: 'error', title: 'Error', text: e.message }, 8500);
 });
+
+const exportFile = async () => {
+  const root = await navigator.storage.getDirectory();
+  const fileHandle = await root.getFileHandle('mydb.sqlite3');
+  const file = await fileHandle.getFile();
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mydb.sqlite3';
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 </script>
 

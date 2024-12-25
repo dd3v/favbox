@@ -33,8 +33,10 @@ export default defineConfig({
     rollupOptions: {
       input: {
         app: '/ext/browser/index.html',
+        offscreen: '/ext/offscreen/index.html',
       },
     },
+
     minify: 'terser',
     sourcemap: false,
     // https://developer.chrome.com/docs/webstore/program_policies/#:~:text=Code%20Readability%20Requirements
@@ -49,8 +51,15 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
     hmr: {
       port: 5173,
     },
+  },
+  optimizeDeps: {
+    exclude: ['@sqlite.org/sqlite-wasm'],
   },
 });
