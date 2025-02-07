@@ -21,6 +21,9 @@ export default defineConfig({
       ],
     }),
   ],
+  optimizeDeps: {
+    include: ['webextension-polyfill', 'unplugin-icons', 'unplugin-auto-import']
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -52,5 +55,8 @@ export default defineConfig({
     hmr: {
       port: 5173,
     },
+  },
+  test: {
+    cache: false,
   },
 });
