@@ -1,7 +1,13 @@
 <template>
-  <div @click="focus">
+  <div
+    role="combobox"
+    aria-expanded="showSuggestionContainer"
+    aria-haspopup="listbox"
+    @click="focus"
+  >
     <div
-      class="flex min-h-9 w-full flex-wrap items-center gap-1 whitespace-normal rounded-md border border-gray-200 bg-white px-2 py-1 shadow-sm focus-within:border-gray-300  dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus-within:dark:border-neutral-700"
+      class="flex min-h-9 w-full flex-wrap items-center gap-1 whitespace-normal rounded-md border border-gray-200 bg-white px-2 py-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus-within:dark:border-neutral-700"
+      aria-label="Tag input"
     >
       <AppBadge
         v-for="(value, index) in tags"
@@ -26,6 +32,7 @@
         @keydown.delete="removeLast"
         @keydown.arrow-up.prevent="arrowUp"
         @keydown.arrow-down.prevent="arrowDown"
+        @keydown.escape="hideSuggestions"
       >
     </div>
     <transition
@@ -39,15 +46,18 @@
       <div
         v-if="showSuggestionContainer"
         class="z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white text-xs shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-neutral-900 dark:text-neutral-400"
+        role="listbox"
       >
         <ul>
           <li
             v-for="(suggestion, index) in filteredSuggestions"
+            :id="`suggestion-${index}`"
             :key="index"
             ref="suggestionRef"
             class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-800"
             :class="{'bg-neutral-100 dark:bg-neutral-800': highlightedSuggestionIndex === index }"
             role="option"
+            :aria-selected="highlightedSuggestionIndex === index"
             @click="add"
             @mouseenter="highlightedSuggestionIndex = index"
           >
