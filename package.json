@@ -30,7 +30,7 @@
     "@crxjs/vite-plugin": "2.0.0-beta.19",
     "@rushstack/eslint-patch": "^1.10.2",
     "@types/dompurify": "^2.4.0",
-    "@vitejs/plugin-vue": "^4.6.2",
+    "@vitejs/plugin-vue": "^5.2.1",
     "@vue/test-utils": "^2.4.5",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
@@ -42,9 +42,9 @@
     "jsdom": "^20.0.3",
     "postcss": "^8.4.38",
     "terser": "^5.31.0",
-    "vite": "^4.5.3",
+    "vite": "^6.2.1",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^0.25.8"
+    "vitest": "^3.0.8"
   },
   "repository": {
     "type": "git",
