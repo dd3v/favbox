@@ -1,7 +1,7 @@
 <template>
   <div
     class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid p-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
-    :class="[active ? 'bg-gray-100 dark:bg-neutral-600' : 'bg-white dark:bg-neutral-950']"
+    :class="activeClass"
   >
     <div class="mb-1 flex items-center text-sm text-black dark:text-white">
       {{ bookmark.title }}
@@ -23,7 +23,8 @@
     <div class="absolute right-2 top-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
       <div class="flex space-x-2">
         <button
-          title="Pin bookmark"
+          v-tooltip.bottom-start="{ content: 'Unpin bookmark'}"
+          aria-label="Unpin bookmark"
           class="-translate-y-8 rounded-md p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-300 ease-out group-hover:translate-y-2 group-hover:opacity-100"
           :class="[
             bookmark.pinned === 0 ? 'bg-black' : 'bg-purple-500 '
@@ -33,7 +34,8 @@
           <CarbonPin class="size-4" />
         </button>
         <button
-          title="Open"
+          v-tooltip.bottom-start="{ content: 'Open'}"
+          aria-label="Open bookmark"
           class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-500 ease-out group-hover:translate-y-2 group-hover:opacity-100"
           @click="$emit('open', bookmark)"
         >
@@ -46,8 +48,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
-
+import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import CarbonPin from '~icons/carbon/pin';
 import CarbonNewTab from '~icons/carbon/new-tab';
 import UitCalender from '~icons/uit/calender';
@@ -65,9 +66,12 @@ const props = defineProps({
 
 defineEmits(['remove', 'pin', 'edit']);
 
-const formatDate = (date) => new Date(date).toLocaleDateString();
+const activeClass = computed(() => (props.active ? 'bg-gray-100 dark:bg-neutral-600' : 'bg-white dark:bg-neutral-950'));
 
-const bookmark = computed({
-  get: () => props.bookmark,
-});
+const formatDate = (date) => new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+}).format(new Date(date));
+
 </script>

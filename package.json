@@ -27,6 +27,7 @@
     "@tiptap/vue-3": "^2.9.1",
     "@vueuse/core": "^9.13.0",
     "@vueuse/motion": "^2.2.5",
+    "@zanmato/vue3-treeselect": "^0.4.1",
     "floating-vue": "^5.2.2",
     "jsstore": "^4.7.4",
     "linkedom": "^0.14.26",

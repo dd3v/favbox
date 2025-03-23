@@ -2,9 +2,11 @@
   <div
     v-if="showImage"
     class="flex items-center justify-center"
-    :class="{'min-h-[132px]': !bookmark.image}"
+    :class="{ 'min-h-[132px]': !bookmark.image }"
   >
     <img
+      v-if="bookmark.image || bookmark.favicon"
+      :key="bookmark.id"
       :src="String(bookmark.image || bookmark.favicon)"
       :alt="bookmark.title"
       class="object-cover object-center"
@@ -19,27 +21,21 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
-const props = defineProps({
+defineProps({
   bookmark: {
     type: Object,
     required: true,
   },
 });
+
 const showImage = ref(true);
+
 const gradients = [
   'bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-[size:20px_20px] text-white',
   'bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] text-black',
 ];
 
-const gradient = computed({
-  get: () => gradients[Math.floor(Math.random() * gradients.length)],
-});
-
-watch(() => props.bookmark.image, (newImage) => {
-  if (newImage) {
-    showImage.value = true;
-  }
-});
+const gradient = computed(() => gradients[Math.floor(Math.random() * gradients.length)]);
 </script>

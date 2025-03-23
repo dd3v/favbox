@@ -1,7 +1,7 @@
 <template>
   <div
     v-motion-slide-visible-once-bottom
-    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid bg-white p-3 shadow-sm dark:border-neutral-900 dark:bg-neutral-950"
+    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid border-gray-100 bg-white p-3 shadow-sm dark:border-neutral-900 dark:bg-neutral-950"
   >
     <a
       :href="bookmark.url"
@@ -9,7 +9,7 @@
       class="w-full"
     >
       <div
-        class="mb-2 inline-flex items-center text-sm font-semibold text-black dark:text-white"
+        class="mb-2 inline-flex items-center text-sm text-black dark:text-white"
       >
         <bookmark-favicon
           :bookmark="bookmark"
@@ -38,7 +38,7 @@
 <script setup>
 import { computed } from 'vue';
 import AppBadge from '@/components/app/AppBadge.vue';
-import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
+import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 
 const props = defineProps({
   bookmark: {

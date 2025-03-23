@@ -3,7 +3,7 @@
     v-if="displayType === 'masonry'"
     :resolve-slot="true"
     :cols="{ 3840: 10, 2560: 7, 1920: 4, 992: 3, 768: 2, 576: 1 }"
-    :gutter="10"
+    :gutter="15"
   >
     <slot />
   </masonry>

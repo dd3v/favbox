@@ -7,7 +7,8 @@
       <div class="flex w-full items-center space-x-5 p-5 text-gray-900 dark:text-neutral-100">
         <div>
           <AppBadge
-            color="yellow"
+            v-tooltip.bottom-start="{ content: getStatusMessage(bookmark.httpStatus) }"
+            :color="bookmark.httpStatus === HTTP_STATUS.UNKNOWN_ERROR ? 'yellow' : 'red'"
           >
             {{ bookmark.httpStatus }}
           </AppBadge>
@@ -19,14 +20,14 @@
           />
         </div>
         <div>
-          <h1 class="text-sm font-semibold text-black dark:text-white"> {{ bookmark.title }}</h1>
+          <h1 class="text-sm text-black dark:text-white"> {{ bookmark.title }}</h1>
           <p class="text-xs dark:text-neutral-500">{{ bookmark.domain }}</p>
         </div>
       </div>
       <div class="my-1 ml-5 text-gray-900 dark:text-neutral-100" />
     </a>
     <button
-      title="Delete"
+      v-tooltip.bottom-start="{ content: 'Delete'}"
       class="absolute right-2 top-2 rounded-md bg-red-500 p-1.5 text-white opacity-0 shadow-md transition-opacity duration-150 ease-out group-hover:opacity-100"
       @click="$emit('onDelete', bookmark)"
     >
@@ -36,9 +37,9 @@
 </template>
 
 <script setup>
-import BookmarkFavicon from '@/components/bookmark/BookmarkFavicon.vue';
+import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import AppBadge from '@/components/app/AppBadge.vue';
-import { getStatusMessage } from '@/helpers/httpStatus';
+import { getStatusMessage, HTTP_STATUS } from '@/helpers/httpStatus';
 import CarbonTrashCan from '~icons/carbon/trash-can';
 
 defineProps({

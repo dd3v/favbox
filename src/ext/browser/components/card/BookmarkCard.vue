@@ -8,33 +8,33 @@
       <div class="absolute right-2 top-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
         <div class="flex space-x-2">
           <button
-            title="Delete"
+            v-tooltip.bottom-start="{ content: 'Delete'}"
             class="-translate-y-8 rounded-md bg-red-500 p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-150 ease-out group-hover:translate-y-2 group-hover:opacity-100"
-            @click="$emit('remove', bookmark)"
+            @click="$emit('onRemove', bookmark)"
           >
             <CarbonTrashCan class="size-4" />
           </button>
           <button
-            title="Take a screenshot"
+            v-tooltip.bottom-start="{ content: 'Take a screenshot'}"
             class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-300 ease-out group-hover:translate-y-2 group-hover:opacity-100"
-            @click="$emit('screenshot', bookmark)"
+            @click="$emit('onScreenshot', bookmark)"
           >
             <CarbonDropPhoto class="size-4" />
           </button>
           <button
-            title="Pin bookmark"
-            class="-translate-y-8 rounded-md  p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-500 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+            v-tooltip.bottom-start="{ content: 'Pin bookmark'}"
+            class="-translate-y-8 rounded-md p-1.5  text-white opacity-100 shadow-md transition-transform delay-100 duration-500 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             :class="[
               bookmark.pinned === 0 ? 'bg-black' : 'bg-purple-500 '
             ]"
-            @click="$emit('pin', bookmark)"
+            @click="$emit('onPin', bookmark)"
           >
             <CarbonPin class="size-4" />
           </button>
           <button
-            title="Update"
-            class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-1000 ease-out group-hover:translate-y-2 group-hover:opacity-100"
-            @click="$emit('edit', bookmark)"
+            v-tooltip.bottom-start="{ content: 'Update bookmark'}"
+            class="-translate-y-8  rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-1000 ease-out group-hover:translate-y-2 group-hover:opacity-100"
+            @click="$emit('onEdit', bookmark)"
           >
             <CarbonEdit class="size-4" />
           </button>
@@ -66,7 +66,7 @@ const props = defineProps({
     default: 'masonry',
   },
 });
-defineEmits(['remove', 'edit', 'pin', 'screenshot']);
+defineEmits(['onRemove', 'onEdit', 'onPin', 'onScreenshot']);
 
 const displayComponent = computed({
   get: () => {

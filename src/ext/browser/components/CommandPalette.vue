@@ -41,7 +41,7 @@
                 @keydown.enter.prevent="selectActiveItem"
                 @keydown.backspace="handleBackspace"
               >
-                <div class="flex w-full items-center border-b px-3 dark:border-neutral-900">
+                <div class="flex w-full items-center px-3 dark:border-neutral-900">
                   <span class="mr-0 size-4 shrink-0 text-black dark:text-white">
                     <PhMagnifyingGlassLight />
                   </span>
@@ -49,7 +49,7 @@
                     ref="commandInput"
                     v-model="searchTerm"
                     type="text"
-                    class="flex h-11 w-full rounded-md border-0 bg-transparent px-2 py-3 text-xs outline-none placeholder:text-xs placeholder:text-black focus:border-0 focus:outline-none focus:ring-0 dark:placeholder:text-white"
+                    class="flex h-12 w-full rounded-md border-0 bg-transparent px-2 py-3 text-xs outline-none placeholder:text-xs placeholder:text-black focus:border-0 focus:outline-none focus:ring-0 dark:placeholder:text-white"
                     placeholder="Search..."
                     autocomplete="off"
                     autocorrect="off"
@@ -79,14 +79,14 @@
                       ref="suggestionRef"
                       class="flex cursor-pointer items-center gap-x-1 rounded-md p-2 text-black dark:text-white"
                       :class="{
-                        'bg-gray-500/10 ring-0 dark:bg-black/50': activeIndex === index
+                        'bg-gray-500/10 ring-0 dark:bg-black/10': activeIndex === index
                       }"
                       @click="selectItem(item)"
                       @mouseenter="activeIndex = index"
                     >
                       <component
                         :is="item.icon"
-                        class="size-4"
+                        class="size-5"
                       />
                       {{ item.value }}
                     </li>
@@ -152,17 +152,8 @@ import PhHashStraightLight from '~icons/ph/hash-straight-light';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
 import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
-import PhFileMagnifyingGlassLight from '~icons/ph/file-magnifying-glass-light';
-import PhTranslateLight from '~icons/ph/translate-light';
 
-const props = defineProps({
-  modelValue: {
-    type: Array,
-    required: true,
-  },
-});
-
-const emit = defineEmits(['update:modelValue', 'onVisibilityToggle']);
+const emit = defineEmits(['onSelected', 'onVisibilityToggle']);
 
 const isOpen = ref(false);
 const searchTerm = ref('');
@@ -177,8 +168,6 @@ const commands = [
   { key: 'command', value: 'folder', icon: PhFolderSimpleLight },
   { key: 'command', value: 'domain', icon: PhGlobeSimpleLight },
   { key: 'command', value: 'keyword', icon: PhListMagnifyingGlassLight },
-  { key: 'command', value: 'locale', icon: PhTranslateLight },
-  { key: 'command', value: 'type', icon: PhFileMagnifyingGlassLight },
 ];
 
 const bookmarkStorage = new BookmarkStorage();
@@ -284,9 +273,9 @@ const hotKey = (event) => {
 watch([selectedCommand, searchTerm], () => {
   console.warn(selectedCommand);
   if (selectedCommand.value && selectedCommand.value.key !== 'command') {
-    const updatedValue = [...props.modelValue];
+    const updatedValue = [];
     updatedValue.push({ key: selectedCommand.value.key, value: selectedCommand.value.value });
-    emit('update:modelValue', updatedValue);
+    emit('onSelected', updatedValue);
     selectedCommand.value = null;
     close();
   } else {
@@ -297,6 +286,5 @@ watch([selectedCommand, searchTerm], () => {
 defineExpose({ toggle });
 
 onMounted(() => { document.addEventListener('keydown', hotKey); });
-
 onUnmounted(() => { document.removeEventListener('keydown', hotKey); });
 </script>

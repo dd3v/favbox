@@ -11,11 +11,6 @@ const getDb = () => {
         autoIncrement: false,
         dataType: DATA_TYPE.String,
       },
-      folder: {
-        dataType: DATA_TYPE.Object,
-        enableSearch: true,
-        notNull: false,
-      },
       folderId: {
         dataType: DATA_TYPE.String,
         enableSearch: true,
@@ -46,18 +41,10 @@ const getDb = () => {
         dataType: DATA_TYPE.String,
         enableSearch: false,
       },
-      type: {
-        dataType: DATA_TYPE.String,
-        enableSearch: true,
-      },
-      locale: {
-        dataType: DATA_TYPE.String,
-        enableSearch: true,
-      },
       keywords: {
         dataType: DATA_TYPE.Array,
         multiEntry: true,
-        default: null,
+        default: [],
         enableSearch: true,
       },
       image: {

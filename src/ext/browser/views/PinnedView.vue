@@ -1,8 +1,6 @@
 <template>
   <div class="flex h-screen">
-    <div
-      class="w-1/3 space-y-3 border-r border-gray-300 bg-white dark:border-neutral-900 dark:bg-black"
-    >
+    <div class="w-1/3 space-y-3 border-r border-gray-300 bg-white dark:border-neutral-900 dark:bg-black">
       <div class="relative w-full p-2">
         <input
           id="title"
@@ -23,8 +21,8 @@
       >
         <ul class="w-full cursor-pointer space-y-2 px-2 pb-20">
           <li
-            v-for="(bookmark, key) in bookmarks"
-            :key="key"
+            v-for="bookmark in bookmarks"
+            :key="bookmark.id"
             @click="openEditor(bookmark)"
           >
             <PinnedCard
@@ -37,16 +35,22 @@
         </ul>
       </AppInfiniteScroll>
     </div>
-    <div class="h-screen flex-1 overflow-y-auto bg-white px-2 dark:bg-black">
+    <div class="flex h-screen flex-1 flex-col items-center justify-center overflow-y-auto bg-white px-2 dark:bg-black">
       <TextEditor
         v-if="currentBookmark?.id"
         v-model="currentBookmark.notes"
       />
       <div
-        v-if="bookmarks.length === 0"
-        class="m-5 flex h-5/6 flex-col items-center justify-center space-y-3 p-5"
+        v-else
+        class="flex flex-1 flex-col items-center justify-center p-5"
       >
-        <span class="text-2xl font-thin text-black dark:text-white">Your local storage is currently empty. Please pin  bookmarks to get started.</span>
+        <AppSpinner v-if="loading" />
+        <span
+          v-else
+          class="text-2xl font-thin text-black dark:text-white"
+        >
+          Your local storage is currently empty. Please pin bookmarks to get started.
+        </span>
       </div>
     </div>
   </div>
@@ -58,6 +62,7 @@ import BookmarkStorage from '@/storage/bookmark';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import PinnedCard from '@/ext/browser/components/card/PinnedCard.vue';
 import TextEditor from '@/ext/browser/components/TextEditor.vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
 import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
 
 const bookmarkStorage = new BookmarkStorage();
@@ -66,6 +71,16 @@ const bookmarks = ref([]);
 const searchTerm = ref('');
 const currentBookmark = ref(null);
 const skip = ref(0);
+const loading = ref(true);
+
+const fetchBookmarks = async (offset = 0, search = '') => {
+  try {
+    return await bookmarkStorage.getPinnedBookmarks(offset, 50, search);
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};
 
 const open = (bookmark) => {
   window.open(bookmark.url, '_blank');
@@ -74,11 +89,10 @@ const open = (bookmark) => {
 const pin = async (bookmark) => {
   try {
     await bookmarkStorage.updatePinStatusById(bookmark.id, 0);
+    bookmarks.value = await fetchBookmarks(skip.value, searchTerm.value);
+    currentBookmark.value = null;
   } catch (e) {
     console.error(e);
-  } finally {
-    currentBookmark.value = null;
-    bookmarks.value = await bookmarkStorage.getPinnedBookmarks(skip.value, 50, searchTerm.value);
   }
 };
 
@@ -87,44 +101,34 @@ const openEditor = (bookmark) => {
 };
 
 const paginate = async (offset) => {
-  try {
-    skip.value = offset;
-    bookmarks.value.push(
-      ...(await bookmarkStorage.getPinnedBookmarks(skip.value, 50)),
-    );
-  } catch (e) {
-    console.error(e);
-  }
+  skip.value = offset;
+  const newBookmarks = await fetchBookmarks(offset);
+  bookmarks.value.push(...newBookmarks);
 };
 
 watch(searchTerm, async () => {
-  try {
-    bookmarks.value = await bookmarkStorage.getPinnedBookmarks(0, 50, searchTerm.value);
-    currentBookmark.value = null;
-    scroll.value?.scrollUp();
-  } catch (e) {
-    console.error(e);
-  }
+  bookmarks.value = await fetchBookmarks(0, searchTerm.value);
+  currentBookmark.value = null;
+  scroll.value?.scrollUp();
 });
 
 watch(
   currentBookmark,
   async (current, previous) => {
-    if (Object.is(current, previous) && current.id === previous.id) {
+    if (current?.id !== previous?.id || current?.notes !== previous?.notes) {
       try {
-        console.warn('saving notes..', currentBookmark.value.id, currentBookmark.value.notes);
-        await bookmarkStorage.updateNotesById(currentBookmark.value.id, currentBookmark.value.notes);
+        await bookmarkStorage.updateNotesById(current.id, current.notes);
       } catch (e) {
         console.error(e);
       }
     }
   },
-  {
-    deep: true,
-  },
+  { deep: true },
 );
 
 onMounted(async () => {
-  bookmarks.value = await bookmarkStorage.getPinnedBookmarks();
+  loading.value = true;
+  bookmarks.value = await fetchBookmarks();
+  loading.value = false;
 });
 </script>

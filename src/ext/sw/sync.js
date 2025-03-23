@@ -6,32 +6,28 @@ import MetadataParser from '@/parser/metadata';
 import bookmarkHelper from '@/helpers/bookmark';
 
 const sync = async () => {
-  // if (await fetchHelper.ping() === false) {
-  //   return;
-  // }
   console.time('Execution time');
   await initStorage();
   const bookmarkStorage = new BookmarkStorage();
-  const total = await bookmarkHelper.total();
-  console.log('⭐️ Total bookmarks', total);
-  const { import: isImported } = await browser.storage.session.get('import');
-  if (isImported) {
-    console.warn('🕒 Sync in current session already finished..');
+  const browserTotal = await bookmarkHelper.total();
+  const idbTotal = await bookmarkStorage.total();
+  await browser.storage.session.set({ browserTotal });
+  await browser.storage.session.set({ idbTotal });
+  console.log('⭐️ Total bookmarks in the browser:', browserTotal);
+  const { status } = await browser.storage.session.get('status');
+  if (browserTotal === idbTotal || status) {
+    await browser.storage.session.set({ status: true });
+    console.warn('🕒 Everything is up to date!');
     return;
   }
-  // TODO: generators?
+  await browser.storage.session.set({ status: false });
   const bookmarksIterator = await bookmarkHelper.iterateBookmarks();
   let batch = [];
   let processed = 0;
   for await (const b of bookmarksIterator) {
     batch.push(b);
     processed += 1;
-    if (batch.length % 300 === 0 || processed === total) {
-      try {
-        browser.runtime.sendMessage({ action: 'refresh', data: { progress: Math.round((processed / total) * 100) } });
-      } catch (e) {
-        console.warn('ui refresh from sync', e);
-      }
+    if (batch.length % 300 === 0 || processed === browserTotal) {
       try {
         const browserBookmarkKeyList = batch.map((i) => i.id);
         const extBookmarksKeyList = await bookmarkStorage.getIds(browserBookmarkKeyList);
@@ -52,6 +48,13 @@ const sync = async () => {
         console.warn(parseResult);
         await bookmarkStorage.createMultipleTx(parseResult);
         console.timeEnd('DB execution time');
+        try {
+          const progress = Math.round((processed / browserTotal) * 100);
+          await browser.storage.session.set({ progress });
+          browser.runtime.sendMessage({ action: 'refresh', data: { progress } });
+        } catch (e) {
+          console.warn('ui refresh from sync', e);
+        }
       } catch (e) {
         console.error(e);
       } finally {
@@ -59,13 +62,7 @@ const sync = async () => {
       }
     }
   }
-  await browser.storage.session.set({ import: true });
-  await browser.storage.local.set({
-    healthcheck: {
-      date: new Date().toString(),
-      total,
-    },
-  });
+  await browser.storage.session.set({ status: true });
   console.timeEnd('Execution time');
 };
 

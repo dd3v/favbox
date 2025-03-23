@@ -5,7 +5,7 @@ import fetchHelper from '@/helpers/fetch';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmark';
 import sync from './sync';
-import ping from './ping';
+// import ping from './ping';
 
 const bookmarkStorage = new BookmarkStorage();
 
@@ -110,17 +110,21 @@ browser.bookmarks.onChanged.addListener(async (id, changeInfo) => {
   try {
     console.log('🔄 Bookmark has been updated..', id, changeInfo);
     const [bookmark] = await browser.bookmarks.get(id);
+
     const folderTree = await bookmarkHelper.getFoldersTreeByBookmark(id);
     if (!bookmark.url) {
       console.warn('changeInfo', changeInfo, bookmark);
       await bookmarkStorage.updateFolders(bookmark, folderTree);
     } else {
-      await bookmarkStorage.update(id, {
+      const toUpdate = {
         title: tagHelper.getTitle(changeInfo.title),
         tags: tagHelper.getTags(changeInfo.title),
         url: bookmark.url,
         updatedAt: new Date().toISOString(),
-      });
+      };
+      await bookmarkStorage.update(id, toUpdate);
+      console.log('🔀', bookmark, toUpdate, toUpdate.tags);
+      await bookmarkStorage.refreshTags();
     }
   } catch (e) {
     console.error('🔄', e, id, changeInfo);
@@ -208,4 +212,4 @@ function refreshUserInterface() {
     console.error('Refresh UI listener not available', e);
   }
 }
-ping();
+// ping();

@@ -41,8 +41,8 @@ export default defineConfig({
     terserOptions: {
       mangle: false,
       compress: {
-        drop_console: true,
-        drop_debugger: true,
+        drop_console: false,
+        drop_debugger: false,
       },
     },
   },

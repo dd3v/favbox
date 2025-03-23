@@ -141,6 +141,7 @@
           >
             <component
               :is="getIcon(item)"
+              v-tooltip.top="{ content: getTooltip(item) }"
               class="size-4"
             />
             <input
@@ -180,8 +181,6 @@ import PhHashStraightLight from '~icons/ph/hash-straight-light';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
 import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
-import PhFileMagnifyingGlassLight from '~icons/ph/file-magnifying-glass-light';
-import PhTranslateLight from '~icons/ph/translate-light';
 
 const emit = defineEmits(['update:modelValue', 'paginate']);
 
@@ -203,20 +202,16 @@ const props = defineProps({
 
 const iconMap = {
   keyword: PhListMagnifyingGlassLight,
-  locale: PhTranslateLight,
   domain: PhGlobeSimpleLight,
   folder: PhFolderSimpleLight,
   tag: PhHashStraightLight,
-  type: PhFileMagnifyingGlassLight,
 };
 
 const tooltipMap = {
   keyword: 'Filter by keywords',
-  locale: 'Filter by language',
   domain: 'Filter by website',
   folder: 'Filter by folder',
   tag: 'Filter by tag',
-  type: 'Filter by content',
 };
 
 const popoverButtonRef = ref(null);

@@ -96,36 +96,22 @@ const bookmarkHelper = {
   },
 
   /**
-  * Retrieves the tree of all folders.
-  *
-  * @returns {Promise<Object[]>}
-  */
-  getFoldersTree: async () => {
+ * Retrieves the tree of all folders.
+ *
+ * @returns {Promise<Object[]>}
+ */
+  buildFolderUITree: async () => {
     const tree = await browser.bookmarks.getTree();
-    const map = new Map();
-    const folders = [];
+    const buildFolders = (nodes) => nodes
+      .filter((node) => node.children && !node.url)
+      .map((node) => {
+        const children = buildFolders(node.children);
+        return children.length > 0
+          ? { id: node.id, label: node.title, children }
+          : { id: node.id, label: node.title };
+      });
 
-    const buildMap = (bookmarks) => {
-      for (const { id, parentId, title, children, url } of bookmarks) {
-        if (title && !url) {
-          const node = { id, parentId, title, children: [] };
-          map.set(id, node);
-          if (parentId === '0') {
-            folders.push(node);
-          }
-        }
-        if (children) {
-          buildMap(children);
-        }
-      }
-    };
-    buildMap(tree);
-    for (const item of map.values()) {
-      if (item.parentId !== '0' && map.has(item.parentId)) {
-        map.get(item.parentId).children.push(item);
-      }
-    }
-    return folders;
+    return buildFolders(tree[0].children);
   },
 
   /**

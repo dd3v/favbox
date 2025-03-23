@@ -128,50 +128,14 @@ export default class MetadataParser {
   }
 
   /**
-  * Retrieves the type of the content.
-  *
-  * @returns {string} - The type of the bookmark.
-  */
-  getType() {
-    return this.#dom.querySelector('meta[property="og:type"]')?.getAttribute('content')?.split('.')?.shift()
-      ?.toLowerCase() ?? 'website';
-  }
-
-  /**
   * Retrieves the keywords from the HTML document's meta tags.
   *
   * @returns {string[]} - An array of keywords or an empty array if no keywords are found.
   */
   getKeywords() {
     const keywords = this.#dom.querySelector('meta[name="keywords"]')?.getAttribute('content');
-    if (!keywords) return null;
+    if (!keywords) return [];
     return keywords.split(',').map((keyword) => keyword.trim().toLowerCase()).filter((keyword) => keyword.length > 0);
-  }
-
-  /**
-  * Retrieves the locale of the web page.
-  *
-  * @returns {Promise<string|null>} - A promise that resolves to the locale of the document or null if not found.
-  */
-  async getLocale() {
-    // const htmlLang = this.#dom?.documentElement?.lang?.split(/[_-]/).shift()?.toUpperCase();
-    // if (htmlLang) {
-    //   return htmlLang;
-    // }
-    const metaLocale = this.#dom.querySelector('meta[property="og:locale"]')?.getAttribute('content').split(/[_-]/)?.shift()
-      ?.toUpperCase();
-    if (metaLocale) {
-      return metaLocale;
-    }
-    const elements = Array.from(this.#dom.querySelectorAll('button, title, label, h1, h2, h3, h4, h5, h6, p'));
-    const description = elements.map((el) => el.textContent).concat([this.getDescription() || '', this.getKeywords() || '']).join(' ');
-    if (description.trim()) {
-      const result = await browser.i18n.detectLanguage(description);
-      if (result.languages?.length) {
-        return result.languages[0].language.toUpperCase();
-      }
-    }
-    return null;
   }
 
   /**
@@ -180,11 +144,9 @@ export default class MetadataParser {
   */
   async getFavboxBookmark() {
     console.warn(this.getImage());
-    const [folder] = await browser.bookmarks.get(this.#bookmark.parentId);
     const foldersTree = await bookmarkHelper.getFoldersTreeByBookmark(this.#bookmark.id);
     const entity = {
       id: this.#bookmark.id,
-      folder,
       folderId: this.#bookmark.parentId,
       folderName: foldersTree.titles.at(-1),
       title: tagHelper.getTitle(this.#bookmark.title),
@@ -192,13 +154,11 @@ export default class MetadataParser {
       favicon: this.getFavicon(),
       image: this.getImage(),
       domain: this.getDomain(),
-      type: this.getType(),
       keywords: this.getKeywords(),
       url: this.#bookmark.url,
       tags: tagHelper.getTags(this.#bookmark.title),
       pinned: 0,
       notes: '',
-      locale: await this.getLocale(),
       httpStatus: this.#httpResponse.httpStatus,
       dateAdded: this.#bookmark.dateAdded,
       createdAt: new Date().toISOString(),

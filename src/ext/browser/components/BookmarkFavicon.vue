@@ -1,15 +1,10 @@
 <template>
-  <PhGlobeSimpleLight
-    v-if="fallback || !bookmark.favicon"
-    class="size-4 fill-black"
+  <component
+    :is="error ? PhGlobeSimpleLight : 'img'"
+    v-bind="error ? { class: 'size-4 fill-black' } : { src: bookmark.favicon, alt: 'favicon', onError: handleError }"
   />
-  <img
-    v-else
-    :src="bookmark.favicon"
-    alt="favicon"
-    @error="handleError"
-  >
 </template>
+
 <script setup>
 import { ref } from 'vue';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
@@ -21,10 +16,9 @@ defineProps({
   },
 });
 
-const fallback = ref(false);
+const error = ref(false);
 
 const handleError = () => {
-  fallback.value = true;
+  error.value = true;
 };
-
 </script>

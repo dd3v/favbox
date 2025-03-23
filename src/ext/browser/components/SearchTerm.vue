@@ -2,7 +2,7 @@
   <div
     class="flex h-9 w-full overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 bg-white px-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
   >
-    <ul class="flex items-center gap-1">
+    <ul class="flex items-center justify-center gap-1">
       <li
         v-for="(tag, tagKey) in modelValue"
         :key="tagKey"
@@ -36,21 +36,35 @@
       @keydown.delete="removeLast"
     >
     <div class="flex flex-wrap items-center gap-x-1 text-xs text-gray-400 dark:text-neutral-600">
-      <slot name="kbd" />
+      <button
+        class="m-0 inline-flex appearance-none items-center space-x-1 border-none bg-transparent p-0"
+        @click="handleCommandPallete"
+      >
+        <span class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-lg shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+          ⌘
+        </span>
+        <span class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+          K
+        </span>
+      </button>
     </div>
+    <CommandPalette
+      ref="cmd"
+      @onVisibilityToggle="cmdToggle"
+      @onSelected="emit('update:modelValue', $event)"
+    />
   </div>
 </template>
 
 <script setup>
 import AppBadge from '@/components/app/AppBadge.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import CommandPalette from '@/ext/browser/components/CommandPalette.vue';
 
 import PhHashStraightLight from '~icons/ph/hash-straight-light';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
 import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
-import PhFileMagnifyingGlassLight from '~icons/ph/file-magnifying-glass-light';
-import PhTranslateLight from '~icons/ph/translate-light';
 import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
 
 const props = defineProps({
@@ -65,7 +79,8 @@ const props = defineProps({
 });
 
 const term = ref('');
-const inputRef = ref('');
+const inputRef = ref(null);
+const cmd = ref(null);
 const emit = defineEmits(['update:modelValue']);
 
 const removeLast = () => {
@@ -76,67 +91,50 @@ const removeLast = () => {
 const add = () => {
   if (!term.value) return;
   const [key, value] = term.value.split(':');
-  if (['tag', 'keyword', 'domain', 'folder', 'locale', 'type'].includes(key) && value) {
+  const validKeys = ['tag', 'keyword', 'domain', 'folder', 'locale', 'type'];
+
+  if (validKeys.includes(key) && value) {
     emit('update:modelValue', [...props.modelValue, { key, value }]);
   } else {
-    const updatedValue = [...props.modelValue.filter((item) => item.key !== 'term')];
+    const updatedValue = props.modelValue.filter((item) => item.key !== 'term');
     updatedValue.push({ key: 'term', value: term.value });
     emit('update:modelValue', updatedValue);
   }
   term.value = '';
 };
 
-const getIcon = (key) => {
-  switch (key) {
-    case 'type':
-      return PhFileMagnifyingGlassLight;
-    case 'locale':
-      return PhTranslateLight;
-    case 'folder':
-      return PhFolderSimpleLight;
-    case 'keyword':
-      return PhListMagnifyingGlassLight;
-    case 'tag':
-      return PhHashStraightLight;
-    case 'domain':
-      return PhGlobeSimpleLight;
-    default:
-      return PhMagnifyingGlassLight;
-  }
-};
+const iconMap = computed(() => ({
+  folder: PhFolderSimpleLight,
+  keyword: PhListMagnifyingGlassLight,
+  tag: PhHashStraightLight,
+  domain: PhGlobeSimpleLight,
+  default: PhMagnifyingGlassLight,
+}));
 
-const getColor = (key) => {
-  switch (key) {
-    case 'domain':
-      return 'yellow';
-    case 'tag':
-      return 'gray';
-    case 'keyword':
-      return 'green';
-    case 'folder':
-      return 'purple';
-    case 'locale':
-      return 'cyan';
-    case 'type':
-      return 'indigo';
-    default:
-      return 'stone';
-  }
-};
+const colorMap = computed(() => ({
+  domain: 'yellow',
+  tag: 'gray',
+  keyword: 'green',
+  folder: 'purple',
+  default: 'red',
+}));
 
-const focus = () => {
-  inputRef.value.focus();
-};
+const getIcon = (key) => iconMap.value[key] || iconMap.value.default;
+const getColor = (key) => colorMap.value[key] || colorMap.value.default;
+
+const focus = () => { inputRef.value.focus(); };
+const handleCommandPallete = () => { cmd.value.toggle(); };
 
 const onClose = (key, value) => {
-  const data = [...props.modelValue];
-  const index = data.findIndex((item) => item.key === key && item.value === value);
-  if (index !== -1) {
-    data.splice(index, 1);
-    emit('update:modelValue', data);
+  const data = props.modelValue.filter((item) => !(item.key === key && item.value === value));
+  emit('update:modelValue', data);
+};
+
+const cmdToggle = (status) => {
+  if (status === false) {
+    setTimeout(() => focus(), 500);
   }
 };
 
 defineExpose({ focus });
-
 </script>

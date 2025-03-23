@@ -135,7 +135,7 @@ export const STATUS_MESSAGE = {
   [HTTP_STATUS.LOOP_DETECTED]: 'Loop Detected',
   [HTTP_STATUS.NOT_EXTENDED]: 'Not Extended',
   [HTTP_STATUS.NETWORK_AUTHENTICATION_REQUIRED]: 'Network Authentication Required',
-  [HTTP_STATUS.UNKNOWN_ERROR]: 'Unknown Error',
+  [HTTP_STATUS.UNKNOWN_ERROR]: 'Unknown error. Data retrieval failed. Check bookmarks manually; data may be incomplete.',
   [HTTP_STATUS.WEB_SERVER_IS_DOWN]: ' Web server is down',
   [HTTP_STATUS.NETWORK_TIMEOUT_ERROR]: 'Network Timeout Error',
 };

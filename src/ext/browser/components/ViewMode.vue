@@ -8,7 +8,7 @@
     >
       <component
         :is="icon"
-        class="m-auto size-5 text-gray-700 dark:text-neutral-400"
+        class="m-auto size-5 cursor-pointer text-gray-700 dark:text-neutral-400"
         aria-hidden="true"
       />
     </MenuButton>

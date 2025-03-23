@@ -1,45 +1,63 @@
 <template>
   <app-infinite-scroll
     ref="scroll"
-    class="size-full space-y-3 overflow-y-auto bg-white p-3 dark:bg-black"
+    class="flex h-screen w-full flex-col overflow-y-auto bg-white dark:bg-black"
     :limit="50"
     @scroll:end="paginate"
   >
     <div
-      v-if="bookmarks.length === 0"
-      class="m-5 flex h-5/6 flex-col items-center justify-center space-y-3  p-5 "
+      class="sticky top-0 z-10 flex w-full flex-col border-solid bg-white/70 p-4 shadow-sm backdrop-blur-lg dark:bg-black/50"
     >
+      <div class="flex w-full items-center justify-between">
+        <span class="text-xl font-extralight text-black dark:text-white">
+          Total: <NumberFlow :value="total" />
+        </span>
+        <div class="flex space-x-3">
+          <AppButton
+            v-if="workerStatus"
+            variant="gray"
+            @click="stop"
+          >
+            Stop
+          </AppButton>
+          <AppButton
+            v-else
+            @click="go"
+          >
+            Scan bookmarks
+          </AppButton>
+        </div>
+      </div>
+      <AppProgress
+        v-if="workerStatus"
+        :progress="progress"
+        class="mt-3 w-full"
+      />
+    </div>
+    <div
+      v-if="loading || bookmarks.length === 0"
+      class="flex flex-1 flex-col items-center justify-center p-5"
+    >
+      <AppSpinner v-if="loading" />
       <div
+        v-else
         class="text-2xl font-thin text-black dark:text-white"
       >
         Looks like there are no broken bookmarks in your browser.
       </div>
-      <div
-        v-if="healthcheck?.date"
-        class="text-gray-300"
-      >
-        <ul
-          role="list"
-          class="mt-8 space-y-4 font-thin text-gray-900 dark:text-neutral-500"
-        >
-          <li class="flex items-center gap-x-1">
-            <UitCalender class="size-4" />
-            <span>Last checked on: {{ healthcheck?.date ?? 'TBD' }}</span>
-          </li>
-          <li class="flex items-center gap-x-1">
-            <UitBookmark class="size-4" />
-            <span>Total bookmarks checked: {{ healthcheck?.total ?? 'TBD' }}</span>
-          </li>
-        </ul>
-      </div>
     </div>
-    <HealthCheckCard
-      v-for="(bookmark, key) in bookmarks"
-      :key="key"
-      v-motion-slide-visible-once-bottom
-      :bookmark="bookmark"
-      @onDelete="onDelete"
-    />
+    <div
+      v-if="bookmarks.length > 0"
+      class="flex flex-col space-y-3 p-4"
+    >
+      <HealthCheckCard
+        v-for="(bookmark, key) in bookmarks"
+        :key="key"
+        v-motion-slide-visible-once-bottom
+        :bookmark="bookmark"
+        @onDelete="onDelete"
+      />
+    </div>
     <AppConfirmation ref="confirmation">
       <template #title>
         Delete bookmark
@@ -57,44 +75,56 @@
     </AppConfirmation>
   </app-infinite-scroll>
 </template>
+
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import BookmarkStorage from '@/storage/bookmark';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import HealthCheckCard from '@/ext/browser/components/card/HealthCheckCard.vue';
 import { HTTP_STATUS } from '@/helpers/httpStatus';
-
-import UitBookmark from '~icons/uit/bookmark';
-import UitClock from '~icons/uit/clock';
-import UitCalender from '~icons/uit/calender';
+import AppButton from '@/components/app/AppButton.vue';
+import AppProgress from '@/components/app/AppProgress.vue';
+import NumberFlow from '@number-flow/vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
+import { getWorker } from '../../../helpers/worker';
 
 const bookmarkStorage = new BookmarkStorage();
 const bookmarks = ref([]);
 const confirmation = ref(true);
 const scroll = ref(null);
-let healthcheck = {};
+const total = ref(0);
+const loading = ref(true);
 
-try {
-  const result = await browser.storage.local.get('healthcheck');
-  healthcheck = result.healthcheck || null;
-} catch (e) {
-  console.error(e);
-}
+let worker = null;
+const progress = ref(0);
+const workerStatus = ref(null);
+const httpStatuses = [
+  HTTP_STATUS.NOT_FOUND,
+  HTTP_STATUS.SERVICE_UNAVAILABLE,
+  HTTP_STATUS.INTERNAL_SERVER_ERROR,
+  HTTP_STATUS.GATEWAY_TIMEOUT,
+  HTTP_STATUS.BAD_GATEWAY,
+  HTTP_STATUS.WEB_SERVER_IS_DOWN,
+  HTTP_STATUS.GONE,
+  HTTP_STATUS.REQUEST_TIMEOUT,
+];
+
+const go = () => {
+  worker.postMessage('start');
+};
+
+const stop = () => {
+  worker.postMessage('stop');
+  progress.value = 0;
+  workerStatus.value = false;
+};
 
 const paginate = async (skip) => {
   try {
     console.warn('loading broken bookmarks', skip);
     bookmarks.value.push(
-      ...(await bookmarkStorage.getBookmarksByHttpStatusCode([
-        HTTP_STATUS.NOT_FOUND,
-        HTTP_STATUS.SERVICE_UNAVAILABLE,
-        HTTP_STATUS.INTERNAL_SERVER_ERROR,
-        HTTP_STATUS.GATEWAY_TIMEOUT,
-        HTTP_STATUS.BAD_GATEWAY,
-        HTTP_STATUS.WEB_SERVER_IS_DOWN,
-        HTTP_STATUS.GONE,
-      ], skip)),
+      ...(await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, skip)),
     );
   } catch (e) {
     console.error(e);
@@ -118,6 +148,34 @@ const onDelete = async (bookmark) => {
 };
 
 onMounted(async () => {
+  // await await bookmarkStorage.setOK();
+  loading.value = true;
   await paginate(0);
+  worker = getWorker();
+  worker.onmessage = async (event) => {
+    switch (event.data.type) {
+      case 'status':
+        workerStatus.value = event.data.value;
+        break;
+      case 'progress':
+        progress.value = parseInt(event.data.value, 10);
+        total.value = await bookmarkStorage.getTotalByHttpStatus(httpStatuses);
+        bookmarks.value = await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, 0);
+        if (progress.value === 100) {
+          stop();
+        }
+        break;
+      default:
+        console.error('🌀 Undefined message from worker:', event.data);
+    }
+    console.warn('🌀 Message from worker:', event.data);
+  };
+  worker.onerror = (event) => {
+    console.error('🌀 Error from worker', event);
+  };
+  progress.value = worker.postMessage('progress');
+  workerStatus.value = worker.postMessage('status');
+  loading.value = false;
 });
+onUnmounted(() => {});
 </script>
