@@ -5,7 +5,7 @@
 
 ::-webkit-scrollbar {
   width: 3px;
-  height: 1px; 
+  height: 1px;
   cursor: pointer;
 }
 
@@ -21,41 +21,53 @@
 }
 
 .vue3-treeselect__single-value {
-  @apply!text-black dark:!text-white;
+  @apply!text-black dark: !text-white;
 }
+
 .vue3-treeselect:not(.vue3-treeselect--disabled):not(.vue3-treeselect--focused) .vue3-treeselect__control:hover {
   @apply !border-gray-200 dark:!border-neutral-700;
 }
-.vue3-treeselect__control  {
-@apply w-full  !border-gray-200 !text-xs !text-black !shadow-sm !outline-none focus:!border-gray-300 focus:!ring-0 dark:!border-neutral-800 dark:!bg-neutral-900 dark:!text-white focus:dark:!border-neutral-700;
+
+.vue3-treeselect__control {
+  @apply w-full !border-gray-200 !text-xs !text-black !shadow-sm !outline-none focus:!border-gray-300 focus:!ring-0 dark:!border-neutral-800 dark:!bg-neutral-900 dark:!text-white focus:dark:!border-neutral-700;
 }
+
 .vue3-treeselect__input {
   @apply !text-xs !text-black dark:!text-white;
 }
+
 .vue3-treeselect__input:focus {
   @apply !ring-0 !outline-none !shadow-none !text-xs;
 }
+
 .vue3-treeselect__menu {
-  @apply !bg-white !text-xs !shadow-lg !border-t-0 dark:!border-neutral-700 !ring-1 !ring-black/5 focus:!outline-none dark:!bg-neutral-900 dark:!text-white;
+  @apply !bg-white !shadow-sm !text-xs !border-t-0 !border-solid !border-gray-200 dark:!border-neutral-700 !ring-0 focus:!outline-none dark:!bg-neutral-900 dark:!text-white;
 }
+
 .vue3-treeselect .vue3-treeselect__list div {
   @apply !leading-[2.5] !py-0 !my-0;
 }
+
 .vue3-treeselect__option--highlight {
   @apply !bg-gray-100 dark:!bg-neutral-800;
 }
+
 .vue3-treeselect__option vue3-treeselect__option--highlight {
   @apply !bg-gray-100 dark:!bg-neutral-800;
 }
+
 .vue3-treeselect--open .vue3-treeselect__control {
   @apply dark:!border-neutral-700;
 }
+
 .vue3-treeselect--single .vue3-treeselect__option--selected {
   @apply !bg-gray-100 dark:!bg-neutral-800;
 }
+
 .vue3-treeselect--focused:not(.vue3-treeselect--open) .vue3-treeselect__control {
-  @apply  !border-gray-200 dark:!border-neutral-700 !shadow-none;
+  @apply !border-gray-200 dark:!border-neutral-700 !shadow-none;
 }
+
 .vue3-treeselect__single-value {
   @apply !text-black dark:!text-white;
 }
