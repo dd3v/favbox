@@ -46,10 +46,16 @@
       >
         <AppSpinner v-if="loading" />
         <span
-          v-else
+          v-else-if="!loading && bookmarks.length === 0"
           class="text-2xl font-thin text-black dark:text-white"
         >
           Your local storage is currently empty. Please pin bookmarks to get started.
+        </span>
+        <span
+          v-else
+          class="text-2xl font-thin text-black dark:text-white"
+        >
+          📌 Select a bookmark to start editing.
         </span>
       </div>
     </div>
@@ -113,17 +119,15 @@ watch(searchTerm, async () => {
 });
 
 watch(
-  currentBookmark,
-  async (current, previous) => {
-    if (current?.id !== previous?.id || current?.notes !== previous?.notes) {
-      try {
-        await bookmarkStorage.updateNotesById(current.id, current.notes);
-      } catch (e) {
-        console.error(e);
-      }
+  () => currentBookmark.value?.notes,
+  async (newNotes, oldNotes) => {
+    if (!currentBookmark.value || newNotes === oldNotes) return;
+    try {
+      await bookmarkStorage.updateNotesById(currentBookmark.value.id, newNotes);
+    } catch (e) {
+      console.error(e);
     }
   },
-  { deep: true },
 );
 
 onMounted(async () => {
