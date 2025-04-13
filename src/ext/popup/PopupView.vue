@@ -12,7 +12,7 @@
           class="group relative inline-flex items-center justify-center rounded-md bg-black px-3 py-1.5 text-xs text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-900"
           @click="openApp"
         >
-          Open
+          Open App
           <svg
             aria-hidden="true"
             viewBox="0 0 10 10"
@@ -69,7 +69,7 @@ import LineMdConfirm from '~icons/line-md/confirm?width=24px&height=24px';
 
 await initStorage();
 const tags = await (new BookmarkStorage()).getTags();
-const folders = await bookmarkHelper.getFolders();
+const folders = await bookmarkHelper.buildFolderUITree();
 const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
 const exists = ref(false);
 

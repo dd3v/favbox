@@ -29,62 +29,13 @@
           />
         </span>
       </label>
-      <Listbox
+      <Treeselect
         v-model="selectedFolder"
-        class="relative"
-      >
-        <div class="mt-1">
-          <!--
-          TODO: There are some issues with rendering trees; it might be necessary to consider a more suitable solution.
-          Currently using deeph due to challenges with recursive function calls and rendering the headless-ui component. 😔
-          -->
-          <ListboxButton
-            class="relative h-9 w-full cursor-default rounded-md border border-gray-200 bg-white pl-3 pr-10 text-left shadow-sm focus:border-gray-300 focus:outline-none  dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
-          >
-            <span class="block truncate text-xs">{{ selectedFolder.title }}</span>
-            <span
-              class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-            >
-              <HeroiconsChevronUpDown
-                class="size-5 text-gray-400"
-                aria-hidden="true"
-              />
-            </span>
-          </ListboxButton>
-          <transition
-            leave-active-class="transition duration-100 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-          >
-            <ListboxOptions
-              class="z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white text-xs shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-neutral-900 dark:text-neutral-400"
-            >
-              <ListboxOption
-                v-for="folder in folders"
-                v-slot="{ active, selected }"
-                :key="folder.id"
-                :value="folder"
-                as="template"
-              >
-                <li
-                  :class="[
-                    active ? 'bg-gray-100 text-gray-900 dark:bg-neutral-800' : '',
-                    'relative cursor-default select-none py-2',
-                  ]"
-                >
-                  <span
-                    :class="[
-                      selected ? 'font-medium' : 'font-normal',
-                      'block truncate text-black dark:text-white',
-                    ]"
-                    :style="{'padding-left': (0.1 + folder.depth) + 'rem'}"
-                  >{{ folder.title }} </span>
-                </li>
-              </ListboxOption>
-            </ListboxOptions>
-          </transition>
-        </div>
-      </Listbox>
+        placeholder=""
+        :before-clear-all="onBeforeClearAll"
+        :always-open="false"
+        :options="folders"
+      />
       <app-tag-input
         v-model="selectedTags"
         class="relative"
@@ -104,16 +55,11 @@
 </template>
 <script setup>
 import { ref } from 'vue';
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOptions,
-  ListboxOption,
-} from '@headlessui/vue';
+
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import AppButton from '@/components/app/AppButton.vue';
 import tagHelper from '@/helpers/tags';
-import HeroiconsChevronUpDown from '~icons/heroicons/chevron-up-down';
+import Treeselect from '@zanmato/vue3-treeselect';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 
 const props = defineProps({
@@ -142,14 +88,17 @@ const props = defineProps({
 });
 
 const bookmarkTitle = ref(props.title);
-const selectedFolder = ref(props.folders[0]);
+const selectedFolder = ref(1);
 const selectedTags = ref([]);
+
+const onBeforeClearAll = () => {
+  selectedFolder.value = 1;
+};
 
 const emit = defineEmits(['submit']);
 
 const submit = () => {
-  const data = { title: tagHelper.toString(bookmarkTitle.value, selectedTags.value), url: props.url, parentId: String(selectedFolder.value.id) };
-  console.warn('emit', selectedFolder.value);
+  const data = { title: tagHelper.toString(bookmarkTitle.value, selectedTags.value), url: props.url, parentId: String(selectedFolder.value) };
   emit('submit', data);
 };
 </script>
