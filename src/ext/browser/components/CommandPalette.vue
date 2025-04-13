@@ -18,7 +18,7 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed bg-transparent" />
+        <div class="fixed bg-transparent backdrop-blur-lg" />
       </TransitionChild>
       <div class="fixed inset-0 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center">
@@ -32,7 +32,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="flex min-h-96 w-full max-w-md overflow-hidden  rounded-lg border bg-white/60 align-middle text-xs text-black shadow-2xl backdrop-blur-lg transition-all placeholder:text-xs dark:border-black dark:bg-black/20 dark:text-white"
+              class="flex min-h-96 w-full max-w-md overflow-hidden rounded-lg border bg-white/40 shadow-lg backdrop-blur-lg transition-all dark:border-neutral-800 dark:bg-black/40 dark:text-white"
             >
               <div
                 class="flex w-full flex-col items-start justify-center"
@@ -41,89 +41,88 @@
                 @keydown.enter.prevent="selectActiveItem"
                 @keydown.backspace="handleBackspace"
               >
-                <div class="flex w-full items-center px-3 dark:border-neutral-900">
-                  <span class="mr-0 size-4 shrink-0 text-black dark:text-white">
+                <div class="flex w-full items-center px-4 py-3 text-gray-700 ">
+                  <span class="mr-2 text-xl dark:text-white">
                     <PhMagnifyingGlassLight />
                   </span>
                   <input
-                    ref="commandInput"
+                    ref="input"
                     v-model="searchTerm"
                     type="text"
-                    class="flex h-12 w-full rounded-md border-0 bg-transparent px-2 py-3 text-xs outline-none placeholder:text-xs placeholder:text-black focus:border-0 focus:outline-none focus:ring-0 dark:placeholder:text-white"
+                    class="flex-1 border-none bg-transparent text-sm outline-none ring-0 placeholder:text-gray-700 focus:border-0 focus:border-none focus:ring-0 dark:text-white dark:placeholder:text-white"
                     placeholder="Search..."
                     autocomplete="off"
                     autocorrect="off"
                     spellcheck="false"
+                    @blur="refocusInput"
                   >
                   <span
-                    v-if="selectedCommand?.key"
-                    class="mr-0 shrink-0 rounded-md bg-gray-200 p-1 text-xs dark:bg-black dark:text-white"
+                    v-if="command?.key"
+                    class="ml-3 p-1 text-xs text-gray-700 dark:text-white"
                   >
-                    {{ selectedCommand.value }}
+                    {{ command.value }}
                   </span>
                 </div>
 
                 <AppInfiniteScroll
-                  ref="scrollRef"
-                  class="max-h-96 min-h-96 w-full flex-1 overflow-y-auto p-1"
-                  :limit="50"
+                  class="list-view max-h-96 w-full flex-1 overflow-y-auto p-1"
+                  :limit="100"
                   @scroll:end="paginate"
                 >
                   <ul
-                    v-if="filteredItems.length"
+                    v-if="items.length"
                     class="space-y-2"
                   >
                     <li
-                      v-for="(item, index) in filteredItems"
+                      v-for="(item, index) in items"
                       :key="index"
-                      ref="suggestionRef"
-                      class="flex cursor-pointer items-center gap-x-1 rounded-md p-2 text-black dark:text-white"
+                      ref="item"
+                      class="flex cursor-pointer items-center gap-x-2 rounded-md p-3 transition-colors duration-200 hover:bg-black/10 hover:dark:bg-white/10"
                       :class="{
-                        'bg-gray-500/10 ring-0 dark:bg-black/10': activeIndex === index
+                        'bg-black/10 dark:bg-white/10': activeIndex === index
                       }"
                       @click="selectItem(item)"
-                      @mouseenter="activeIndex = index"
                     >
                       <component
                         :is="item.icon"
-                        class="size-5"
+                        class="size-5 text-gray-700 dark:text-gray-300"
                       />
-                      {{ item.value }}
+                      <span class="text-sm text-gray-700 dark:text-white">{{ item.value }}</span>
                     </li>
                   </ul>
                   <div
                     v-else
-                    class="flex min-h-full items-center justify-center p-4 text-xs font-thin text-black dark:text-white"
+                    class="flex min-h-full items-center justify-center p-4 text-sm font-thin text-gray-400 dark:text-gray-500"
                   >
                     No results found.
                   </div>
                 </AppInfiniteScroll>
 
                 <div
-                  class="flex w-full border-t bg-white/10 p-2 text-gray-600 dark:border-black dark:bg-neutral-900/20"
+                  class="flex w-full bg-white/10 p-3 text-gray-800 backdrop-blur-lg dark:border-neutral-800 dark:bg-black/20"
                 >
                   <span
-                    class="mx-0.5 size-6 rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                    class="mx-1 flex size-6 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
                   >
                     ↑
                   </span>
                   <span
-                    class="mx-0.5 size-6 rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                    class="mx-1 flex size-6 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
                   >
                     ↓
                   </span>
                   <span
-                    class="mx-0.5 size-6 rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                    class="mx-1 flex size-6 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
                   >
                     ↵
                   </span>
                   <span
-                    class="mx-0.5 size-6 rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                    class="mx-1 flex size-6 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
                   >
                     ←
                   </span>
                   <span
-                    class="mx-0.5 ml-auto  rounded-md bg-gray-200 p-1 text-xs text-black dark:bg-black dark:text-white"
+                    class="mx-1 ml-auto flex h-6 w-9 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
                   >
                     esc
                   </span>
@@ -136,8 +135,9 @@
     </Dialog>
   </TransitionRoot>
 </template>
+
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, useTemplateRef, watch, onMounted, onBeforeUnmount } from 'vue';
 import BookmarkStorage from '@/storage/bookmark';
 import {
   Dialog,
@@ -153,15 +153,16 @@ import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
 import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
 
+const bookmarkStorage = new BookmarkStorage();
 const emit = defineEmits(['onSelected', 'onVisibilityToggle']);
 
 const isOpen = ref(false);
 const searchTerm = ref('');
 const activeIndex = ref(-1);
-const selectedCommand = ref(null);
-const scrollRef = ref(null);
-const filteredItems = ref([]);
-const suggestionRef = ref(null);
+const command = ref(null);
+const items = ref([]);
+const itemRef = useTemplateRef('item');
+const intputRef = useTemplateRef('input');
 
 const commands = [
   { key: 'command', value: 'tag', icon: PhHashStraightLight },
@@ -170,80 +171,56 @@ const commands = [
   { key: 'command', value: 'keyword', icon: PhListMagnifyingGlassLight },
 ];
 
-const bookmarkStorage = new BookmarkStorage();
-
 const paginate = async (skip) => {
   try {
-    console.warn('loading..', selectedCommand.value.value, searchTerm.value, skip, 50);
-    filteredItems.value.push(
-      ...(await bookmarkStorage.searchAttributes(selectedCommand.value.value, searchTerm.value, skip, 50)),
+    items.value.push(
+      ...(await bookmarkStorage.searchAttributes(command.value.value, searchTerm.value, skip, 100)),
     );
   } catch (e) {
     console.error(e);
   }
 };
 
-const updateFilteredItems = async () => {
-  if (selectedCommand.value) {
-    try {
-      console.warn('loading..', selectedCommand.value.key, searchTerm.value, 0, 50);
-      filteredItems.value = await bookmarkStorage.searchAttributes(selectedCommand.value.value, searchTerm.value, 0, 50);
-    } catch (e) {
-      console.error(e);
-    }
-  } else {
-    filteredItems.value = searchTerm.value.trim() === '' ? commands : commands.filter((command) => command.value.toLowerCase().includes(searchTerm.value.toLowerCase()));
-  }
-};
-
-const scrollIntoView = () => {
-  const currentElement = suggestionRef.value[activeIndex.value];
-  if (currentElement) {
-    currentElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+const scrollToActive = (newIndex) => {
+  activeIndex.value = newIndex;
+  const el = itemRef.value[newIndex];
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 };
 
 const navigateDown = () => {
-  if (activeIndex.value < filteredItems.value.length - 1) {
-    activeIndex.value++;
-    scrollIntoView();
+  const nextIndex = activeIndex.value + 1;
+  if (nextIndex < items.value.length) {
+    scrollToActive(nextIndex);
   }
 };
 
 const navigateUp = () => {
-  if (activeIndex.value > 0) {
-    activeIndex.value--;
-    scrollIntoView();
+  const prevIndex = activeIndex.value - 1;
+  if (prevIndex >= 0) {
+    scrollToActive(prevIndex);
   }
 };
 
 const selectItem = (item) => {
-  if (item.type === 'command') {
-    console.log('Selected command:', item);
-    searchTerm.value = '';
-    selectedCommand.value = null;
-  } else {
-    console.log('Selected subcomand:', item);
-    selectedCommand.value = item;
-    searchTerm.value = '';
-    activeIndex.value = -1;
-  }
+  command.value = item;
+  searchTerm.value = '';
+  activeIndex.value = -1;
 };
 
 const selectActiveItem = () => {
-  if (activeIndex.value >= 0 && activeIndex.value < filteredItems.value.length) {
-    selectItem(filteredItems.value[activeIndex.value]);
+  if (activeIndex.value >= 0 && activeIndex.value < items.value.length) {
+    selectItem(items.value[activeIndex.value]);
   }
 };
 
 const handleBackspace = (event) => {
-  if (searchTerm.value === '') {
-    if (selectedCommand.value) {
-      selectedCommand.value = null;
-      activeIndex.value = -1;
-      searchTerm.value = '';
-      event.preventDefault();
-    }
+  if (searchTerm.value === '' && command?.value?.key === 'command') {
+    command.value = null;
+    activeIndex.value = -1;
+    searchTerm.value = '';
+    event.preventDefault();
   } else {
     return true;
   }
@@ -254,7 +231,8 @@ watch(searchTerm, () => { activeIndex.value = 0; });
 const close = () => {
   isOpen.value = false;
   searchTerm.value = '';
-  selectedCommand.value = null;
+  command.value = null;
+  activeIndex.value = -1;
   emit('onVisibilityToggle', false);
 };
 
@@ -270,21 +248,72 @@ const hotKey = (event) => {
   }
 };
 
-watch([selectedCommand, searchTerm], () => {
-  console.warn(selectedCommand);
-  if (selectedCommand.value && selectedCommand.value.key !== 'command') {
-    const updatedValue = [];
-    updatedValue.push({ key: selectedCommand.value.key, value: selectedCommand.value.value });
-    emit('onSelected', updatedValue);
-    selectedCommand.value = null;
-    close();
-  } else {
-    updateFilteredItems();
+const refocusInput = () => setTimeout(() => { intputRef.value?.focus(); }, 10);
+
+const arraySearch = () => {
+  const term = searchTerm.value.trim().toLowerCase();
+  items.value = term === '' ? commands : commands.filter((k) => k.value.toLowerCase().includes(term));
+};
+
+const dbSearch = async () => {
+  try {
+    items.value = await bookmarkStorage.searchAttributes(command.value.value, searchTerm.value, 0, 50);
+  } catch (e) {
+    console.error(e);
   }
-}, { immediate: true });
+};
+
+const search = async () => {
+  !command.value ? arraySearch() : await dbSearch();
+};
+
+watch(searchTerm, () => search());
+
+watch(
+  command,
+  () => {
+    if (!command.value || command.value.key === 'command') {
+      search();
+    } else {
+      emit('onSelected', [{ key: command.value.key, value: command.value.value }]);
+      close();
+    }
+  },
+  { immediate: true },
+);
 
 defineExpose({ toggle });
 
 onMounted(() => { document.addEventListener('keydown', hotKey); });
-onUnmounted(() => { document.removeEventListener('keydown', hotKey); });
+onBeforeUnmount(() => { document.removeEventListener('keydown', hotKey); });
 </script>
+<style scoped>
+@supports(animation-timeline: view()) {
+  @keyframes fade-in-on-enter--fade-out-on-exit {
+    entry 0% {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+
+    entry 100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    exit 0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    exit 100% {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+  }
+
+  .list-view>ul>li {
+    animation: linear fade-in-on-enter--fade-out-on-exit;
+    animation-timeline: view();
+  }
+}
+</style>
