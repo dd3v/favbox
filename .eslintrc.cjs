@@ -19,6 +19,7 @@ module.exports = {
     'no-plusplus': 'off',
     'no-continue': 'off',
     'class-methods-use-this': 'off',
+    'no-unused-expressions': 'off',
     'object-curly-newline': 'off',
     'no-restricted-syntax': [
       'error',

@@ -2,10 +2,11 @@
   <div
     class="flex h-9 w-full overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 bg-white px-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
   >
-    <ul class="flex items-center justify-center gap-1">
+    <ul class="flex h-full items-center gap-x-1">
       <li
         v-for="(tag, tagKey) in modelValue"
         :key="tagKey"
+        class="flex items-center"
       >
         <AppBadge
           v-motion-fade
@@ -51,7 +52,7 @@
     <CommandPalette
       ref="cmd"
       @onVisibilityToggle="cmdToggle"
-      @onSelected="emit('update:modelValue', $event)"
+      @onSelected="emit('update:modelValue', [...modelValue, ...$event.filter(n => !modelValue.some(e => e.key === n.key && e.value === n.value))])"
     />
   </div>
 </template>
