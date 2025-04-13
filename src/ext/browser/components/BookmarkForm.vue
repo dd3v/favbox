@@ -24,6 +24,7 @@
     <Treeselect
       v-model="bookmark.folderId"
       placeholder=""
+      :before-clear-all="onBeforeClearAll"
       :always-open="false"
       :options="options"
     />
@@ -46,7 +47,6 @@ import AppTagInput from '@/components/app/AppTagInput.vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import AppButton from '@/components/app/AppButton.vue';
 import Treeselect from '@zanmato/vue3-treeselect';
-import '@zanmato/vue3-treeselect/dist/vue3-treeselect.min.css';
 import bookmarkHelper from '../../../helpers/bookmark';
 
 const props = defineProps({
@@ -80,6 +80,10 @@ const findFolderName = (folderId, folders) => {
     }
   }
   return null;
+};
+
+const onBeforeClearAll = () => {
+  bookmark.value.folderId = 1;
 };
 
 const updateFolderName = (folderId) => {
