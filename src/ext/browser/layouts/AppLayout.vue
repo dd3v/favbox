@@ -30,7 +30,7 @@ const menu = [
 ];
 
 onErrorCaptured((e) => {
-  notify({ group: 'error', title: 'Error', text: e.message }, 8500);
+  notify({ group: 'error', text: e.message }, 8500);
 });
 
 </script>

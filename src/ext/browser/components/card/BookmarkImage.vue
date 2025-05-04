@@ -9,7 +9,11 @@
       :key="bookmark.id"
       :src="String(bookmark.image || bookmark.favicon)"
       :alt="bookmark.title"
-      class="object-cover object-center"
+      class="max-h-full max-w-full"
+      :class="{
+        'object-cover': bookmark.image,
+        'object-contain p-2': !bookmark.image && bookmark.favicon
+      }"
       @error="showImage = false"
     >
   </div>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-screen w-full max-w-64 flex-col bg-white dark:bg-black"
+    class="flex h-screen w-full max-w-64 flex-col bg-white p-2 dark:bg-black"
   >
     <div class="flex w-full">
       <div class="relative w-full">
@@ -47,25 +47,25 @@
                 </div>
 
                 <div class="flex flex-col space-y-2">
-                  <app-radio
+                  <AppRadio
                     v-model="sort"
                     label="Name ↑ (A-Z)"
                     value="value:asc"
                     name="sort"
                   />
-                  <app-radio
+                  <AppRadio
                     v-model="sort"
                     label="Name ↓ (Z-A)"
                     value="value:desc"
                     name="sort"
                   />
-                  <app-radio
+                  <AppRadio
                     v-model="sort"
                     label="Count ↑ (0-9)"
                     value="count:asc"
                     name="sort"
                   />
-                  <app-radio
+                  <AppRadio
                     v-model="sort"
                     label="Count ↓ (9-0)"
                     value="count:desc"
@@ -125,7 +125,7 @@
     <AppInfiniteScroll
       ref="scrollRef"
       :limit="200"
-      class="flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1 text-xs"
+      class="list-view flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1 text-xs"
       @scroll:end="paginate"
     >
       <ul>
@@ -280,6 +280,6 @@ onBeforeUnmount(() => {
 
 watch([sort, includes, term], () => {
   scrollRef.value.scrollUp();
-}, { deep: true });
+});
 
 </script>

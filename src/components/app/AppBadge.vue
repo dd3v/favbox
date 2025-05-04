@@ -6,6 +6,7 @@
     <slot />
     <button
       v-if="closable"
+      type="button"
       class="close-button flex size-3 items-center justify-center"
       aria-label="Close"
       tabindex="0"

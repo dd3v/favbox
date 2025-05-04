@@ -3,21 +3,63 @@
 @tailwind utilities;
 @tailwindcss /forms;
 
-::-webkit-scrollbar {
-  width: 3px;
-  height: 1px;
-  cursor: pointer;
-}
+@layer utilities {
 
-::-webkit-scrollbar-track {
-  background-color: transparent;
-  cursor: pointer;
-}
+  :root {
+    --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  }
 
-::-webkit-scrollbar-thumb {
-  cursor: pointer;
-  background-color: #585858;
-  border-radius: 10px;
+  .dark {
+    --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+}
+@supports(animation-timeline: view()) {
+  @keyframes fade-in-on-enter--fade-out-on-exit {
+    entry 0% {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+
+    entry 100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    exit 0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    exit 100% {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+  }
+
+  .list-view>ul>li {
+    animation: linear fade-in-on-enter--fade-out-on-exit;
+    animation-timeline: view();
+  }
 }
 
 .vue3-treeselect__single-value {

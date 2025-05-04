@@ -1,7 +1,8 @@
 <template>
   <form
     class="space-y-3"
-    @submit.prevent="$emit('onSubmit', bookmark)"
+    @keydown.enter.prevent
+    @submit.prevent="submit"
   >
     <label
       for="title"
@@ -26,7 +27,7 @@
       placeholder=""
       :before-clear-all="onBeforeClearAll"
       :always-open="false"
-      :options="options"
+      :options="folders"
     />
     <AppTagInput
       v-model="bookmark.tags"
@@ -42,12 +43,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, watch } from 'vue';
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import AppButton from '@/components/app/AppButton.vue';
 import Treeselect from '@zanmato/vue3-treeselect';
-import bookmarkHelper from '../../../helpers/bookmark';
+import tagHelper from '@/helpers/tags';
 
 const props = defineProps({
   modelValue: {
@@ -66,17 +67,19 @@ const props = defineProps({
   },
 });
 
-const options = ref([]);
 const bookmark = ref(props.modelValue);
+const emit = defineEmits(['onSubmit']);
 
-const findFolderName = (folderId, folders) => {
-  for (const folder of folders) {
-    if (folder.id === folderId) {
-      return folder.label;
+const findLabelById = (data, id) => {
+  for (const item of data) {
+    if (item.id === id) {
+      return item.label;
     }
-    if (folder.children) {
-      const found = findFolderName(folderId, folder.children);
-      if (found) return found;
+    if (item.children) {
+      const result = findLabelById(item.children, id);
+      if (result) {
+        return result;
+      }
     }
   }
   return null;
@@ -86,19 +89,19 @@ const onBeforeClearAll = () => {
   bookmark.value.folderId = 1;
 };
 
-const updateFolderName = (folderId) => {
-  const folderName = findFolderName(folderId, options.value);
-  bookmark.value.folderName = folderName || 'Unnamed Folder';
+watch(() => bookmark.value.folderId, (newId) => {
+  bookmark.value.folderName = findLabelById(props.folders, newId);
+});
+
+const submit = () => {
+  const value = JSON.parse(JSON.stringify(bookmark.value));
+  emit('onSubmit', {
+    browserTitle: tagHelper.toString(value.title, value.tags),
+    title: value.title,
+    folderName: value.folderName,
+    folderId: value.folderId,
+    tags: value.tags,
+    id: value.id,
+  });
 };
-
-onMounted(async () => {
-  options.value = await bookmarkHelper.buildFolderUITree();
-  updateFolderName(bookmark.value.folderId);
-});
-
-watch(() => bookmark.value.folderId, (newFolderId) => {
-  updateFolderName(newFolderId);
-});
-
-defineEmits(['onSubmit']);
 </script>

@@ -27,7 +27,7 @@
         maxlength="25"
         :placeholder="tags.length ? '' : placeholder"
         aria-label="Tag input"
-        @keydown.enter="add"
+        @keydown.enter.prevent="add"
         @keydown.tab.prevent="add"
         @keydown.delete="removeLast"
         @keydown.arrow-up.prevent="arrowUp"

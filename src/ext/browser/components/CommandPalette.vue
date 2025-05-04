@@ -267,8 +267,8 @@ const search = async () => {
   !command.value ? arraySearch() : await dbSearch();
 };
 
+// FIXME
 watch(searchTerm, () => search());
-
 watch(
   command,
   () => {
@@ -287,33 +287,3 @@ defineExpose({ toggle });
 onMounted(() => { document.addEventListener('keydown', hotKey); });
 onBeforeUnmount(() => { document.removeEventListener('keydown', hotKey); });
 </script>
-<style scoped>
-@supports(animation-timeline: view()) {
-  @keyframes fade-in-on-enter--fade-out-on-exit {
-    entry 0% {
-      opacity: 0;
-      transform: translateY(100%);
-    }
-
-    entry 100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    exit 0% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    exit 100% {
-      opacity: 0;
-      transform: translateY(-100%);
-    }
-  }
-
-  .list-view>ul>li {
-    animation: linear fade-in-on-enter--fade-out-on-exit;
-    animation-timeline: view();
-  }
-}
-</style>

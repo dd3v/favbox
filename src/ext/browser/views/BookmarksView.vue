@@ -5,11 +5,9 @@
       v-model:sort="attrsSort"
       v-model:includes="attrsIncludes"
       v-model:term="attrsTerm"
-      class="p-2"
       :items="attributes"
       @paginate="paginateAttributes"
     />
-
     <AppInfiniteScroll
       ref="scroll"
       class="flex h-screen w-full flex-col overflow-y-auto"
@@ -30,11 +28,9 @@
           v-model="sortBookmarks"
           v-tooltip.bottom="{ content: 'Sort direction' }"
         />
-        <ThemeMode v-tooltip.bottom="{ content: 'Theme' }" />
       </div>
-
       <div
-        v-if="empty && query.length"
+        v-if="isEmpty && query.length"
         class="flex h-5/6 items-center justify-center text-2xl font-thin text-black dark:text-white"
       >
         No results found.
@@ -123,23 +119,21 @@ import SearchTerm from '@/ext/browser/components/SearchTerm.vue';
 import ViewMode from '@/ext/browser/components/ViewMode.vue';
 import BookmarkLayout from '@/ext/browser/components/BookmarkLayout.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
-import tagHelper from '@/helpers/tags';
 import BookmarksSync from '@/ext/browser/components/BookmarksSync.vue';
 import BookmarkCard from '@/ext/browser/components/card/BookmarkCard.vue';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
 import BookmarkForm from '@/ext/browser/components/BookmarkForm.vue';
 import SortDirection from '@/ext/browser/components/SortDirection.vue';
-import ThemeMode from '@/ext/browser/components/ThemeMode.vue';
 import { useStorage } from '@vueuse/core';
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
 
-const bookmarkFolders = ref(await bookmarkHelper.getFolders());
+const bookmarkFolders = ref([]);
 
 console.warn('folders', bookmarkFolders.value);
 
-const currentBookmark = ref({});
+let currentBookmark = {};
 const drawer = ref(null);
 const screenshotRef = ref(null);
 
@@ -161,7 +155,7 @@ const attrsTerm = ref('');
 
 const searchInputRef = ref(null);
 
-const empty = ref(false);
+const isEmpty = ref(false);
 const tags = ref([]);
 
 const paginateBookmarks = async (skip) => {
@@ -206,52 +200,84 @@ const handleRemove = async (bookmark) => {
     await bookmarkStorage.remove(bookmark.id.toString());
   } finally {
     bookmarks.value = bookmarks.value.filter((item) => item.id.toString() !== bookmark.id.toString());
-    notify({ group: 'default', title: 'Success', text: 'Boookmark sucefully removed!' }, 2500);
+    notify({ group: 'default', text: 'Boookmark successfully removed!' }, 2500);
   }
 };
-const handleEdit = async (e) => {
-  currentBookmark.value = e;
-  console.warn('edit', e);
-  tags.value = await bookmarkStorage.getTags();
-  drawer.value.open();
-};
-const handlePin = (bookmark) => {
-  const status = bookmark.pinned ? 0 : 1;
-  bookmark.pinned = status;
-  bookmarkStorage.updatePinStatusById(bookmark.id, status);
-};
-const handleSubmit = async (bookmark) => {
-  console.log('saving', bookmark);
+
+const handleEdit = async (bookmark) => {
+  currentBookmark = JSON.parse(JSON.stringify(bookmark));
+  console.warn('currentBookmark', currentBookmark);
   try {
-    const bookmarkId = String(bookmark.id);
-    const updatedTitle = tagHelper.toString(bookmark.title, bookmark.tags);
-    await Promise.all([
-      browser.bookmarks.update(bookmarkId, { title: updatedTitle }),
-      browser.bookmarks.move(bookmarkId, { parentId: String(bookmark.folderId) }),
+    const [tagsList, foldersList] = await Promise.all([
+      bookmarkStorage.getTags(),
+      bookmarkHelper.buildFolderUITree(),
     ]);
-    const index = bookmarks.value.findIndex((item) => item.id === bookmark.id);
+    tags.value = tagsList;
+    bookmarkFolders.value = foldersList;
+    drawer.value.open();
+  } catch (error) {
+    console.error('Failed to load tags or folders:', error);
+    notify({ group: 'error', text: 'Error loading bookmark data.' }, 2500);
+  }
+};
+
+const handlePin = (bookmark) => {
+  try {
+    const status = bookmark.pinned ? 0 : 1;
+    bookmark.pinned = status;
+    bookmarkStorage.updatePinStatusById(bookmark.id, status);
+    const message = status ? 'Bookmark successfully pinned!' : 'Bookmark successfully unpinned!';
+    notify({ group: 'default', text: message }, 2500);
+  } catch (e) {
+    console.error(e);
+  }
+};
+const handleSubmit = async (data) => {
+  console.log('Saving bookmark', data);
+  try {
+    const bookmarkId = String(data.id);
+    await Promise.all([
+      browser.bookmarks.update(bookmarkId, { title: data.browserTitle }),
+      browser.bookmarks.move(bookmarkId, { parentId: String(data.folderId) }),
+    ]);
+    const index = bookmarks.value.findIndex((item) => item.id === data.id);
     if (index !== -1) {
-      bookmarks.value[index] = { ...bookmark, title: updatedTitle };
+      Object.assign(bookmarks.value[index], {
+        title: data.title,
+        tags: data.tags,
+      });
     }
-    notify({ group: 'default', title: 'Success', text: 'Bookmark successfully saved!' }, 2500);
+    notify({ group: 'default', text: 'Bookmark successfully saved!' }, 2500);
   } catch (error) {
     console.error('Failed to save bookmark:', error);
   } finally {
     drawer.value.close();
-    currentBookmark.value = {};
+    currentBookmark = {};
   }
 };
 const handleScreenshot = async (bookmark) => {
-  if (await screenshotRef.value.request() === false) {
-    return;
+  try {
+    const granted = await screenshotRef.value.request();
+    if (granted === false) {
+      return;
+    }
+    // FF issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1795932
+    const response = await browser.runtime.sendMessage({
+      action: 'screenshot',
+      bookmark: JSON.parse(JSON.stringify(bookmark)),
+    });
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    const item = bookmarks.value.find((i) => i.id === bookmark.id);
+    if (item) {
+      item.image = response.image;
+      notify({ group: 'default', text: 'Screenshot saved successfully!' }, 2500);
+    }
+  } catch (e) {
+    console.error('Screenshot failed:', e);
+    notify({ group: 'default', text: 'Screenshot failed. Check console for details.' }, 2500);
   }
-  // ff issue https://bugzilla.mozilla.org/show_bug.cgi?id=1795932
-  const response = await browser.runtime.sendMessage({ action: 'screenshot', bookmark: JSON.parse(JSON.stringify(bookmark)) });
-  if (response.error !== null) {
-    throw Error(response.error);
-  }
-  const item = bookmarks.value.find((i) => i.id === bookmark.id);
-  item.image = response.image;
 };
 
 watch(
@@ -276,7 +302,7 @@ watch([attrsSort, attrsTerm, attrsIncludes], async ([newSort, newTerm, newInclud
 watch(
   bookmarks,
   () => {
-    empty.value = bookmarks.value.length === 0;
+    isEmpty.value = bookmarks.value.length === 0;
   },
   { immediate: true },
 );

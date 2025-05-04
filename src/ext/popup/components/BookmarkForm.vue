@@ -36,12 +36,11 @@
         :always-open="false"
         :options="folders"
       />
-      <app-tag-input
+      <AppTagInput
         v-model="selectedTags"
-        class="relative"
         :max="5"
         :suggestions="tags"
-        placeholder="Enter a tag and press enter or tab"
+        placeholder="Tag it, press Enter or Tab 🏷️"
       />
       <div class="my-4 flex w-full justify-between">
         <AppButton
