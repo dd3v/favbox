@@ -9,12 +9,15 @@
       :key="bookmark.id"
       :src="String(bookmark.image || bookmark.favicon)"
       :alt="bookmark.title"
-      class="max-h-full max-w-full"
+      class="max-h-full max-w-full transition-all duration-700 ease-out"
       :class="{
         'object-cover': bookmark.image,
-        'object-contain p-2': !bookmark.image && bookmark.favicon
+        'object-contain p-2': !bookmark.image && bookmark.favicon,
+        'blur-sm': isLoading,
+        'blur-0': !isLoading
       }"
-      @error="showImage = false"
+      @load="handleImageLoad"
+      @error="handleImageError"
     >
   </div>
   <div
@@ -25,7 +28,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 
 defineProps({
   bookmark: {
@@ -35,6 +38,7 @@ defineProps({
 });
 
 const showImage = ref(true);
+const isLoading = ref(true);
 
 const gradients = [
   'bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-[size:20px_20px] text-white',
@@ -42,4 +46,22 @@ const gradients = [
 ];
 
 const gradient = computed(() => gradients[Math.floor(Math.random() * gradients.length)]);
+
+const handleImageLoad = () => {
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 200);
+};
+
+const handleImageError = () => {
+  setTimeout(() => {
+    showImage.value = false;
+    isLoading.value = false;
+  }, 300);
+};
+
+onMounted(() => {
+  isLoading.value = true;
+  showImage.value = true;
+});
 </script>

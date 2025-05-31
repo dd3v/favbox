@@ -42,7 +42,7 @@
                   class="flex items-center text-lg font-medium leading-6 text-gray-900 dark:text-white"
                 >
                   <PixelarticonsHeart class="mr-2" />
-                  Welcome!
+                  Scanning your bookmarks..
                 </DialogTitle>
                 <div class="mt-2">
                   <p class="py-1 text-sm text-black dark:text-white">

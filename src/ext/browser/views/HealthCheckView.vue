@@ -1,6 +1,5 @@
 <template>
   <app-infinite-scroll
-    ref="scroll"
     class="flex h-screen w-full flex-col overflow-y-auto bg-white dark:bg-black"
     :limit="50"
     @scroll:end="paginate"
@@ -77,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue';
 import BookmarkStorage from '@/storage/bookmark';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
@@ -87,12 +86,12 @@ import AppButton from '@/components/app/AppButton.vue';
 import AppProgress from '@/components/app/AppProgress.vue';
 import NumberFlow from '@number-flow/vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
+import { notify } from 'notiwind';
 import { getWorker } from '../../../helpers/worker';
 
 const bookmarkStorage = new BookmarkStorage();
 const bookmarks = ref([]);
-const confirmation = ref(true);
-const scroll = ref(null);
+const confirmationRef = useTemplateRef('confirmation');
 const total = ref(0);
 const loading = ref(true);
 
@@ -122,28 +121,26 @@ const stop = () => {
 
 const paginate = async (skip) => {
   try {
-    console.warn('loading broken bookmarks', skip);
     bookmarks.value.push(
       ...(await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, skip)),
     );
   } catch (e) {
+    notify({ group: 'error', text: 'Error loading data.' }, import.meta.env.VITE_NOTIFICATION_DURATION);
     console.error(e);
   }
 };
 
 const onDelete = async (bookmark) => {
-  if (await confirmation.value.request() === false) {
+  if (await confirmationRef.value.request() === false) {
     return;
   }
   try {
     await browser.bookmarks.remove(String(bookmark.id));
+    await bookmarkStorage.remove(bookmark.id);
+    notify({ group: 'default', text: 'Bookmark successfully removed!' }, import.meta.env.VITE_NOTIFICATION_DURATION);
   } catch (e) {
     console.error(e);
-    await bookmarkStorage.remove(bookmark.id);
-  } finally {
-    bookmarks.value = bookmarks.value.filter(
-      (item) => item.id !== bookmark.id,
-    );
+    notify({ group: 'error', text: 'Failed to remove bookmark. Please try again.' }, import.meta.env.VITE_NOTIFICATION_DURATION);
   }
 };
 
@@ -172,9 +169,10 @@ onMounted(async () => {
   };
   worker.onerror = (event) => {
     console.error('🌀 Error from worker', event);
+    notify({ group: 'error', text: event.message }, import.meta.env.VITE_NOTIFICATION_DURATION);
   };
-  progress.value = worker.postMessage('progress');
-  workerStatus.value = worker.postMessage('status');
+  worker.postMessage('progress');
+  worker.postMessage('status');
   loading.value = false;
 });
 onUnmounted(() => {});

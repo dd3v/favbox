@@ -63,8 +63,6 @@ const route = useRoute();
 const indicatorRef = ref(null);
 const menuItemsRef = reactive({});
 
-const isActive = (name) => route.name === name;
-
 const setMenuItemRef = (el, name) => {
   menuItemsRef[name] = el;
 };

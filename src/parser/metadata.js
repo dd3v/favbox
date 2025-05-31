@@ -58,9 +58,15 @@ export default class MetadataParser {
   */
   #searchPagePreview() {
     const htmlElem = this.#dom.querySelector([
-      'img[id*="post-image"]',
+      'img[class*="hero"]',
+      'img[class*="banner"]', 
       'img[class*="cover"]',
-      'img[class*="preview-image"]',
+      'img[class*="featured"]',
+      'img[class*="preview"]',
+      'img[id*="post-image"]',
+      'article img:first-of-type',
+      'main img:first-of-type',
+      '.content img:first-of-type',
     ].join(','));
     const src = (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href') || htmlElem?.getAttribute('src')) ?? null;
     return src;

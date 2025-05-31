@@ -51,7 +51,7 @@ import Treeselect from '@zanmato/vue3-treeselect';
 import tagHelper from '@/helpers/tags';
 
 const props = defineProps({
-  modelValue: {
+  bookmark: {
     type: Object,
     required: true,
   },
@@ -67,7 +67,7 @@ const props = defineProps({
   },
 });
 
-const bookmark = ref(props.modelValue);
+const bookmark = ref(props.bookmark);
 const emit = defineEmits(['onSubmit']);
 
 const findLabelById = (data, id) => {
@@ -89,10 +89,6 @@ const onBeforeClearAll = () => {
   bookmark.value.folderId = 1;
 };
 
-watch(() => bookmark.value.folderId, (newId) => {
-  bookmark.value.folderName = findLabelById(props.folders, newId);
-});
-
 const submit = () => {
   const value = JSON.parse(JSON.stringify(bookmark.value));
   emit('onSubmit', {
@@ -104,4 +100,9 @@ const submit = () => {
     id: value.id,
   });
 };
+
+watch(() => bookmark.value.folderId, (newId) => {
+  bookmark.value.folderName = findLabelById(props.folders, newId);
+});
+
 </script>

@@ -97,35 +97,22 @@
                     No results found.
                   </div>
                 </AppInfiniteScroll>
-
-                <div
-                  class="flex w-full bg-white/10 p-3 text-gray-800 backdrop-blur-lg dark:border-neutral-800 dark:bg-black/20"
-                >
-                  <span
-                    class="mx-1 flex size-6 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
-                  >
-                    ↑
-                  </span>
-                  <span
-                    class="mx-1 flex size-6 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
-                  >
-                    ↓
-                  </span>
-                  <span
-                    class="mx-1 flex size-6 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
-                  >
-                    ↵
-                  </span>
-                  <span
-                    class="mx-1 flex size-6 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
-                  >
-                    ←
-                  </span>
-                  <span
-                    class="mx-1 ml-auto flex h-6 w-9 items-center justify-center rounded-md bg-gray-200 p-2 text-xs dark:bg-black dark:text-white"
-                  >
-                    esc
-                  </span>
+                <div class="w-full border-t border-black/10 bg-black/5 px-4 py-3 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-gray-900 dark:bg-black dark:text-gray-300">↑↓</kbd>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">navigate</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <div class="flex items-center gap-2">
+                        <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-gray-900 dark:bg-black dark:text-gray-300">↵</kbd>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">select</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-gray-900 dark:bg-black dark:text-gray-300">esc</kbd>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </DialogPanel>
@@ -138,7 +125,7 @@
 
 <script setup>
 import { ref, useTemplateRef, watch, onMounted, onBeforeUnmount } from 'vue';
-import BookmarkStorage from '@/storage/bookmark';
+import AttributeStorage from '@/storage/attribute';
 import {
   Dialog,
   TransitionRoot,
@@ -153,7 +140,7 @@ import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
 import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
 
-const bookmarkStorage = new BookmarkStorage();
+const attributeStorage = new AttributeStorage();
 const emit = defineEmits(['onSelected', 'onVisibilityToggle']);
 
 const isOpen = ref(false);
@@ -162,7 +149,7 @@ const activeIndex = ref(-1);
 const command = ref(null);
 const items = ref([]);
 const itemRef = useTemplateRef('item');
-const intputRef = useTemplateRef('input');
+const inputRef = useTemplateRef('input');
 
 const commands = [
   { key: 'command', value: 'tag', icon: PhHashStraightLight },
@@ -174,7 +161,7 @@ const commands = [
 const paginate = async (skip) => {
   try {
     items.value.push(
-      ...(await bookmarkStorage.searchAttributes(command.value.value, searchTerm.value, skip, 100)),
+      ...(await attributeStorage.filterAttributesByKeyAndValue(command.value.value, searchTerm.value, skip, 100)),
     );
   } catch (e) {
     console.error(e);
@@ -242,13 +229,14 @@ const toggle = () => {
 };
 
 const hotKey = (event) => {
-  if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+  if (event.altKey && !event.ctrlKey && !event.metaKey && event.code === 'KeyK') {
     event.preventDefault();
+    event.stopPropagation();
     toggle();
   }
 };
 
-const refocusInput = () => setTimeout(() => { intputRef.value?.focus(); }, 10);
+const refocusInput = () => setTimeout(() => { inputRef.value?.focus(); }, 10);
 
 const arraySearch = () => {
   const term = searchTerm.value.trim().toLowerCase();
@@ -257,7 +245,7 @@ const arraySearch = () => {
 
 const dbSearch = async () => {
   try {
-    items.value = await bookmarkStorage.searchAttributes(command.value.value, searchTerm.value, 0, 50);
+    items.value = await attributeStorage.filterAttributesByKeyAndValue(command.value.value, searchTerm.value, 0, 50);
   } catch (e) {
     console.error(e);
   }

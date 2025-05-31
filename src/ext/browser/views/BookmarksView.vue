@@ -1,46 +1,53 @@
 <template>
   <div class="flex w-full overflow-y-hidden dark:bg-black">
     <AttributeList
-      v-model="query"
-      v-model:sort="attrsSort"
-      v-model:includes="attrsIncludes"
-      v-model:term="attrsTerm"
-      :items="attributes"
+      v-model="bookmarksQuery"
+      v-model:sort="attributesSort"
+      v-model:includes="attributesIncludes"
+      v-model:term="attributesTerm"
+      :items="attributesList"
       @paginate="paginateAttributes"
     />
     <AppInfiniteScroll
       ref="scroll"
       class="flex h-screen w-full flex-col overflow-y-auto"
-      :limit="50"
+      :limit="BOOKMARKS_LIMIT"
       @scroll:end="paginateBookmarks"
     >
       <div class="sticky top-0 z-10 flex w-full flex-row space-x-3 bg-white/70 p-2 backdrop-blur-lg dark:bg-black/70">
         <SearchTerm
-          ref="searchInputRef"
-          v-model="query"
-          :placeholder="'Total: ' + total + '. Search bookmarks...🚀'"
+          ref="search"
+          v-model="bookmarksQuery"
+          :placeholder="bookmarksTotalPlaceholder"
         />
         <ViewMode
           v-model="viewMode"
           v-tooltip.bottom="{ content: 'Display mode' }"
         />
         <SortDirection
-          v-model="sortBookmarks"
+          v-model="bookmarksSort"
           v-tooltip.bottom="{ content: 'Sort direction' }"
         />
       </div>
       <div
-        v-if="isEmpty && query.length"
-        class="flex h-5/6 items-center justify-center text-2xl font-thin text-black dark:text-white"
+        v-if="bookmarksIsEmpty"
+        class="flex h-5/6 flex-col items-center justify-center px-8 py-12"
       >
-        No results found.
+        <div class="mb-6 rounded-full bg-gray-100 p-6 dark:bg-gray-900">
+          <RiBookmarkFill class="size-12 dark:text-white" />
+        </div>
+        <div class="text-center">
+          <h3 class="mb-3 text-xl font-semibold text-gray-900 dark:text-white">
+            No bookmarks found
+          </h3>
+        </div>
       </div>
       <BookmarkLayout
         class="p-2"
         :display-type="viewMode"
       >
         <BookmarkCard
-          v-for="(bookmark, key) in bookmarks"
+          v-for="(bookmark, key) in bookmarksList"
           :key="key"
           :display-type="viewMode"
           :bookmark="bookmark"
@@ -58,9 +65,9 @@
       </template>
       <template #content>
         <BookmarkForm
-          v-model="currentBookmark"
-          :folders="bookmarkFolders"
-          :tags="tags"
+          :bookmark="bookmarksEditState.bookmark"
+          :folders="bookmarksEditState.folders"
+          :tags="bookmarksEditState.tags"
           class="w-full"
           @onSubmit="handleSubmit"
         />
@@ -105,14 +112,17 @@
     </AppConfirmation>
   </div>
 </template>
+
 <script setup>
 import {
   reactive, ref, watch, onMounted,
+  onUnmounted, computed, useTemplateRef,
 } from 'vue';
 import { notify } from 'notiwind';
 import AppDrawer from '@/components/app/AppDrawer.vue';
 import AttributeList from '@/ext/browser/components/AttributeList.vue';
 import BookmarkStorage from '@/storage/bookmark';
+import AttributeStorage from '@/storage/attribute';
 import initStorage from '@/storage/idb/idb';
 import bookmarkHelper from '@/helpers/bookmark';
 import SearchTerm from '@/ext/browser/components/SearchTerm.vue';
@@ -125,44 +135,51 @@ import AppConfirmation from '@/components/app/AppConfirmation.vue';
 import BookmarkForm from '@/ext/browser/components/BookmarkForm.vue';
 import SortDirection from '@/ext/browser/components/SortDirection.vue';
 import { useStorage } from '@vueuse/core';
+import RiBookmarkFill from '~icons/ri/bookmark-fill';
+
+const BOOKMARKS_LIMIT = import.meta.env.VITE_BOOKMARKS_PAGINATION_LIMIT;
+const ATTRIBUTES_LIMIT = import.meta.env.VITE_ATTRIBUTES_PAGINATION_LIMIT;
+const NOTIFICATION_DURATION = import.meta.env.VITE_NOTIFICATION_DURATION;
 
 await initStorage();
 const bookmarkStorage = new BookmarkStorage();
+const attributeStorage = new AttributeStorage();
 
-const bookmarkFolders = ref([]);
-
-console.warn('folders', bookmarkFolders.value);
-
-let currentBookmark = {};
-const drawer = ref(null);
-const screenshotRef = ref(null);
+const drawerRef = useTemplateRef('drawer');
+const scrollRef = useTemplateRef('scroll');
+const deleteConfirmationRef = useTemplateRef('deleteConfirmation');
+const screenshotRef = useTemplateRef('screenshotRef');
+const searchRef = useTemplateRef('search');
 
 const viewMode = useStorage('viewMode', 'masonry');
+const loading = ref(false);
 
-const scroll = ref(null);
-const bookmarks = ref([]);
-const deleteConfirmation = ref(null);
-const total = ref(0);
-const query = ref([]);
-const sortBookmarks = ref('desc');
+// Reactive state for bookmarks
+const bookmarksList = ref([]);
+const bookmarksTotal = ref(0);
+const bookmarksQuery = ref([]);
+const bookmarksSort = ref('desc');
 
-const attributes = ref([]);
-const attrsSort = ref('count:desc');
-const attrsIncludes = reactive({
-  domain: true, folder: true, tag: true, keyword: true,
+// Reactive state for attributes
+const attributesSort = ref('count:desc');
+const attributesTerm = ref('');
+const attributesIncludes = reactive({ domain: true, folder: true, tag: true, keyword: true });
+const attributesList = ref([]);
+
+const bookmarksEditState = reactive({
+  bookmark: null,
+  folders: [],
+  tags: [],
 });
-const attrsTerm = ref('');
 
-const searchInputRef = ref(null);
-
-const isEmpty = ref(false);
-const tags = ref([]);
+const bookmarksIsEmpty = computed(() => bookmarksList.value.length === 0 && !loading.value);
+const bookmarksTotalPlaceholder = computed(() => `Total: ${bookmarksTotal.value}. Search bookmarks...🚀`);
 
 const paginateBookmarks = async (skip) => {
   try {
     console.warn('skip', skip);
-    bookmarks.value.push(
-      ...(await bookmarkStorage.search(query.value, skip, 50, sortBookmarks.value)),
+    bookmarksList.value.push(
+      ...(await bookmarkStorage.search(bookmarksQuery.value, skip, BOOKMARKS_LIMIT, bookmarksSort.value)),
     );
   } catch (e) {
     console.error(e);
@@ -170,54 +187,70 @@ const paginateBookmarks = async (skip) => {
 };
 
 const refresh = async () => {
-  total.value = await bookmarkStorage.total();
-  bookmarks.value = await bookmarkStorage.search(query.value, 0, 50, sortBookmarks.value);
+  try {
+    bookmarksTotal.value = await bookmarkStorage.total();
+    bookmarksList.value = await bookmarkStorage.search(bookmarksQuery.value, 0, BOOKMARKS_LIMIT, bookmarksSort.value);
+    attributesList.value = await attributeStorage.search(
+      attributesIncludes,
+      ...attributesSort.value.split(':'),
+      attributesTerm.value,
+      0,
+      ATTRIBUTES_LIMIT,
+    );
+  } catch (error) {
+    console.error('Error refreshing bookmarks:', error);
+    notify({ group: 'error', text: 'Failed to refresh bookmarks.' }, NOTIFICATION_DURATION);
+  }
 };
 
 const paginateAttributes = async (skip) => {
   try {
-    console.warn('paginate attrbiutes', skip);
-    const [sortColumn, sortDirection] = attrsSort.value.split(':');
-    console.warn('paginate attrbiutes', skip, sortColumn, sortDirection);
-    attributes.value.push(
-      ...(await bookmarkStorage.getAttributes(attrsIncludes, sortColumn, sortDirection, attrsTerm.value, skip, 200)),
+    console.warn('paginate attributes', skip);
+    const [sortColumn, sortDirection] = attributesSort.value.split(':');
+    console.warn('paginate attributes', skip, sortColumn, sortDirection);
+    attributesList.value.push(
+      ...(await attributeStorage.search(
+        attributesIncludes,
+        sortColumn,
+        sortDirection,
+        attributesTerm.value,
+        skip,
+        ATTRIBUTES_LIMIT,
+      )),
     );
   } catch (e) {
     console.error(e);
+    notify({ group: 'error', text: 'Error loading attributes.' }, NOTIFICATION_DURATION);
   }
 };
 
 const handleRemove = async (bookmark) => {
-  if (await deleteConfirmation.value.request() === false) {
+  if (await deleteConfirmationRef.value.request() === false) {
     return;
   }
   try {
-    console.warn(bookmark.id.toString());
-    await browser.bookmarks.remove(bookmark.id.toString());
-  } catch (e) {
-    console.error(e);
-    // If for some reason we are not able to remove the bookmark from Google Browser.
-    await bookmarkStorage.remove(bookmark.id.toString());
-  } finally {
-    bookmarks.value = bookmarks.value.filter((item) => item.id.toString() !== bookmark.id.toString());
-    notify({ group: 'default', text: 'Boookmark successfully removed!' }, 2500);
+    const id = bookmark.id.toString();
+    await browser.bookmarks.remove(id);
+    await bookmarkStorage.remove(id);
+    bookmarksList.value = bookmarksList.value.filter((item) => item.id.toString() !== id);
+    notify({ group: 'default', text: 'Bookmark successfully removed!' }, NOTIFICATION_DURATION);
+    console.log(`Bookmark ${id} successfully removed`);
+  } catch (error) {
+    console.error('Error removing bookmark:', error);
+    notify({ group: 'error', text: 'Failed to remove bookmark. Please try again.' }, NOTIFICATION_DURATION);
   }
 };
 
 const handleEdit = async (bookmark) => {
-  currentBookmark = JSON.parse(JSON.stringify(bookmark));
-  console.warn('currentBookmark', currentBookmark);
   try {
-    const [tagsList, foldersList] = await Promise.all([
-      bookmarkStorage.getTags(),
-      bookmarkHelper.buildFolderUITree(),
-    ]);
-    tags.value = tagsList;
-    bookmarkFolders.value = foldersList;
-    drawer.value.open();
+    bookmarksEditState.bookmark = JSON.parse(JSON.stringify(bookmark));
+    drawerRef.value.open();
+    const [tags, folders] = await Promise.all([bookmarkStorage.getTags(), bookmarkHelper.buildFolderUITree()]);
+    bookmarksEditState.tags = tags;
+    bookmarksEditState.folders = folders;
   } catch (error) {
-    console.error('Failed to load tags or folders:', error);
-    notify({ group: 'error', text: 'Error loading bookmark data.' }, 2500);
+    console.error('Failed to load data:', error);
+    notify({ group: 'error', text: 'Error loading data.' }, NOTIFICATION_DURATION);
   }
 };
 
@@ -227,41 +260,38 @@ const handlePin = (bookmark) => {
     bookmark.pinned = status;
     bookmarkStorage.updatePinStatusById(bookmark.id, status);
     const message = status ? 'Bookmark successfully pinned!' : 'Bookmark successfully unpinned!';
-    notify({ group: 'default', text: message }, 2500);
+    notify({ group: 'default', text: message }, NOTIFICATION_DURATION);
   } catch (e) {
     console.error(e);
+    notify({ group: 'error', text: 'Failed to update pin status.' }, NOTIFICATION_DURATION);
   }
 };
+
 const handleSubmit = async (data) => {
-  console.log('Saving bookmark', data);
   try {
-    const bookmarkId = String(data.id);
-    await Promise.all([
-      browser.bookmarks.update(bookmarkId, { title: data.browserTitle }),
-      browser.bookmarks.move(bookmarkId, { parentId: String(data.folderId) }),
-    ]);
-    const index = bookmarks.value.findIndex((item) => item.id === data.id);
-    if (index !== -1) {
-      Object.assign(bookmarks.value[index], {
-        title: data.title,
-        tags: data.tags,
-      });
+    const id = String(data.id);
+    await browser.bookmarks.update(id, { title: data.browserTitle });
+    await browser.bookmarks.move(id, { parentId: String(data.folderId) });
+    const bookmark = bookmarksList.value.find((item) => item.id === id);
+    if (bookmark) {
+      bookmark.title = data.title;
+      bookmark.tags = data.tags;
     }
-    notify({ group: 'default', text: 'Bookmark successfully saved!' }, 2500);
+    notify({ group: 'default', text: 'Bookmark successfully saved!' }, NOTIFICATION_DURATION);
   } catch (error) {
     console.error('Failed to save bookmark:', error);
+    notify({ group: 'error', text: 'Bookmark not saved.' }, NOTIFICATION_DURATION);
   } finally {
-    drawer.value.close();
-    currentBookmark = {};
+    drawerRef.value.close();
   }
 };
+
 const handleScreenshot = async (bookmark) => {
   try {
     const granted = await screenshotRef.value.request();
     if (granted === false) {
       return;
     }
-    // FF issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1795932
     const response = await browser.runtime.sendMessage({
       action: 'screenshot',
       bookmark: JSON.parse(JSON.stringify(bookmark)),
@@ -269,55 +299,75 @@ const handleScreenshot = async (bookmark) => {
     if (response.error) {
       throw new Error(response.error);
     }
-    const item = bookmarks.value.find((i) => i.id === bookmark.id);
+    const item = bookmarksList.value.find((i) => i.id === bookmark.id);
     if (item) {
       item.image = response.image;
-      notify({ group: 'default', text: 'Screenshot saved successfully!' }, 2500);
+      notify({ group: 'default', text: 'Screenshot saved successfully!' }, NOTIFICATION_DURATION);
     }
   } catch (e) {
     console.error('Screenshot failed:', e);
-    notify({ group: 'default', text: 'Screenshot failed. Check console for details.' }, 2500);
+    notify({ group: 'error', text: 'Screenshot failed.' }, NOTIFICATION_DURATION);
   }
 };
 
+browser.runtime.onMessage.addListener(async (message) => {
+  if (message.action === 'refresh') {
+    await refresh();
+  }
+});
+
 watch(
-  [query, sortBookmarks],
+  [bookmarksQuery, bookmarksSort],
   async () => {
-    console.warn('QUERY', query);
-    scroll.value?.scrollUp();
-    bookmarks.value = await bookmarkStorage.search(query.value, 0, 50, sortBookmarks.value);
+    try {
+      loading.value = true;
+      console.warn('QUERY', bookmarksQuery);
+      scrollRef.value?.scrollUp();
+      bookmarksList.value = await bookmarkStorage.search(bookmarksQuery.value, 0, BOOKMARKS_LIMIT, bookmarksSort.value);
+    } catch (e) {
+      console.error('Error fetching bookmarks:', e);
+      notify({ group: 'error', text: 'Error loading bookmarks.' }, NOTIFICATION_DURATION);
+    } finally {
+      loading.value = false;
+    }
   },
   { immediate: true, deep: true },
 );
 
-watch([attrsSort, attrsTerm, attrsIncludes], async ([newSort, newTerm, newIncludes]) => {
-  console.warn('newSort', newSort);
-  console.warn('newTerm', newTerm);
-  console.warn('newIncludes', newIncludes);
-  const [sortColumn, sortDirection] = newSort.split(':');
-  const result = await bookmarkStorage.getAttributes(attrsIncludes, sortColumn, sortDirection, attrsTerm.value, 0, 200);
-  attributes.value = result;
-}, { deep: true });
-
 watch(
-  bookmarks,
-  () => {
-    isEmpty.value = bookmarks.value.length === 0;
+  [attributesSort, attributesTerm, attributesIncludes],
+  async ([newSort, newTerm, newIncludes]) => {
+    try {
+      console.warn('newSort', newSort, 'newTerm', newTerm, 'newIncludes', newIncludes);
+      const [sortColumn, sortDirection] = newSort.split(':');
+      const result = await attributeStorage.search(newIncludes, sortColumn, sortDirection, newTerm, 0, ATTRIBUTES_LIMIT);
+      attributesList.value = result;
+    } catch (e) {
+      console.error('Error fetching attributes:', e);
+      notify({ group: 'error', text: 'Error loading attributes.' }, NOTIFICATION_DURATION);
+    }
   },
-  { immediate: true },
+  { deep: true },
 );
 
 onMounted(async () => {
-  const [sortColumn, sortDirection] = attrsSort.value.split(':');
-
-  const [result, totalResult] = await Promise.all([
-    bookmarkStorage.getAttributes(attrsIncludes, sortColumn, sortDirection, attrsTerm.value, 0, 200),
-    bookmarkStorage.total(),
-  ]);
-  attributes.value = result;
-  console.warn('attrs', attributes.value);
-  await bookmarkStorage.refreshAttributes();
-  total.value = totalResult;
+  try {
+    loading.value = true;
+    const [sortColumn, sortDirection] = attributesSort.value.split(':');
+    const [result, totalResult] = await Promise.all([
+      attributeStorage.search(attributesIncludes, sortColumn, sortDirection, attributesTerm.value, 0, ATTRIBUTES_LIMIT),
+      bookmarkStorage.total(),
+    ]);
+    attributesList.value = result;
+    bookmarksTotal.value = totalResult;
+    searchRef.value.focus();
+  } catch (error) {
+    console.error('Error during component mount:', error);
+    notify({ group: 'error', text: 'Error initializing bookmarks view.' }, NOTIFICATION_DURATION);
+  } finally {
+    loading.value = false;
+  }
 });
 
+onUnmounted(() => {});
 </script>

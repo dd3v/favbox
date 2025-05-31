@@ -17,7 +17,7 @@
         ref="scroll"
         class="h-full overflow-y-auto"
         :limit="50"
-        @scroll:end="paginate"
+        @scroll:end="handlePagination"
       >
         <ul class="w-full cursor-pointer space-y-2 px-2 pb-20">
           <li
@@ -63,7 +63,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, useTemplateRef } from 'vue';
+import { notify } from 'notiwind';
 import BookmarkStorage from '@/storage/bookmark';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import PinnedCard from '@/ext/browser/components/card/PinnedCard.vue';
@@ -72,19 +73,37 @@ import AppSpinner from '@/components/app/AppSpinner.vue';
 import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
 
 const bookmarkStorage = new BookmarkStorage();
-const scroll = ref(null);
+const scrollRef = useTemplateRef('scroll');
 const bookmarks = ref([]);
 const searchTerm = ref('');
 const currentBookmark = ref(null);
 const skip = ref(0);
 const loading = ref(true);
 
-const fetchBookmarks = async (offset = 0, search = '') => {
+const loadBookmarks = async (options = {}) => {
+  const {
+    offset = 0,
+    search = searchTerm.value,
+    append = false,
+  } = options;
+
   try {
-    return await bookmarkStorage.getPinnedBookmarks(offset, 50, search);
-  } catch (e) {
-    console.error(e);
-    return [];
+    loading.value = true;
+    const newBookmarks = await bookmarkStorage.getPinnedBookmarks(offset, search);
+    if (append) {
+      bookmarks.value.push(...newBookmarks);
+    } else {
+      bookmarks.value = newBookmarks;
+    }
+    skip.value = offset;
+  } catch (error) {
+    console.error('Error loading bookmarks:', error);
+    notify(
+      { group: 'error', text: 'Error loading data.' },
+      import.meta.env.VITE_NOTIFICATION_DURATION,
+    );
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -95,10 +114,14 @@ const open = (bookmark) => {
 const pin = async (bookmark) => {
   try {
     await bookmarkStorage.updatePinStatusById(bookmark.id, 0);
-    bookmarks.value = await fetchBookmarks(skip.value, searchTerm.value);
+    await loadBookmarks();
     currentBookmark.value = null;
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error('Error updating pin status:', error);
+    notify(
+      { group: 'error', text: 'Error updating bookmark.' },
+      import.meta.env.VITE_NOTIFICATION_DURATION,
+    );
   }
 };
 
@@ -106,16 +129,20 @@ const openEditor = (bookmark) => {
   currentBookmark.value = bookmark;
 };
 
-const paginate = async (offset) => {
-  skip.value = offset;
-  const newBookmarks = await fetchBookmarks(offset);
-  bookmarks.value.push(...newBookmarks);
+const handlePagination = async (offset) => {
+  await loadBookmarks({
+    offset,
+    append: true,
+  });
 };
 
 watch(searchTerm, async () => {
-  bookmarks.value = await fetchBookmarks(0, searchTerm.value);
+  await loadBookmarks({
+    offset: 0,
+    search: searchTerm.value,
+  });
   currentBookmark.value = null;
-  scroll.value?.scrollUp();
+  scrollRef.value?.scrollUp();
 });
 
 watch(
@@ -124,15 +151,14 @@ watch(
     if (!currentBookmark.value || newNotes === oldNotes) return;
     try {
       await bookmarkStorage.updateNotesById(currentBookmark.value.id, newNotes);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error('Error updating notes:', error);
+      notify({ group: 'error', text: 'Error saving notes.' }, import.meta.env.VITE_NOTIFICATION_DURATION);
     }
   },
 );
 
 onMounted(async () => {
-  loading.value = true;
-  bookmarks.value = await fetchBookmarks();
-  loading.value = false;
+  await loadBookmarks();
 });
 </script>

@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import fetchHelper from '@/helpers/fetch';
 import BookmarkStorage from '@/storage/bookmark';
+import AttributeStorage from '@/storage/attribute';
 import initStorage from '@/storage/idb/idb';
 import MetadataParser from '@/parser/metadata';
 import bookmarkHelper from '@/helpers/bookmark';
@@ -9,6 +10,7 @@ const sync = async () => {
   console.time('Execution time');
   await initStorage();
   const bookmarkStorage = new BookmarkStorage();
+  const attributeStorage = new AttributeStorage();
   const browserTotal = await bookmarkHelper.total();
   const idbTotal = await bookmarkStorage.total();
   await browser.storage.session.set({ browserTotal });
@@ -27,7 +29,7 @@ const sync = async () => {
   for await (const b of bookmarksIterator) {
     batch.push(b);
     processed += 1;
-    if (batch.length % 300 === 0 || processed === browserTotal) {
+    if (batch.length % 100 === 0 || processed === browserTotal) {
       try {
         const browserBookmarkKeyList = batch.map((i) => i.id);
         const extBookmarksKeyList = await bookmarkStorage.getIds(browserBookmarkKeyList);
@@ -47,6 +49,7 @@ const sync = async () => {
         console.time('DB execution time');
         console.warn(parseResult);
         await bookmarkStorage.createMultipleTx(parseResult);
+        await attributeStorage.refresh();
         console.timeEnd('DB execution time');
         try {
           const progress = Math.round((processed / browserTotal) * 100);

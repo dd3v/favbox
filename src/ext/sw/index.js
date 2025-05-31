@@ -1,4 +1,5 @@
 import BookmarkStorage from '@/storage/bookmark';
+import AttributeStorage from '@/storage/attribute';
 import initStorage from '@/storage/idb/idb';
 import MetadataParser from '@/parser/metadata';
 import fetchHelper from '@/helpers/fetch';
@@ -8,6 +9,7 @@ import sync from './sync';
 // import ping from './ping';
 
 const bookmarkStorage = new BookmarkStorage();
+const attributeStorage = new AttributeStorage();
 
 // https://developer.chrome.com/docs/extensions/develop/migrate/to-service-workers
 const waitUntil = async (promise) => {
@@ -124,7 +126,7 @@ browser.bookmarks.onChanged.addListener(async (id, changeInfo) => {
       };
       await bookmarkStorage.update(id, toUpdate);
       console.log('🔀', bookmark, toUpdate, toUpdate.tags);
-      await bookmarkStorage.refreshTags();
+      await attributeStorage.refreshTags();
     }
   } catch (e) {
     console.error('🔄', e, id, changeInfo);
