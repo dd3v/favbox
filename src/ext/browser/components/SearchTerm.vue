@@ -9,7 +9,6 @@
         class="flex items-center"
       >
         <AppBadge
-          v-motion-fade
           closable
           :color="getColor(tag.key)"
           @onClose="onClose(tag.key, tag.value)"

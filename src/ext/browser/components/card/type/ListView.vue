@@ -1,6 +1,5 @@
 <template>
   <div
-    v-motion-slide-visible-once-bottom
     class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid border-gray-100 bg-white p-3 shadow-sm dark:border-neutral-900 dark:bg-neutral-950"
   >
     <a

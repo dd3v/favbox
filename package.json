@@ -1,6 +1,6 @@
 {
   "name": "favbox",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": false,
   "type": "module",
   "scripts": {
@@ -26,7 +26,6 @@
     "@tiptap/starter-kit": "^2.9.1",
     "@tiptap/vue-3": "^2.9.1",
     "@vueuse/core": "^9.13.0",
-    "@vueuse/motion": "^2.2.5",
     "@zanmato/vue3-treeselect": "^0.4.1",
     "floating-vue": "^5.2.2",
     "jsstore": "^4.7.4",

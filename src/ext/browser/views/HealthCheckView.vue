@@ -52,7 +52,6 @@
       <HealthCheckCard
         v-for="(bookmark, key) in bookmarks"
         :key="key"
-        v-motion-slide-visible-once-bottom
         :bookmark="bookmark"
         @onDelete="onDelete"
       />
@@ -125,7 +124,6 @@ const paginate = async (skip) => {
       ...(await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, skip)),
     );
   } catch (e) {
-    notify({ group: 'error', text: 'Error loading data.' }, import.meta.env.VITE_NOTIFICATION_DURATION);
     console.error(e);
   }
 };
@@ -136,7 +134,6 @@ const onDelete = async (bookmark) => {
   }
   try {
     await browser.bookmarks.remove(String(bookmark.id));
-    await bookmarkStorage.remove(bookmark.id);
     notify({ group: 'default', text: 'Bookmark successfully removed!' }, import.meta.env.VITE_NOTIFICATION_DURATION);
   } catch (e) {
     console.error(e);
@@ -169,7 +166,6 @@ onMounted(async () => {
   };
   worker.onerror = (event) => {
     console.error('🌀 Error from worker', event);
-    notify({ group: 'error', text: event.message }, import.meta.env.VITE_NOTIFICATION_DURATION);
   };
   worker.postMessage('progress');
   worker.postMessage('status');

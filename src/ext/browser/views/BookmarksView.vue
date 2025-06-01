@@ -231,7 +231,6 @@ const handleRemove = async (bookmark) => {
   try {
     const id = bookmark.id.toString();
     await browser.bookmarks.remove(id);
-    await bookmarkStorage.remove(id);
     bookmarksList.value = bookmarksList.value.filter((item) => item.id.toString() !== id);
     notify({ group: 'default', text: 'Bookmark successfully removed!' }, NOTIFICATION_DURATION);
     console.log(`Bookmark ${id} successfully removed`);

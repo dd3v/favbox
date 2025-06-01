@@ -1,6 +1,5 @@
 <template>
   <div
-    v-motion-fade-visible-once
     class="group relative w-full max-w-sm overflow-hidden rounded-md border border-solid border-gray-100 bg-white shadow-sm transition-transform duration-300 ease-in-out hover:-translate-y-1 dark:border-neutral-900 dark:bg-neutral-950"
   >
     <a
