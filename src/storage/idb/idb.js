@@ -112,12 +112,6 @@ const getDb = () => {
         dataType: DATA_TYPE.Number,
         enableSearch: true,
       },
-      list: {
-        dataType: DATA_TYPE.Array,
-        multiEntry: true,
-        default: [],
-        enableSearch: true,
-      },
     },
   };
 

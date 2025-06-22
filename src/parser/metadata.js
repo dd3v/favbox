@@ -1,5 +1,4 @@
 import { parseHTML } from 'linkedom';
-import bookmarkHelper from '@/helpers/bookmark';
 import tagHelper from '@/helpers/tags';
 
 export default class MetadataParser {
@@ -9,17 +8,21 @@ export default class MetadataParser {
 
   #dom;
 
+  #folders;
+
   /**
-  * Creates an instance of a class that processes a bookmark;
+  * Creates an instance of a class that processes a bookmark.
   *
   * @param {Object} bookmark - The bookmark object from browser.
   * @param {Object} httpResponse - The response object from the HTTP request made to the bookmark URL.
+  * @param {Map<string, string>} [folders=new Map()] - Cache map of folder IDs to folder names.
   */
-  constructor(bookmark, httpResponse) {
+  constructor(bookmark, httpResponse, folders = new Map()) {
     const { document } = parseHTML(httpResponse.html);
     this.#bookmark = bookmark;
     this.#dom = document;
     this.#httpResponse = httpResponse;
+    this.#folders = folders;
   }
 
   /**
@@ -59,7 +62,7 @@ export default class MetadataParser {
   #searchPagePreview() {
     const htmlElem = this.#dom.querySelector([
       'img[class*="hero"]',
-      'img[class*="banner"]', 
+      'img[class*="banner"]',
       'img[class*="cover"]',
       'img[class*="featured"]',
       'img[class*="preview"]',
@@ -145,16 +148,23 @@ export default class MetadataParser {
   }
 
   /**
+  * Gets folder name from cache instead of making API call
+  *
+  * @returns {string} - The folder name or 'Unknown' if not found.
+  */
+  #getFolderName() {
+    return this.#folders.get(this.#bookmark.parentId.toString()) || 'Unknown';
+  }
+
+  /**
   *
   * @returns {Promise<Object>} - A promise that resolves to an object representing the bookmark entity.
   */
   async getFavboxBookmark() {
-    console.warn(this.getImage());
-    const foldersTree = await bookmarkHelper.getFoldersTreeByBookmark(this.#bookmark.id);
     const entity = {
       id: this.#bookmark.id,
       folderId: this.#bookmark.parentId,
-      folderName: foldersTree.titles.at(-1),
+      folderName: this.#getFolderName(),
       title: tagHelper.getTitle(this.#bookmark.title),
       description: this.getDescription(),
       favicon: this.getFavicon(),

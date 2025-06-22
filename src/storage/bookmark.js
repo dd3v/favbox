@@ -219,15 +219,27 @@ export default class BookmarkStorage {
     return response.map((i) => i.id);
   }
 
-  async updateFolders(folder) {
+  async getByFolderName(folderId) {
+    const response = await connection.select({
+      from: 'bookmarks',
+      limit: 1,
+      where: {
+        folderId,
+      },
+    });
+
+    return response.length === 1 ? response.shift() : null;
+  }
+
+  async updateFolderNameByFolderId(id, title) {
     return connection.update({
       in: 'bookmarks',
       set: {
-        folderName: folder.title,
-        folderId: folder.id,
+        folderName: title,
+        folderId: id,
       },
       where: {
-        folderId: folder.id,
+        folderId: id,
       },
     });
   }

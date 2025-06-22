@@ -67,29 +67,42 @@ browser.contextMenus.onClicked.addListener((info) => {
 
 // https:// developer.browser.com/docs/extensions/reference/bookmarks/#event-onCreated
 browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
+  console.time(`bookmark-created-${id}`);
   console.warn('🎉 Handle bookmark create..', id, bookmark);
   if (bookmark.url === undefined) {
     console.warn('bad bookmark data', bookmark);
     return;
   }
   let response = null;
-  const [activeTab] = await browser.tabs.query({ active: true });
-  try {
-    console.warn('activeTab', activeTab);
-    console.warn('requesting html from tab', activeTab);
-    const content = await browser.tabs.sendMessage(activeTab.id, { action: 'getHTML' });
-    response = { html: content?.html, error: 0 };
-    console.warn('response from tab', response);
-  } catch (e) {
-    console.log('No tabs. It is weird. Fetching data from internet.. 🌎');
+  let activeTab = null;
+  const { nativeImport } = await browser.storage.session.get('nativeImport');
+  console.log('native import', nativeImport);
+
+  if (nativeImport === true) {
+    console.log('Native browser import. Fetching data from internet.. 🌎');
     response = await fetchHelper.fetch(bookmark.url, 15000);
+  } else {
+    // fetch HTML from active tab (content script)
+    activeTab = await browser.tabs.query({ active: true });
+    try {
+      console.warn('activeTab', activeTab);
+      console.warn('requesting html from tab', activeTab);
+      const content = await browser.tabs.sendMessage(activeTab.id, { action: 'getHTML' });
+      response = { html: content?.html, error: 0 };
+      console.warn('response from tab', response);
+    } catch (e) {
+      console.log('No tabs. It is weird. Fetching data from internet.. 🌎');
+      response = await fetchHelper.fetch(bookmark.url, 15000);
+    }
   }
+
   try {
     if (response === null) {
       throw new Error('No page data: response is null');
     }
-    const entity = await (new MetadataParser(bookmark, response)).getFavboxBookmark();
-    if (entity.image === null && activeTab) {
+    const foldersMap = await bookmarkHelper.buildFoldersMap();
+    const entity = await (new MetadataParser(bookmark, response, foldersMap)).getFavboxBookmark();
+    if (!nativeImport && entity.image === null && activeTab) {
       try {
         console.warn('📸 No image, take a screenshot', activeTab);
         const screenshot = await browser.tabs.captureVisibleTab(activeTab.windowId, { format: 'jpeg', quality: 10 });
@@ -98,48 +111,55 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
         console.error('📸', e);
       }
     }
-    console.warn('Entity', entity);
-    const r = await bookmarkStorage.create(entity);
-    console.log('🎉 Bookmark has been created..', r);
+    console.log('🔖 Entity', entity);
+    await bookmarkStorage.create(entity);
+    await attributeStorage.create(entity);
     refreshUserInterface();
+    console.log('🎉 Bookmark has been created..');
   } catch (e) {
     console.error('🎉', e, id, bookmark);
   }
+  console.timeEnd(`bookmark-created-${id}`);
 });
 
-// https://developer.browser.com/docs/extensions/reference/bookmarks/#event-onChanged
+// https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onChanged
 browser.bookmarks.onChanged.addListener(async (id, changeInfo) => {
+  console.time(`bookmark-changed-${id}`);
   try {
-    console.log('🔄 Bookmark has been updated..', id, changeInfo);
     const [bookmark] = await browser.bookmarks.get(id);
-
-    const folderTree = await bookmarkHelper.getFoldersTreeByBookmark(id);
+    // folder
     if (!bookmark.url) {
       console.warn('changeInfo', changeInfo, bookmark);
-      await bookmarkStorage.updateFolders(bookmark, folderTree);
-    } else {
-      const toUpdate = {
+      console.warn('Folder', bookmark);
+      await bookmarkStorage.updateFolderNameByFolderId(bookmark.id, bookmark.title);
+      console.log('🔄 Folder has been updated..', id, changeInfo);
+    }
+    // bookmark
+    if (bookmark.url) {
+      await bookmarkStorage.update(id, {
         title: tagHelper.getTitle(changeInfo.title),
         tags: tagHelper.getTags(changeInfo.title),
         url: bookmark.url,
         updatedAt: new Date().toISOString(),
-      };
-      await bookmarkStorage.update(id, toUpdate);
-      console.log('🔀', bookmark, toUpdate, toUpdate.tags);
-      await attributeStorage.refreshTags();
+      });
+      console.log('🔄 Bookmark has been updated..', id, changeInfo);
     }
   } catch (e) {
     console.error('🔄', e, id, changeInfo);
   }
   try {
-    // browser.runtime.sendMessage({ action: 'refresh' });
+    await attributeStorage.refreshTags();
+    await attributeStorage.refreshFolders();
+    refreshUserInterface();
   } catch (e) {
-    console.error('Refresh app UI on change', e);
+    console.error('🔄 Error updating attributes', e);
   }
+  console.timeEnd(`bookmark-changed-${id}`);
 });
 
-// https://developer.browser.com/docs/extensions/reference/bookmarks/#event-onMoved
+// https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onMoved
 browser.bookmarks.onMoved.addListener(async (id, moveInfo) => {
+  console.time(`bookmark-moved-${id}`);
   try {
     const [folder] = await browser.bookmarks.get(moveInfo.parentId);
     console.log('🗂 Bookmark has been moved..', id, moveInfo, folder);
@@ -149,21 +169,26 @@ browser.bookmarks.onMoved.addListener(async (id, moveInfo) => {
       folderId: folder.id,
       updatedAt: new Date().toISOString(),
     });
+    await attributeStorage.refreshFolders();
+    refreshUserInterface();
   } catch (e) {
     console.error('🗂', e, id, moveInfo);
   }
-  refreshUserInterface();
+  console.timeEnd(`bookmark-moved-${id}`);
 });
 
-// https://developer.browser.com/docs/extensions/reference/bookmarks/#event-onRemoved
+// https://developer.chrome.com/docs/extensions/reference/bookmarks/#event-onRemoved
 browser.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
+  console.time(`bookmark-removed-${id}`);
   console.log('🗑️ Handle remove bookmark..', id, removeInfo);
+  // folder has been deleted..
   if (removeInfo.node.children !== undefined) {
     try {
       const items = bookmarkHelper.getAllBookmarksFromNode(removeInfo.node);
       const bookmarksToRemove = items.map((bookmark) => bookmark.id);
       if (bookmarksToRemove.length) {
         const total = await bookmarkStorage.removeByIds(bookmarksToRemove);
+        await attributeStorage.refresh();
         console.log('🗑️ Folder has been removed..', total, id, removeInfo);
       }
       refreshUserInterface();
@@ -172,17 +197,20 @@ browser.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
     }
     return;
   }
+  // single bookmark has been deleted..
   try {
     const bookmark = await bookmarkStorage.getById(id);
     if (!bookmark) {
       throw new Error(`Bookmark with ID ${id} not found in storage.`);
     }
     await bookmarkStorage.remove(id);
+    await attributeStorage.remove(bookmark);
     refreshUserInterface();
     console.log('🗑️ Bookmark has been removed..', id, removeInfo);
   } catch (e) {
     console.error('🗑️', e);
   }
+  console.timeEnd(`bookmark-removed-${id}`);
 });
 
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
@@ -205,6 +233,18 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   })();
   return true;
+});
+
+// https://developer.chrome.com/docs/extensions/reference/api/bookmarks#event-onImportBegan
+browser.bookmarks.onImportBegan.addListener(() => {
+  console.log('📄 Import bookmarks started');
+  browser.storage.session.set({ nativeImport: true });
+});
+
+// https://developer.chrome.com/docs/extensions/reference/api/bookmarks#event-onImportEnded
+chrome.bookmarks.onImportEnded.addListener(() => {
+  console.log('📄 Import bookmarks ended');
+  browser.storage.session.set({ nativeImport: false });
 });
 
 function refreshUserInterface() {

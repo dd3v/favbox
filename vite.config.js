@@ -22,7 +22,7 @@ export default defineConfig({
     }),
   ],
   optimizeDeps: {
-    include: ['webextension-polyfill', 'unplugin-icons', 'unplugin-auto-import']
+    include: ['webextension-polyfill', 'unplugin-icons', 'unplugin-auto-import'],
   },
   resolve: {
     alias: {

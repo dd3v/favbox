@@ -161,7 +161,7 @@ const commands = [
 const paginate = async (skip) => {
   try {
     items.value.push(
-      ...(await attributeStorage.filterAttributesByKeyAndValue(command.value.value, searchTerm.value, skip, 100)),
+      ...(await attributeStorage.filterByKeyAndValue(command.value.value, searchTerm.value, skip, 100)),
     );
   } catch (e) {
     console.error(e);
@@ -245,7 +245,7 @@ const arraySearch = () => {
 
 const dbSearch = async () => {
   try {
-    items.value = await attributeStorage.filterAttributesByKeyAndValue(command.value.value, searchTerm.value, 0, 50);
+    items.value = await attributeStorage.filterByKeyAndValue(command.value.value, searchTerm.value, 0, 50);
   } catch (e) {
     console.error(e);
   }

@@ -42,62 +42,11 @@ const bookmarkHelper = {
     }
     return items;
   },
-  /**
-  * Retrieves the tree of folder names and IDs for a given bookmark ID.
-  *
-  * @param {string|number} id - The ID of the bookmark.
-  * @returns {Promise<{ ids: string[], titles: string[] }>}
-  */
-  getFoldersTreeByBookmark: async (id) => {
-    const ids = [];
-    const titles = [];
-    async function getParent(pid) {
-      const [bookmarkItem] = await browser.bookmarks.get(pid);
-      if (bookmarkItem && !bookmarkItem.url && bookmarkItem.title) {
-        ids.push(bookmarkItem.id);
-        titles.push(bookmarkItem.title);
-      }
-      if (bookmarkItem && bookmarkItem.parentId) {
-        await getParent(bookmarkItem.parentId);
-      }
-    }
-    await getParent(String(id));
-    ids.reverse();
-    titles.reverse();
-    return { ids, titles };
-  },
-  /**
-  * Retrieves all folders from the bookmarks.
-  *
-  * @returns {Promise<Object[]>}
-  */
-  getFolders: async () => {
-    const tree = await browser.bookmarks.getTree();
-    const folders = [];
-    function getFolders(bookmarks, depth = 0) {
-      for (const bookmark of bookmarks) {
-        if (bookmark.children) {
-          if (bookmark.title !== '') {
-            folders.push({
-              id: bookmark.id,
-              index: bookmark.index,
-              parentId: bookmark.parentId,
-              dateAdded: bookmark.dateAdded,
-              title: bookmark.title,
-              depth,
-            });
-          }
-          getFolders(bookmark.children, depth + 1);
-        }
-      }
-    }
-    getFolders(tree);
-    return folders;
-  },
 
   /**
  * Retrieves the tree of all folders.
  *
+ * @async
  * @returns {Promise<Object[]>}
  */
   buildFolderUITree: async () => {
@@ -117,6 +66,7 @@ const bookmarkHelper = {
   /**
   * Retrieves all bookmarks from the browser.
   *
+  * @async
   * @returns {AsyncGenerator<Object>}
  */
   async* iterateBookmarks() {
@@ -137,5 +87,29 @@ const bookmarkHelper = {
       yield* processNode(rootNode);
     }
   },
+
+  /**
+  * Builds a cache of folder IDs to folder names from the browser bookmarks tree.
+  * Recursively traverses the entire bookmarks tree and maps each node's ID to its title.
+  *
+  * @async
+  * @function buildFolderCache
+  * @returns {Promise<Map<string, string>>} A Map where keys are node IDs and values are node titles.
+ */
+  buildFoldersMap: async () => {
+    const foldersMap = new Map();
+    const traverseTree = (nodes) => {
+      for (const node of nodes) {
+        if (node.children) {
+          foldersMap.set(node.id.toString(), node.title);
+          traverseTree(node.children);
+        }
+      }
+    };
+    const tree = await browser.bookmarks.getTree();
+    traverseTree(tree);
+    return foldersMap;
+  },
 };
+
 export default bookmarkHelper;

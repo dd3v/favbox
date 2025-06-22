@@ -9,12 +9,12 @@ const fetchHelper = {
   * A helper for making HTTP requests with a timeout.
   *
   * @param {string} url - The URL to fetch.
-  * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms..
+  * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms.
   *
   * @returns {Promise<Object>} The result of the fetch request.
   * @returns {string|null} return.html - The HTML content of the response if successful, or `null` if an error occurred.
-  * @returns {number} return.status -  HTTP status code.
-  */
+  * @returns {number} return.httpStatus - HTTP status code or error code (REQUEST_TIMEOUT, UNKNOWN_ERROR).
+ */
   fetch: async (url, timeout = 20000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
@@ -40,6 +40,7 @@ const fetchHelper = {
       clearTimeout(id);
     }
   },
+
   /**
  * Checks the internet connection.
  *
@@ -55,13 +56,14 @@ const fetchHelper = {
       return false;
     }
   },
+
   /**
- * A helper for making HEAD HTTP requests with a timeout.
- *
- * @param {string} url
- * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms..
- *
- * @returns {Promise<number>} The HTTP status code.
+  * A helper for making HEAD HTTP requests with a timeout.
+  *
+  * @param {string} url - The URL to make HEAD request to.
+  * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms.
+  *
+  * @returns {Promise<number>} The HTTP status code or error code (REQUEST_TIMEOUT, UNKNOWN_ERROR).
  */
   head: async (url, timeout = 20000) => {
     const controller = new AbortController();
@@ -86,12 +88,13 @@ const fetchHelper = {
   * A helper for making HTTP requests with a timeout and range headers.
   *
   * @param {string} url - The URL to fetch.
-  * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms..
+  * @param {number} [rangeSize=32000] - The range size in bytes for partial content requests. Defaults to 32000 bytes.
+  * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms.
   *
   * @returns {Promise<Object>} The result of the fetch request.
-  * @returns {string|null} return.html - The HTML content of the response if successful, or `null` if an error occurred.
-  * @returns {number} return.status -  HTTP status code.
-  */
+  * @returns {string|null} return.html - The HTML content of the response (full content or head section for partial content) if successful, or `null` if an error occurred.
+  * @returns {number|string} return.httpStatus - HTTP status code or error code (REQUEST_TIMEOUT, UNKNOWN_ERROR).
+ */
   fetchWithRange: async (url, rangeSize = 32000, timeout = 20000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
@@ -127,14 +130,15 @@ const fetchHelper = {
 
   /**
   * A helper for making HTTP requests with a timeout and stream reading.
+  * Reads the response stream until the </head> tag is found and returns only the head section.
   *
   * @param {string} url - The URL to fetch.
-  * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms..
+  * @param {number} [timeout=20000] - The timeout in milliseconds before aborting the request. Defaults to 20000ms.
   *
   * @returns {Promise<Object>} The result of the fetch request.
-  * @returns {string|null} return.html - The HTML content of the response if successful, or `null` if an error occurred.
-  * @returns {number} return.status -  HTTP status code.
-  */
+  * @returns {string|null} return.html - The head section of the HTML if found, or `null` if not found or an error occurred.
+  * @returns {number|string} return.httpStatus - HTTP status code, error code (REQUEST_TIMEOUT, UNKNOWN_ERROR), or NOT_IMPLEMENTED status.
+ */
   fetchWithStream: async (url, timeout = 20000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);

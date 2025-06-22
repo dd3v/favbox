@@ -7,7 +7,7 @@ import MetadataParser from '@/parser/metadata';
 import bookmarkHelper from '@/helpers/bookmark';
 
 const sync = async () => {
-  console.time('Execution time');
+  console.time('Sync time');
   await initStorage();
   const bookmarkStorage = new BookmarkStorage();
   const attributeStorage = new AttributeStorage();
@@ -23,13 +23,15 @@ const sync = async () => {
     return;
   }
   await browser.storage.session.set({ status: false });
+  const foldersMap = await bookmarkHelper.buildFoldersMap();
+  console.log('Folders map:', foldersMap);
   const bookmarksIterator = await bookmarkHelper.iterateBookmarks();
   let batch = [];
   let processed = 0;
   for await (const b of bookmarksIterator) {
     batch.push(b);
     processed += 1;
-    if (batch.length % 100 === 0 || processed === browserTotal) {
+    if (batch.length % 150 === 0 || processed === browserTotal) {
       try {
         const browserBookmarkKeyList = batch.map((i) => i.id);
         const extBookmarksKeyList = await bookmarkStorage.getIds(browserBookmarkKeyList);
@@ -44,7 +46,7 @@ const sync = async () => {
           return { bookmark, response };
         }));
         const parseResult = await Promise.all(
-          httpResults.map(({ bookmark, response }) => (new MetadataParser(bookmark, response)).getFavboxBookmark()),
+          httpResults.map(({ bookmark, response }) => (new MetadataParser(bookmark, response, foldersMap)).getFavboxBookmark()),
         );
         console.time('DB execution time');
         console.warn(parseResult);
@@ -66,7 +68,7 @@ const sync = async () => {
     }
   }
   await browser.storage.session.set({ status: true });
-  console.timeEnd('Execution time');
+  console.timeEnd('Sync time');
 };
 
 export default sync;
