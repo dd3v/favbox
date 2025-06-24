@@ -9,7 +9,7 @@ const ping = () => {
     }
   };
   const forceReconnect = (port) => {
-    console.warn('Reconnect...');
+    console.warn('🔔 Reconnect...');
     deleteTimer(port);
     port.disconnect();
   };

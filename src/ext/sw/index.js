@@ -6,7 +6,7 @@ import fetchHelper from '@/helpers/fetch';
 import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmark';
 import sync from './sync';
-// import ping from './ping';
+import ping from './ping';
 
 const bookmarkStorage = new BookmarkStorage();
 const attributeStorage = new AttributeStorage();
@@ -40,12 +40,14 @@ const captureScreenshotByUrl = async (bookmark) => {
 browser.runtime.onInstalled.addListener(async () => {
   browser.contextMenus.create({ id: 'openPopup', title: 'Bookmark this page', contexts: ['all'] });
   await browser.alarms.create('healthcheck', { periodInMinutes: 0.5 });
+  await browser.storage.session.set({ nativeImport: false });
   waitUntil(sync());
 });
 
 browser.runtime.onStartup.addListener(async () => {
-  await initStorage();
   console.warn('Wake up..');
+  await initStorage();
+  await browser.storage.session.set({ nativeImport: false });
   const alarm = await browser.alarms.get('healthcheck');
   if (!alarm) {
     await browser.alarms.create('healthcheck', { periodInMinutes: 0.5 });
@@ -83,7 +85,7 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
     response = await fetchHelper.fetch(bookmark.url, 15000);
   } else {
     // fetch HTML from active tab (content script)
-    activeTab = await browser.tabs.query({ active: true });
+    [activeTab] = await browser.tabs.query({ active: true });
     try {
       console.warn('activeTab', activeTab);
       console.warn('requesting html from tab', activeTab);
@@ -91,7 +93,7 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
       response = { html: content?.html, error: 0 };
       console.warn('response from tab', response);
     } catch (e) {
-      console.log('No tabs. It is weird. Fetching data from internet.. 🌎');
+      console.error('No tabs. It is weird. Fetching data from internet.. 🌎', e);
       response = await fetchHelper.fetch(bookmark.url, 15000);
     }
   }
@@ -242,7 +244,7 @@ browser.bookmarks.onImportBegan.addListener(() => {
 });
 
 // https://developer.chrome.com/docs/extensions/reference/api/bookmarks#event-onImportEnded
-chrome.bookmarks.onImportEnded.addListener(() => {
+browser.bookmarks.onImportEnded.addListener(() => {
   console.log('📄 Import bookmarks ended');
   browser.storage.session.set({ nativeImport: false });
 });
@@ -254,4 +256,4 @@ function refreshUserInterface() {
     console.error('Refresh UI listener not available', e);
   }
 }
-// ping();
+ping();

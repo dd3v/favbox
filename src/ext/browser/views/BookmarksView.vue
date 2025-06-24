@@ -123,7 +123,7 @@ import AppDrawer from '@/components/app/AppDrawer.vue';
 import AttributeList from '@/ext/browser/components/AttributeList.vue';
 import BookmarkStorage from '@/storage/bookmark';
 import AttributeStorage from '@/storage/attribute';
-import initStorage from '@/storage/idb/idb';
+
 import bookmarkHelper from '@/helpers/bookmark';
 import SearchTerm from '@/ext/browser/components/SearchTerm.vue';
 import ViewMode from '@/ext/browser/components/ViewMode.vue';
@@ -140,8 +140,6 @@ import RiBookmarkFill from '~icons/ri/bookmark-fill';
 const BOOKMARKS_LIMIT = import.meta.env.VITE_BOOKMARKS_PAGINATION_LIMIT;
 const ATTRIBUTES_LIMIT = import.meta.env.VITE_ATTRIBUTES_PAGINATION_LIMIT;
 const NOTIFICATION_DURATION = import.meta.env.VITE_NOTIFICATION_DURATION;
-
-await initStorage();
 const bookmarkStorage = new BookmarkStorage();
 const attributeStorage = new AttributeStorage();
 

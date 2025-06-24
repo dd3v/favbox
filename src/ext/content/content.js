@@ -19,3 +19,5 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ html: document.documentElement.outerHTML });
   }
 });
+
+console.log('</> Content script loaded');

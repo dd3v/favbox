@@ -15,10 +15,11 @@
 </template>
 
 <script setup>
-import { onErrorCaptured } from 'vue';
+import { onErrorCaptured, onMounted } from 'vue';
 import { notify } from 'notiwind';
 import AppNotifications from '@/components/app/AppNotifications.vue';
 import ASide from '@/ext/browser/components/ASide.vue';
+import initStorage from '@/storage/idb/idb';
 import ClarityBookmarkLine from '~icons/clarity/bookmark-line';
 import ClarityPinLine from '~icons/clarity/pin-line';
 import ClarityHeartBrokenLine from '~icons/clarity/heart-broken-line';
@@ -33,6 +34,9 @@ onErrorCaptured((e) => {
   notify({ group: 'error', text: e.message }, 8500);
 });
 
+onMounted(async () => {
+  await initStorage();
+});
 </script>
 
 <style>
