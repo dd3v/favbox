@@ -31,7 +31,7 @@ const sync = async () => {
   for await (const b of bookmarksIterator) {
     batch.push(b);
     processed += 1;
-    if (batch.length % 150 === 0 || processed === browserTotal) {
+    if (batch.length % 50 === 0 || processed === browserTotal) {
       try {
         const browserBookmarkKeyList = batch.map((i) => i.id);
         const extBookmarksKeyList = await bookmarkStorage.getIds(browserBookmarkKeyList);
