@@ -1,34 +1,33 @@
 <template>
   <div
-    v-if="showImage"
-    class="flex items-center justify-center"
-    :class="{ 'min-h-[132px]': !bookmark.image }"
+    class="size-full"
+    :class="{ 'flex items-center justify-center': bookmark.image }"
   >
     <img
-      v-if="bookmark.image || bookmark.favicon"
+      v-if="bookmark.image"
       :key="bookmark.id"
       :src="String(bookmark.image || bookmark.favicon)"
       :alt="bookmark.title"
-      class="max-h-full max-w-full transition-all duration-700 ease-out"
+      class="max-h-full max-w-full object-cover transition-all duration-700 ease-out"
       :class="{
-        'object-cover': bookmark.image,
-        'object-contain p-2': !bookmark.image && bookmark.favicon,
         'blur-sm': isLoading,
         'blur-0': !isLoading
       }"
       @load="handleImageLoad"
       @error="handleImageError"
     >
+    <ImagePlaceholder
+      v-else
+      :favicon="bookmark.favicon"
+      :title="bookmark.domain"
+      class="size-full"
+    />
   </div>
-  <div
-    v-else
-    class="flex h-32 w-full items-center justify-center"
-    :class="gradient"
-  />
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import ImagePlaceholder from '@/ext/browser/components/card/ImagePlaceholder.vue';
 
 defineProps({
   bookmark: {
@@ -39,13 +38,6 @@ defineProps({
 
 const showImage = ref(true);
 const isLoading = ref(true);
-
-const gradients = [
-  'bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-[size:20px_20px] text-white',
-  'bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] text-black',
-];
-
-const gradient = computed(() => gradients[Math.floor(Math.random() * gradients.length)]);
 
 const handleImageLoad = () => {
   setTimeout(() => {

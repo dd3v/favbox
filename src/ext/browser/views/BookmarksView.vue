@@ -116,7 +116,7 @@
 <script setup>
 import {
   reactive, ref, watch, onMounted,
-  onUnmounted, computed, useTemplateRef,
+  onBeforeUnmount, computed, useTemplateRef,
 } from 'vue';
 import { notify } from 'notiwind';
 import AppDrawer from '@/components/app/AppDrawer.vue';
@@ -171,7 +171,7 @@ const bookmarksEditState = reactive({
 });
 
 const bookmarksIsEmpty = computed(() => bookmarksList.value.length === 0 && !loading.value);
-const bookmarksTotalPlaceholder = computed(() => `Total: ${bookmarksTotal.value}. Search bookmarks...🚀`);
+const bookmarksTotalPlaceholder = computed(() => `Total: ${bookmarksTotal.value}. Press Enter to search.. 🚀`);
 
 const paginateBookmarks = async (skip) => {
   try {
@@ -307,6 +307,17 @@ const handleScreenshot = async (bookmark) => {
   }
 };
 
+const onVisibilityChange = async () => {
+  if (document.visibilityState === 'visible') {
+    try {
+      const result = await chrome.runtime.sendMessage({ action: 'sayHello' });
+      console.log('Service worker response:', result);
+    } catch (error) {
+      console.error('sw error', error);
+    }
+  }
+};
+
 browser.runtime.onMessage.addListener(async (message) => {
   if (message.action === 'refresh') {
     await refresh();
@@ -364,7 +375,10 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
+  document.addEventListener('visibilitychange', onVisibilityChange);
 });
 
-onUnmounted(() => {});
+onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onVisibilityChange);
+});
 </script>

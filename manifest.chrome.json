@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FavBox",
-  "description": "Clear and modern bookmarking tool.",
-  "version": "2.0.2",
+  "description": "A clean, modern bookmark app — local-first by design.",
+  "version": "2.0.3",
   "permissions": [
     "bookmarks",
     "activeTab",
@@ -22,6 +22,16 @@
   },
   "action": {
     "default_popup": "ext/popup/index.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y",
+        "chromeos": "Ctrl+Shift+U",
+        "linux": "Ctrl+Shift+J"
+      }
+    }
   },
   "background": {
     "service_worker": "ext/sw/index.js",

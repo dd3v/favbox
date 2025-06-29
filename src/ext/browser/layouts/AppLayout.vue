@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen w-full font-sans">
+  <div class="flex h-screen w-full scroll-smooth font-sans">
     <a-side :items="menu" />
     <main class="size-full overflow-hidden">
       <suspense>

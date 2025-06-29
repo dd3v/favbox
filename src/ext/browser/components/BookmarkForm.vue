@@ -1,7 +1,6 @@
 <template>
   <form
     class="space-y-3"
-    @keydown.enter.prevent
     @submit.prevent="submit"
   >
     <label
@@ -34,7 +33,7 @@
       class="relative"
       :max="5"
       :suggestions="tags"
-      placeholder="Tag it, press Enter or Tab 🏷️"
+      placeholder="Tag it and press Enter"
     />
     <AppButton class="w-full">
       Save bookmark

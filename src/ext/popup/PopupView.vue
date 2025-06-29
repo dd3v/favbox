@@ -1,15 +1,22 @@
 <template>
   <div class="relative inset-0 flex h-full min-h-64 min-w-96 flex-col">
-    <div class="flex justify-between bg-white p-3 align-middle dark:bg-black">
-      <h4 class="font-sans text-xl font-medium dark:text-white">
-        FavBox
-      </h4>
-      <div class="group relative inline-flex items-center justify-center gap-4 self-end">
+    <div class="flex items-center justify-between bg-white p-3 dark:bg-black">
+      <div class="flex items-center gap-3">
+        <div class="flex size-[48px] items-center justify-center rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 text-[18px] font-bold text-white shadow-md dark:bg-gradient-to-r dark:from-gray-100 dark:to-gray-300 dark:text-black">
+          <RiBookmarkFill class="size-6" />
+        </div>
+
+        <h4 class="font-sans text-xl font-semibold tracking-tight dark:text-white">
+          FavBox
+        </h4>
+      </div>
+
+      <div class="group relative inline-flex items-center justify-center">
         <div
-          class="absolute inset-1 rounded-md bg-gradient-to-r from-indigo-500 via-pink-500 to-yellow-400 opacity-0 blur-lg transition-all duration-500 group-hover:opacity-100 group-hover:blur-md group-hover:duration-200"
+          class="absolute inset-0 rounded-md bg-gradient-to-r from-indigo-500 via-pink-500 to-yellow-400 opacity-0 blur-lg transition-all duration-500 group-hover:opacity-100 group-hover:blur-md group-hover:duration-200"
         />
         <button
-          class="group relative inline-flex items-center justify-center rounded-md bg-black px-3 py-1.5 text-xs text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-900"
+          class="group relative inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-xs font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-900 hover:shadow-lg"
           @click="openApp"
         >
           Open App
@@ -66,6 +73,7 @@ import bookmarkHelper from '@/helpers/bookmark';
 import initStorage from '@/storage/idb/idb';
 import BookmarkStorage from '@/storage/bookmark';
 import LineMdConfirm from '~icons/line-md/confirm?width=24px&height=24px';
+import RiBookmarkFill from '~icons/ri/bookmark-fill';
 
 await initStorage();
 const tags = await (new BookmarkStorage()).getTags();
@@ -98,10 +106,12 @@ const handleSubmit = async (data) => {
     window.close();
   }
 };
+
 const openApp = () => {
   browser.tabs.create({ url: '/ext/browser/index.html', index: tab.index + 1 });
   window.close();
 };
+
 onMounted(async () => {
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     document.documentElement.classList.add('dark');

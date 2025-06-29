@@ -19,7 +19,6 @@
         <span class="whitespace-nowrap text-xs">{{ value }}</span>
       </AppBadge>
       <input
-        v-if="showInput"
         ref="inputRef"
         v-model="tag"
         class="min-w-[20%] flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-xs placeholder:text-xs focus:outline-none focus:ring-0"
@@ -28,7 +27,6 @@
         :placeholder="tags.length ? '' : placeholder"
         aria-label="Tag input"
         @keydown.enter.prevent="add"
-        @keydown.tab.prevent="add"
         @keydown.delete="removeLast"
         @keydown.arrow-up.prevent="arrowUp"
         @keydown.arrow-down.prevent="arrowDown"
@@ -92,7 +90,6 @@ const inputRef = ref(null);
 const emit = defineEmits(['update:modelValue']);
 const tag = ref('');
 const suggestionRef = ref([]);
-const showInput = ref(false);
 
 const tags = computed({
   get: () => props.modelValue,
@@ -100,7 +97,6 @@ const tags = computed({
 });
 
 const focus = () => {
-  showInput.value = true;
   nextTick(() => {
     if (inputRef.value) {
       inputRef.value.focus();
@@ -161,9 +157,6 @@ watch(tag, () => {
 });
 
 onMounted(() => {
-  if (tags.value.length === 0) {
-    showInput.value = true;
-  }
   document.addEventListener('click', hideSuggestions);
 });
 
