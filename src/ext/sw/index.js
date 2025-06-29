@@ -58,6 +58,7 @@ browser.runtime.onStartup.addListener(async () => {
 browser.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'healthcheck') {
     console.log('health check');
+    await browser.storage.local.set({ lastHealthCheck: Date.now() });
   }
 });
 
@@ -228,6 +229,9 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         } catch (e) {
           sendResponse({ image: null, error: e.message });
         }
+        break;
+      case 'sayHello':
+        sendResponse({ message: 'Hello from service worker!' });
         break;
       default:
         console.warn('Unknown message type:', message);

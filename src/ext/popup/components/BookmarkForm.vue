@@ -1,7 +1,6 @@
 <template>
   <form
     @submit.prevent="submit"
-    @keydown.enter.prevent
   >
     <div class="space-y-3">
       <label
@@ -40,7 +39,7 @@
         v-model="selectedTags"
         :max="5"
         :suggestions="tags"
-        placeholder="Tag it, press Enter or Tab 🏷️"
+        placeholder="Tag it and press 🏷️"
       />
       <div class="my-4 flex w-full justify-between">
         <AppButton

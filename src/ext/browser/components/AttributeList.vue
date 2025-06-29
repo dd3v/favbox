@@ -1,22 +1,22 @@
 <template>
   <div
-    class="flex h-screen w-full max-w-64 flex-col bg-white p-2 dark:bg-black"
+    class="flex h-screen w-full max-w-64 flex-col border-r bg-soft-100/10 p-2 dark:border-neutral-800 dark:bg-black"
   >
     <div class="flex w-full">
       <div class="relative w-full">
-        <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-          <MaterialSymbolsLightCategorySearchOutline class="size-5 text-black dark:text-white" />
+        <div class="absolute top-2 flex items-center pl-2">
+          <MaterialSymbolsLightCategorySearchOutline class="size-5 text-gray-400 dark:text-white" />
         </div>
         <input
           v-model="term"
           autocomplete="off"
           type="text"
-          class="h-9 w-full rounded-md border-gray-200 px-9 text-xs text-black shadow-sm outline-none placeholder:text-xs focus:border-gray-300 focus:ring-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
+          class="mb-2 h-9 w-full rounded-md border-2 border-gray-300/50 px-9 text-xs text-black shadow-sm outline-none placeholder:text-xs focus:border-gray-400/30 focus:ring-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
         >
         <Popover class="relative">
           <PopoverButton
             ref="popoverButtonRef"
-            class="pointer-events-auto absolute inset-y-0 -top-9 right-0 flex items-center pr-2 focus:outline-none focus:ring-0"
+            class="pointer-events-auto absolute inset-y-1 -top-12 right-0 flex items-center pr-2 focus:outline-none focus:ring-0"
           >
             <div class="flex flex-wrap items-center gap-x-1 text-sm text-gray-400 dark:text-neutral-600">
               <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-lg shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
@@ -137,7 +137,7 @@
             :key="item.id + key"
             :for="item.id + key"
             :class="{'bg-neutral-100 dark:bg-neutral-900': selected(item.key, item.value)}"
-            class="my-1 flex cursor-pointer place-items-end items-center rounded-md p-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900"
+            class="my-1 flex cursor-pointer place-items-end items-center rounded-md px-3 py-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900"
           >
             <component
               :is="getIcon(item)"

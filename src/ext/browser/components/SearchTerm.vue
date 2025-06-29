@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-9 w-full overflow-x-auto whitespace-nowrap rounded-md border border-gray-200 bg-white px-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
+    class="flex h-9 w-full overflow-x-auto whitespace-nowrap rounded-md border-2 border-gray-300/50 bg-white px-1 shadow-sm focus-within:border-gray-400/30 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
   >
     <ul class="flex h-full items-center gap-x-1">
       <li

@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <button
-      class="inline-flex size-9 items-center justify-center rounded-md border bg-white text-gray-700 shadow-sm hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
+      class="inline-flex size-9 items-center justify-center rounded-md border-2 border-gray-400/30 bg-white text-gray-700 shadow-sm hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
       @click="toggleSort"
     >
       <component
