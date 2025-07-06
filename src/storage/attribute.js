@@ -33,7 +33,7 @@ export default class AttributeStorage {
     const whereConditions = [{ key }];
     if (value) {
       whereConditions.push({
-        value: { like: `${value}%` },
+        value: { like: `%${value}%` },
       });
     }
     return connection.select({

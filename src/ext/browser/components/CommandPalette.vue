@@ -18,7 +18,7 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed bg-transparent backdrop-blur-lg" />
+        <div class="fixed inset-0 bg-transparent backdrop-blur" />
       </TransitionChild>
       <div class="fixed inset-0 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center">
@@ -32,7 +32,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="flex min-h-96 w-full max-w-md overflow-hidden rounded-lg border bg-white/40 shadow-lg backdrop-blur-lg transition-all dark:border-neutral-800 dark:bg-black/40 dark:text-white"
+              class="flex h-screen max-h-[32rem] w-full max-w-md overflow-hidden rounded-lg border bg-white/60 shadow-lg backdrop-blur-lg transition-all dark:border-neutral-800 dark:bg-black/40 dark:text-white"
             >
               <div
                 class="flex w-full flex-col items-start justify-center"
@@ -41,27 +41,21 @@
                 @keydown.enter.prevent="selectActiveItem"
                 @keydown.backspace="handleBackspace"
               >
-                <div class="flex w-full items-center px-4 py-3 text-gray-700 ">
-                  <span class="mr-2 text-xl dark:text-white">
+                <div class="flex w-full items-center px-4 py-3 text-gray-700">
+                  <span class="mr-2 text-xl text-gray-800 dark:text-gray-200">
                     <PhMagnifyingGlassLight />
                   </span>
                   <input
                     ref="input"
                     v-model="searchTerm"
                     type="text"
-                    class="flex-1 border-none bg-transparent text-sm outline-none ring-0 placeholder:text-gray-700 focus:border-0 focus:border-none focus:ring-0 dark:text-white dark:placeholder:text-white"
+                    class="flex-1 border-none bg-transparent text-sm outline-none ring-0 placeholder:text-gray-600 focus:border-0 focus:border-none focus:ring-0 dark:text-gray-100 dark:placeholder:text-gray-400"
                     placeholder="Search..."
                     autocomplete="off"
                     autocorrect="off"
                     spellcheck="false"
                     @blur="refocusInput"
                   >
-                  <span
-                    v-if="command?.key"
-                    class="ml-3 p-1 text-xs text-gray-700 dark:text-white"
-                  >
-                    {{ command.value }}
-                  </span>
                 </div>
 
                 <AppInfiniteScroll
@@ -69,25 +63,33 @@
                   :limit="100"
                   @scroll:end="paginate"
                 >
+                  <div
+                    v-if="isLoading"
+                    class="flex min-h-full items-center justify-center p-4"
+                  >
+                    <AppSpinner class="size-6" />
+                  </div>
                   <ul
-                    v-if="items.length"
+                    v-else-if="items.length"
                     class="space-y-2"
                   >
                     <li
                       v-for="(item, index) in items"
                       :key="index"
                       ref="item"
-                      class="flex cursor-pointer items-center gap-x-2 rounded-md p-3 transition-colors duration-200 hover:bg-black/10 hover:dark:bg-white/10"
+                      class="flex cursor-pointer items-center gap-x-2 rounded-md p-3 transition-colors duration-200 hover:bg-black/5 hover:dark:bg-white/10"
                       :class="{
                         'bg-black/10 dark:bg-white/10': activeIndex === index
                       }"
                       @click="selectItem(item)"
                     >
-                      <component
-                        :is="item.icon"
-                        class="size-5 text-gray-700 dark:text-gray-300"
-                      />
-                      <span class="text-sm text-gray-700 dark:text-white">{{ item.value }}</span>
+                      <div class="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-white to-gray-100 backdrop-blur-sm dark:from-black/80 dark:to-black/80">
+                        <component
+                          :is="item.icon"
+                          class="size-4 text-gray-700 dark:text-gray-200"
+                        />
+                      </div>
+                      <span class="text-sm text-gray-800 dark:text-gray-100">{{ item.value }}</span>
                     </li>
                   </ul>
                   <div
@@ -97,19 +99,19 @@
                     No results found.
                   </div>
                 </AppInfiniteScroll>
-                <div class="w-full border-t border-black/10 bg-black/5 px-4 py-3 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+                <div class="w-full border-t border-gray-200 bg-gray-50 px-4 py-3 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                      <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-gray-900 dark:bg-black dark:text-gray-300">↑↓</kbd>
-                      <span class="text-xs text-gray-500 dark:text-gray-400">navigate</span>
+                      <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200">↑↓</kbd>
+                      <span class="text-xs text-gray-600 dark:text-gray-300">navigate</span>
                     </div>
                     <div class="flex items-center gap-4">
                       <div class="flex items-center gap-2">
-                        <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-gray-900 dark:bg-black dark:text-gray-300">↵</kbd>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">select</span>
+                        <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200">↵</kbd>
+                        <span class="text-xs text-gray-600 dark:text-gray-300">select</span>
                       </div>
                       <div class="flex items-center gap-2">
-                        <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-gray-900 dark:bg-black dark:text-gray-300">esc</kbd>
+                        <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200">esc</kbd>
                       </div>
                     </div>
                   </div>
@@ -133,6 +135,8 @@ import {
   DialogPanel,
 } from '@headlessui/vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
+import debounce from '@/helpers/debounce';
 
 import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
 import PhHashStraightLight from '~icons/ph/hash-straight-light';
@@ -150,6 +154,7 @@ const command = ref(null);
 const items = ref([]);
 const itemRef = useTemplateRef('item');
 const inputRef = useTemplateRef('input');
+const isLoading = ref(false);
 
 const commands = [
   { key: 'command', value: 'tag', icon: PhHashStraightLight },
@@ -158,11 +163,21 @@ const commands = [
   { key: 'command', value: 'keyword', icon: PhListMagnifyingGlassLight },
 ];
 
+const iconMap = {
+  tag: PhHashStraightLight,
+  folder: PhFolderSimpleLight,
+  domain: PhGlobeSimpleLight,
+  keyword: PhListMagnifyingGlassLight,
+};
+
 const paginate = async (skip) => {
   try {
-    items.value.push(
-      ...(await attributeStorage.filterByKeyAndValue(command.value.value, searchTerm.value, skip, 100)),
-    );
+    const results = await attributeStorage.filterByKeyAndValue(command.value.value, searchTerm.value, skip, 100);
+    const resultsWithIcons = results.map((item) => ({
+      ...item,
+      icon: iconMap[item.key],
+    }));
+    items.value.push(...resultsWithIcons);
   } catch (e) {
     console.error(e);
   }
@@ -190,10 +205,51 @@ const navigateUp = () => {
   }
 };
 
-const selectItem = (item) => {
-  command.value = item;
+const performSearch = debounce(async () => {
+  if (!command.value) {
+    const term = searchTerm.value.trim().toLowerCase();
+    items.value = term === '' ? commands : commands.filter((k) => k.value.toLowerCase().includes(term));
+    activeIndex.value = 0;
+  } else {
+    isLoading.value = true;
+    try {
+      const results = await attributeStorage.filterByKeyAndValue(command.value.value, searchTerm.value, 0, 50);
+      items.value = results.map((item) => ({
+        ...item,
+        icon: iconMap[item.key],
+      }));
+      activeIndex.value = 0;
+    } catch (e) {
+      console.error('Search error:', e);
+      items.value = [];
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}, 200);
+
+const close = () => {
+  isOpen.value = false;
   searchTerm.value = '';
+  command.value = null;
   activeIndex.value = -1;
+  items.value = [];
+  emit('onVisibilityToggle', false);
+};
+
+const handleCommandSelect = (selectedCommand) => {
+  if (selectedCommand.key === 'command') {
+    command.value = selectedCommand;
+    searchTerm.value = '';
+    performSearch();
+  } else {
+    emit('onSelected', [{ key: selectedCommand.key, value: selectedCommand.value }]);
+    close();
+  }
+};
+
+const selectItem = (item) => {
+  handleCommandSelect(item);
 };
 
 const selectActiveItem = () => {
@@ -207,24 +263,17 @@ const handleBackspace = (event) => {
     command.value = null;
     activeIndex.value = -1;
     searchTerm.value = '';
+    performSearch();
     event.preventDefault();
-  } else {
-    return true;
   }
-};
-
-watch(searchTerm, () => { activeIndex.value = 0; });
-
-const close = () => {
-  isOpen.value = false;
-  searchTerm.value = '';
-  command.value = null;
-  activeIndex.value = -1;
-  emit('onVisibilityToggle', false);
 };
 
 const toggle = () => {
   isOpen.value = !isOpen.value;
+  if (isOpen.value) {
+    items.value = commands;
+    activeIndex.value = 0;
+  }
   emit('onVisibilityToggle', isOpen.value);
 };
 
@@ -238,37 +287,18 @@ const hotKey = (event) => {
 
 const refocusInput = () => setTimeout(() => { inputRef.value?.focus(); }, 10);
 
-const arraySearch = () => {
-  const term = searchTerm.value.trim().toLowerCase();
-  items.value = term === '' ? commands : commands.filter((k) => k.value.toLowerCase().includes(term));
-};
-
-const dbSearch = async () => {
-  try {
-    items.value = await attributeStorage.filterByKeyAndValue(command.value.value, searchTerm.value, 0, 50);
-  } catch (e) {
-    console.error(e);
+watch(searchTerm, () => {
+  if (isOpen.value) {
+    performSearch();
   }
-};
+});
 
-const search = async () => {
-  !command.value ? arraySearch() : await dbSearch();
-};
-
-// FIXME
-watch(searchTerm, () => search());
-watch(
-  command,
-  () => {
-    if (!command.value || command.value.key === 'command') {
-      search();
-    } else {
-      emit('onSelected', [{ key: command.value.key, value: command.value.value }]);
-      close();
-    }
-  },
-  { immediate: true },
-);
+watch(isOpen, (newValue) => {
+  if (newValue) {
+    items.value = commands;
+    activeIndex.value = 0;
+  }
+});
 
 defineExpose({ toggle });
 
