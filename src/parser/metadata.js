@@ -1,6 +1,8 @@
 import { parseHTML } from 'linkedom';
-import tagHelper from '@/helpers/tags';
 
+/**
+ * Class for parsing bookmark metadata from HTML documents.
+ */
 export default class MetadataParser {
   #bookmark;
 
@@ -10,55 +12,83 @@ export default class MetadataParser {
 
   #folders;
 
+  #tagHelper;
+
   /**
-  * Creates an instance of a class that processes a bookmark.
-  *
-  * @param {Object} bookmark - The bookmark object from browser.
-  * @param {Object} httpResponse - The response object from the HTTP request made to the bookmark URL.
-  * @param {Map<string, string>} [folders=new Map()] - Cache map of folder IDs to folder names.
-  */
-  constructor(bookmark, httpResponse, folders = new Map()) {
+   * Creates an instance of MetadataParser.
+   * @param {Object} bookmark - The bookmark object from browser.
+   * @param {Object} httpResponse - The HTTP response object containing HTML.
+   * @param {Object} tagHelper - Helper for tag and title processing.
+   * @param {Map<string, string>} [folders=new Map()] - Cache map of folder IDs to names.
+   */
+  constructor(bookmark, httpResponse, tagHelper, folders = new Map()) {
     const { document } = parseHTML(httpResponse.html);
     this.#bookmark = bookmark;
     this.#dom = document;
     this.#httpResponse = httpResponse;
     this.#folders = folders;
+    this.#tagHelper = tagHelper;
   }
 
   /**
-  * Retrieves the title from various sources in the HTML document.
-  *
-  * @returns {string|null} - The title of the document or null if not found.
-  */
+   * Retrieves the title from various sources in the HTML document.
+   * @returns {string} The document title, or an empty string if not found.
+   */
   getTitle() {
-    const title = this.#bookmark.title
-      ?? this.#dom.title
-      ?? this.#dom.querySelector('meta[property="og:title"], meta[name="twitter:title"]')?.getAttribute('content')
-      ?? this.#dom.querySelector('h1')?.textContent
-      ?? this.#dom.querySelector('h2')?.textContent;
-    return title || null;
+    // Check if bookmark title is empty or whitespace
+    if (!this.#bookmark.title?.trim()) {
+      // Try document title first
+      if (this.#dom.title) {
+        return this.#dom.title;
+      }
+      const metaSelectors = [
+        'meta[property="og:title"]',
+        'meta[name="twitter:title"]',
+      ];
+      for (const selector of metaSelectors) {
+        const element = this.#dom.querySelector(selector);
+        if (element?.getAttribute('content')) {
+          return element.getAttribute('content');
+        }
+      }
+      const headingSelectors = ['h1', 'h2'];
+      for (const selector of headingSelectors) {
+        const element = this.#dom.querySelector(selector);
+        if (element?.textContent?.trim()) {
+          return element.textContent.trim();
+        }
+      }
+      return '';
+    }
+    return this.#bookmark.title;
   }
 
   /**
-  * Retrieves the description from various meta tags in the HTML document.
-  *
-  * @returns {string|null} - The description of the document or null if not found.
-  */
+   * Retrieves the description from various meta tags in the HTML document.
+   * @returns {string|null} The document description, or null if not found.
+   */
   getDescription() {
     const selectors = [
       'meta[property="og:description"]',
       'meta[name="twitter:description"]',
       'meta[name="description"]',
     ];
-    return this.#dom.querySelector(selectors.join(','))?.getAttribute('content') ?? null;
+
+    for (const selector of selectors) {
+      const element = this.#dom.querySelector(selector);
+      if (element) {
+        return element.getAttribute('content') ?? null;
+      }
+    }
+
+    return null;
   }
 
   /**
-  * Retrieves the image from the HTML document.
-  *
-  * @returns {string|null} - The URL of the Apple Touch icon or null if not found.
-  * @private
-  */
+   * Searches for preview image on the page.
+   * @returns {string|null} The image URL, or null if not found.
+   * @private
+   */
   #searchPagePreview() {
     const htmlElem = this.#dom.querySelector([
       'img[class*="hero"]',
@@ -76,11 +106,10 @@ export default class MetadataParser {
   }
 
   /**
-  * Retrieves the Open Graph/Meta image URL from the HTML document.
-  *
-  * @returns {string|null} - The URL of the Open Graph image or null if not found.
-  * @private
-  */
+   * Retrieves the Open Graph/Meta image URL from the HTML document.
+   * @returns {string|null} The URL of the Open Graph image, or null if not found.
+   * @private
+   */
   #getImageFromMeta() {
     const selectors = [
       'meta[property="og:image"]',
@@ -91,34 +120,38 @@ export default class MetadataParser {
       'link[rel="image_src"]',
       'meta[property="forem:logo"]',
     ];
-    const htmlElem = this.#dom.querySelector(selectors.join(','));
-    return (htmlElem?.getAttribute('content') || htmlElem?.getAttribute('href')) ?? null;
+
+    for (const selector of selectors) {
+      const element = this.#dom.querySelector(selector);
+      if (element) {
+        return element.getAttribute('content') || element.getAttribute('href') || null;
+      }
+    }
+
+    return null;
   }
 
   /**
-  * Retrieves the main image URL from the HTML document.
-  *
-  * @returns {string|null} - The URL of the main image or null if not found.
-  */
+   * Retrieves the main image URL from the HTML document.
+   * @returns {string|null} The URL of the main image, or null if not found.
+   */
   getImage() {
     const src = this.#getImageFromMeta() || this.#searchPagePreview();
     return src ? new URL(src, this.#bookmark.url).href : null;
   }
 
   /**
-  * Retrieves the domain from the bookmark URL.
-  *
-  * @returns {string} - The domain of the bookmark URL.
-  */
+   * Retrieves the domain from the bookmark URL.
+   * @returns {string} The domain of the bookmark URL.
+   */
   getDomain() {
     return new URL(this.#bookmark.url).hostname.replace(/^www\./, '');
   }
 
   /**
-  * Retrieves the favicon URL from the HTML document.
-  *
-  * @returns {string} - The URL of the favicon or a default favicon URL if not found.
-  */
+   * Retrieves the favicon URL from the HTML document.
+   * @returns {string} The URL of the favicon or a default favicon URL if not found.
+   */
   getFavicon() {
     let link = this.#dom.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute('href');
     if (!link) {
@@ -128,19 +161,17 @@ export default class MetadataParser {
   }
 
   /**
-  * Retrieves the URL of the bookmark.
-  *
-  * @returns {string} - The URL of the bookmark.
-  */
+   * Retrieves the URL of the bookmark.
+   * @returns {string} The URL of the bookmark.
+   */
   getUrl() {
     return this.#bookmark.url;
   }
 
   /**
-  * Retrieves the keywords from the HTML document's meta tags.
-  *
-  * @returns {string[]} - An array of keywords or an empty array if no keywords are found.
-  */
+   * Retrieves the keywords from the HTML document's meta tags.
+   * @returns {string[]} An array of keywords or an empty array if no keywords are found.
+   */
   getKeywords() {
     const keywords = this.#dom.querySelector('meta[name="keywords"]')?.getAttribute('content');
     if (!keywords) return [];
@@ -148,31 +179,31 @@ export default class MetadataParser {
   }
 
   /**
-  * Gets folder name from cache instead of making API call
-  *
-  * @returns {string} - The folder name or 'Unknown' if not found.
-  */
+   * Gets folder name from cache instead of making API call.
+   * @returns {string} The folder name or 'Unknown' if not found.
+   * @private
+   */
   #getFolderName() {
     return this.#folders.get(this.#bookmark.parentId.toString()) || 'Unknown';
   }
 
   /**
-  *
-  * @returns {Promise<Object>} - A promise that resolves to an object representing the bookmark entity.
-  */
+   * Builds a bookmark entity for Favbox.
+   * @returns {Promise<Object>} A promise that resolves to the bookmark entity object.
+   */
   async getFavboxBookmark() {
     const entity = {
       id: this.#bookmark.id,
       folderId: this.#bookmark.parentId,
       folderName: this.#getFolderName(),
-      title: tagHelper.getTitle(this.#bookmark.title),
+      title: this.#tagHelper.getTitle(this.#bookmark.title),
       description: this.getDescription(),
       favicon: this.getFavicon(),
       image: this.getImage(),
       domain: this.getDomain(),
       keywords: this.getKeywords(),
       url: this.#bookmark.url,
-      tags: tagHelper.getTags(this.#bookmark.title),
+      tags: this.#tagHelper.getTags(this.#bookmark.title),
       pinned: 0,
       notes: '',
       httpStatus: this.#httpResponse.httpStatus,

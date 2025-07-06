@@ -28,8 +28,8 @@ const tagHelper = {
   /**
   * Extracts tags from a string.
   *
-  * @param string $string The string from which to extract tags.
-  * @return array<string> An array of extracted tags.
+  * @param {string} string - The string from which to extract tags.
+  * @returns {Array<string>} An array of extracted tags.
   */
   getTags: (string) => {
     const parts = string.split(String.fromCodePoint(0x1f3f7)).map((part) => part.trim());
@@ -39,8 +39,8 @@ const tagHelper = {
     const tags = parts[1]
       .split(/(?=#)/)
       .map((tag) => tag.trim().replace(/^#/, ''))
-      .filter(Boolean);
-    return tags.length === 0 ? [] : tags;
+      .filter((tag) => tag && tag.length > 0 && !/^\uFE0F+$/.test(tag));
+    return tags;
   },
 
 };
