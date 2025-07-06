@@ -2,14 +2,13 @@
 import fetchHelper from '@/helpers/fetch';
 import BookmarkStorage from '@/storage/bookmark';
 import AttributeStorage from '@/storage/attribute';
-import initStorage from '@/storage/idb/idb';
 import MetadataParser from '@/parser/metadata';
+import tagHelper from '@/helpers/tags';
 import bookmarkHelper from '@/helpers/bookmark';
 import SaveQueue from '@/storage/queue';
 
 const sync = async () => {
   console.time('🕒 Sync time');
-  await initStorage();
   const bookmarkStorage = new BookmarkStorage();
   const attributeStorage = new AttributeStorage();
   const browserTotal = await bookmarkHelper.total();
@@ -42,7 +41,7 @@ const sync = async () => {
         return { skipped: true };
       }
       const response = await fetchHelper.fetch(bookmark.url);
-      const parseResult = await (new MetadataParser(bookmark, response, foldersMap)).getFavboxBookmark();
+      const parseResult = await (new MetadataParser(bookmark, response, tagHelper, foldersMap)).getFavboxBookmark();
       await saveQueue.add(parseResult);
 
       console.group(`Processing bookmark ${bookmark.id}`);

@@ -68,18 +68,18 @@
       </Dialog>
     </TransitionRoot>
     <div
-      v-if="!isOpen && !status && progress !== 100"
+      v-if="!isOpen && !status && progress < 100"
       class="fixed bottom-4 right-4 z-50"
     >
       <button
-        class="relative size-12 cursor-pointer rounded-full bg-black from-pink-500 via-blue-500 to-green-500 font-mono text-xs text-white shadow-[0_0_0_4px_rgba(180,160,255,0.253)] transition-all duration-300 after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-r after:opacity-60 after:blur-md hover:shadow-[0_0_20px_rgba(180,160,255,0.5)] hover:after:opacity-100"
+        class="relative size-16 cursor-pointer rounded-full bg-black from-pink-500 via-blue-500 to-green-500 font-mono text-xs text-white shadow-[0_0_0_4px_rgba(180,160,255,0.253)] transition-all duration-300 after:absolute after:inset-0 after:-z-10 after:rounded-full after:bg-gradient-to-r after:opacity-60 after:blur-md hover:shadow-[0_0_20px_rgba(180,160,255,0.5)] hover:after:opacity-100"
         type="button"
         aria-label="Sync progress"
         title="Sync progress"
         tabindex="0"
         @click="open"
       >
-        <span class="text-white">
+        <span class="text-sm text-white">
           <NumberFlow :value="progress" />%
         </span>
       </button>
@@ -117,6 +117,11 @@ browser.runtime.onMessage.addListener(async (message) => {
   if (message.action === 'refresh') {
     progress.value = message.data.progress;
     status.value = message.data.progress >= 100;
+
+    if (message.data.progress >= 100) {
+      isOpen.value = false;
+    }
+
     emit('onRefresh', message.data);
     console.warn('BookmarksSync', message.data);
   }

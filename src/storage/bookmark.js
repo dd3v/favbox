@@ -1,7 +1,8 @@
-import connection from './idb/connection';
+import useConnection from './idb/connection';
 
 export default class BookmarkStorage {
   async createMany(data) {
+    const connection = await useConnection();
     const result = await connection.insert({
       into: 'bookmarks',
       values: data,
@@ -13,6 +14,7 @@ export default class BookmarkStorage {
   }
 
   async selectAfterId(id, limit) {
+    const connection = await useConnection();
     const query = {
       from: 'bookmarks',
       limit,
@@ -23,6 +25,7 @@ export default class BookmarkStorage {
   }
 
   async search(query, skip = 0, limit = 50, sortDirection = 'desc') {
+    const connection = await useConnection();
     const queryParams = {};
     const whereConditions = [];
     query.forEach(({ key, value }) => {
@@ -74,12 +77,14 @@ export default class BookmarkStorage {
   }
 
   async total() {
+    const connection = await useConnection();
     return connection.count({
       from: 'bookmarks',
     });
   }
 
   async create(entity) {
+    const connection = await useConnection();
     return connection.insert({
       into: 'bookmarks',
       values: [entity],
@@ -87,6 +92,7 @@ export default class BookmarkStorage {
   }
 
   async updateHttpStatusById(id, status) {
+    const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: {
@@ -100,6 +106,7 @@ export default class BookmarkStorage {
   }
 
   async setOK() {
+    const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: { httpStatus: 200 },
@@ -107,6 +114,7 @@ export default class BookmarkStorage {
   }
 
   async getPinnedBookmarks(skip = 0, limit = 50, term = '') {
+    const connection = await useConnection();
     const whereConditions = [{ pinned: 1 }];
     if (term) {
       const regexPattern = term.split(/\s+/).map((word) => `(?=.*${word})`).join('');
@@ -137,6 +145,7 @@ export default class BookmarkStorage {
   }
 
   async updatePinStatusById(id, status) {
+    const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: {
@@ -150,6 +159,7 @@ export default class BookmarkStorage {
   }
 
   async update(id, data) {
+    const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: data,
@@ -160,6 +170,7 @@ export default class BookmarkStorage {
   }
 
   async removeByIds(ids) {
+    const connection = await useConnection();
     const result = await connection.remove({
       from: 'bookmarks',
       where: {
@@ -172,6 +183,7 @@ export default class BookmarkStorage {
   }
 
   async remove(id) {
+    const connection = await useConnection();
     return connection.remove({
       from: 'bookmarks',
       where: { id },
@@ -179,6 +191,7 @@ export default class BookmarkStorage {
   }
 
   async createMultiple(data) {
+    const connection = await useConnection();
     return connection.insert({
       into: 'bookmarks',
       values: data,
@@ -189,6 +202,7 @@ export default class BookmarkStorage {
   }
 
   async getIds(ids) {
+    const connection = await useConnection();
     const response = await connection.select({
       from: 'bookmarks',
       where: {
@@ -201,6 +215,7 @@ export default class BookmarkStorage {
   }
 
   async getByFolderName(folderId) {
+    const connection = await useConnection();
     const response = await connection.select({
       from: 'bookmarks',
       limit: 1,
@@ -213,6 +228,7 @@ export default class BookmarkStorage {
   }
 
   async updateFolderNameByFolderId(id, title) {
+    const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: {
@@ -226,6 +242,7 @@ export default class BookmarkStorage {
   }
 
   async getById(id) {
+    const connection = await useConnection();
     const response = await connection.select({
       from: 'bookmarks',
       limit: 1,
@@ -238,6 +255,7 @@ export default class BookmarkStorage {
   }
 
   async getByUrl(url) {
+    const connection = await useConnection();
     const response = await connection.select({
       from: 'bookmarks',
       limit: 1,
@@ -250,6 +268,7 @@ export default class BookmarkStorage {
   }
 
   async getTags() {
+    const connection = await useConnection();
     const response = await connection.select({
       from: 'bookmarks',
       flatten: ['tags'],
@@ -263,6 +282,7 @@ export default class BookmarkStorage {
   }
 
   async updateStatusByIds(status, ids) {
+    const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: {
@@ -277,6 +297,7 @@ export default class BookmarkStorage {
   }
 
   async updateNotesById(id, notes) {
+    const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: {
@@ -290,6 +311,7 @@ export default class BookmarkStorage {
   }
 
   async updateImageById(id, image) {
+    const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: {
@@ -302,6 +324,7 @@ export default class BookmarkStorage {
   }
 
   async getBookmarksByHttpStatusCode(statuses, skip = 0, limit = 50) {
+    const connection = await useConnection();
     return connection.select({
       from: 'bookmarks',
       limit,
@@ -319,6 +342,7 @@ export default class BookmarkStorage {
   }
 
   async getTotalByHttpStatus(statuses) {
+    const connection = await useConnection();
     return connection.count({
       from: 'bookmarks',
       order: {
@@ -334,6 +358,7 @@ export default class BookmarkStorage {
   }
 
   async getAllIds() {
+    const connection = await useConnection();
     const response = await connection.select({
       from: 'bookmarks',
       columns: ['id'],

@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 import { HTTP_STATUS } from '@/helpers/httpStatus';
 import BookmarkStorage from '@/storage/bookmark';
-import initStorage from '@/storage/idb/idb';
 import fetchHelper from '@/helpers/fetch';
 
 let running = false;
@@ -32,7 +31,6 @@ self.onmessage = (event) => {
 };
 
 async function doWork() {
-  await initStorage();
   const bookmarkStorage = new BookmarkStorage();
   const limit = 50;
   const total = await bookmarkStorage.total();

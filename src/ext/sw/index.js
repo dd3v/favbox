@@ -1,6 +1,5 @@
 import BookmarkStorage from '@/storage/bookmark';
 import AttributeStorage from '@/storage/attribute';
-import initStorage from '@/storage/idb/idb';
 import MetadataParser from '@/parser/metadata';
 import fetchHelper from '@/helpers/fetch';
 import tagHelper from '@/helpers/tags';
@@ -46,7 +45,6 @@ browser.runtime.onInstalled.addListener(async () => {
 
 browser.runtime.onStartup.addListener(async () => {
   console.warn('Wake up..');
-  await initStorage();
   await browser.storage.session.set({ nativeImport: false });
   const alarm = await browser.alarms.get('healthcheck');
   if (!alarm) {
@@ -70,6 +68,10 @@ browser.contextMenus.onClicked.addListener((info) => {
 
 // https:// developer.browser.com/docs/extensions/reference/bookmarks/#event-onCreated
 browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
+  const { nativeImport } = await browser.storage.session.get('nativeImport');
+  if (nativeImport === true) {
+    return;
+  }
   console.time(`bookmark-created-${id}`);
   console.warn('🎉 Handle bookmark create..', id, bookmark);
   if (bookmark.url === undefined) {
@@ -78,25 +80,18 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
   }
   let response = null;
   let activeTab = null;
-  const { nativeImport } = await browser.storage.session.get('nativeImport');
-  console.log('native import', nativeImport);
 
-  if (nativeImport === true) {
-    console.log('Native browser import. Fetching data from internet.. 🌎');
+  // fetch HTML from active tab (content script)
+  [activeTab] = await browser.tabs.query({ active: true });
+  try {
+    console.warn('activeTab', activeTab);
+    console.warn('requesting html from tab', activeTab);
+    const content = await browser.tabs.sendMessage(activeTab.id, { action: 'getHTML' });
+    response = { html: content?.html, error: 0 };
+    console.warn('response from tab', response);
+  } catch (e) {
+    console.error('No tabs. It is weird. Fetching data from internet.. 🌎', e);
     response = await fetchHelper.fetch(bookmark.url, 15000);
-  } else {
-    // fetch HTML from active tab (content script)
-    [activeTab] = await browser.tabs.query({ active: true });
-    try {
-      console.warn('activeTab', activeTab);
-      console.warn('requesting html from tab', activeTab);
-      const content = await browser.tabs.sendMessage(activeTab.id, { action: 'getHTML' });
-      response = { html: content?.html, error: 0 };
-      console.warn('response from tab', response);
-    } catch (e) {
-      console.error('No tabs. It is weird. Fetching data from internet.. 🌎', e);
-      response = await fetchHelper.fetch(bookmark.url, 15000);
-    }
   }
 
   try {
@@ -104,8 +99,8 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
       throw new Error('No page data: response is null');
     }
     const foldersMap = await bookmarkHelper.buildFoldersMap();
-    const entity = await (new MetadataParser(bookmark, response, foldersMap)).getFavboxBookmark();
-    if (!nativeImport && entity.image === null && activeTab) {
+    const entity = await (new MetadataParser(bookmark, response, tagHelper, foldersMap)).getFavboxBookmark();
+    if (entity.image === null && activeTab) {
       try {
         console.warn('📸 No image, take a screenshot', activeTab);
         const screenshot = await browser.tabs.captureVisibleTab(activeTab.windowId, { format: 'jpeg', quality: 10 });
@@ -242,15 +237,17 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // https://developer.chrome.com/docs/extensions/reference/api/bookmarks#event-onImportBegan
-browser.bookmarks.onImportBegan.addListener(() => {
+browser.bookmarks.onImportBegan.addListener(async () => {
   console.log('📄 Import bookmarks started');
-  browser.storage.session.set({ nativeImport: true });
+  await browser.storage.session.set({ nativeImport: true });
+  await browser.storage.session.set({ status: false });
 });
 
 // https://developer.chrome.com/docs/extensions/reference/api/bookmarks#event-onImportEnded
-browser.bookmarks.onImportEnded.addListener(() => {
+browser.bookmarks.onImportEnded.addListener(async () => {
   console.log('📄 Import bookmarks ended');
-  browser.storage.session.set({ nativeImport: false });
+  await browser.storage.session.set({ nativeImport: false });
+  waitUntil(sync());
 });
 
 function refreshUserInterface() {

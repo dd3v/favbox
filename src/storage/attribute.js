@@ -1,7 +1,8 @@
-import connection from './idb/connection';
+import useConnection from './idb/connection';
 
 export default class AttributeStorage {
   async search(includes, sortColumn = 'count', sortDirection = 'desc', term = '', skip = 0, limit = 200) {
+    const connection = await useConnection();
     const whereConditions = {};
     const keys = Object.entries(includes).reduce((acc, [key, value]) => {
       if (value === true) {
@@ -30,6 +31,7 @@ export default class AttributeStorage {
   }
 
   async filterByKeyAndValue(key, value, skip, limit = 50) {
+    const connection = await useConnection();
     const whereConditions = [{ key }];
     if (value) {
       whereConditions.push({
@@ -50,6 +52,7 @@ export default class AttributeStorage {
   }
 
   async create(bookmark) {
+    const connection = await useConnection();
     const { domain = '', tags = [], keywords = [], folderName = '' } = bookmark;
 
     const allAttributes = [
@@ -80,6 +83,7 @@ export default class AttributeStorage {
   }
 
   async remove(bookmark) {
+    const connection = await useConnection();
     const { domain = '', tags = [], keywords = [], folderName = '' } = bookmark;
 
     const allAttributes = [
@@ -118,6 +122,7 @@ export default class AttributeStorage {
   }
 
   async refreshDomains() {
+    const connection = await useConnection();
     const flattenDomains = await connection.select({
       from: 'bookmarks',
       aggregate: { count: ['id'] },
@@ -146,6 +151,7 @@ export default class AttributeStorage {
   }
 
   async refreshTags() {
+    const connection = await useConnection();
     const flattenTags = await connection.select({
       from: 'bookmarks',
       flatten: ['tags'],
@@ -175,6 +181,7 @@ export default class AttributeStorage {
   }
 
   async refreshKeywords() {
+    const connection = await useConnection();
     const flattenKeywords = await connection.select({
       from: 'bookmarks',
       flatten: ['keywords'],
@@ -204,6 +211,7 @@ export default class AttributeStorage {
   }
 
   async refreshFolders() {
+    const connection = await useConnection();
     const flattenFolders = await connection.select({
       from: 'bookmarks',
       groupBy: 'folderName',
@@ -232,6 +240,7 @@ export default class AttributeStorage {
   }
 
   async refresh() {
+    const connection = await useConnection();
     console.time('Execution time attributes');
 
     const [domains, tags, keywords, folders] = await Promise.all([
