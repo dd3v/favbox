@@ -11,6 +11,14 @@ const routes = [
     },
   },
   {
+    path: '/bookmarks/:id',
+    name: 'BookmarkDetailView',
+    component: () => import('./views/BookmarksView.vue'),
+    meta: {
+      page: 1,
+    },
+  },
+  {
     path: '/pinned',
     name: 'PinnedView',
     component: () => import('./views/PinnedView.vue'),

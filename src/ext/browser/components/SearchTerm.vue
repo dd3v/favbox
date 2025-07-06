@@ -66,6 +66,7 @@ import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
 import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
 import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
+import MdiIdentifier from '~icons/mdi/identifier';
 
 const props = defineProps({
   placeholder: {
@@ -91,7 +92,7 @@ const removeLast = () => {
 const add = () => {
   if (!term.value) return;
   const [key, value] = term.value.split(':');
-  const validKeys = ['tag', 'keyword', 'domain', 'folder', 'locale', 'type'];
+  const validKeys = ['tag', 'keyword', 'domain', 'folder', 'id'];
 
   if (validKeys.includes(key) && value) {
     emit('update:modelValue', [...props.modelValue, { key, value }]);
@@ -108,6 +109,7 @@ const iconMap = computed(() => ({
   keyword: PhListMagnifyingGlassLight,
   tag: PhHashStraightLight,
   domain: PhGlobeSimpleLight,
+  id: MdiIdentifier,
   default: PhMagnifyingGlassLight,
 }));
 
@@ -116,6 +118,7 @@ const colorMap = computed(() => ({
   tag: 'gray',
   keyword: 'green',
   folder: 'purple',
+  id: 'indigo',
   default: 'red',
 }));
 

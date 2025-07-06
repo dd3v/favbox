@@ -115,9 +115,9 @@
 
 <script setup>
 import {
-  reactive, ref, watch, onMounted,
-  onBeforeUnmount, computed, useTemplateRef,
+  reactive, ref, watch, onMounted, computed, useTemplateRef,
 } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { notify } from 'notiwind';
 import AppDrawer from '@/components/app/AppDrawer.vue';
 import AttributeList from '@/ext/browser/components/AttributeList.vue';
@@ -143,6 +143,9 @@ const NOTIFICATION_DURATION = import.meta.env.VITE_NOTIFICATION_DURATION;
 const bookmarkStorage = new BookmarkStorage();
 const attributeStorage = new AttributeStorage();
 
+const route = useRoute();
+const router = useRouter();
+
 const drawerRef = useTemplateRef('drawer');
 const scrollRef = useTemplateRef('scroll');
 const deleteConfirmationRef = useTemplateRef('deleteConfirmation');
@@ -155,7 +158,7 @@ const loading = ref(false);
 // Reactive state for bookmarks
 const bookmarksList = ref([]);
 const bookmarksTotal = ref(0);
-const bookmarksQuery = ref([]);
+const bookmarksQuery = ref(route.params.id ? [{ key: 'id', value: route.params.id }] : []);
 const bookmarksSort = ref('desc');
 
 // Reactive state for attributes
@@ -307,20 +310,9 @@ const handleScreenshot = async (bookmark) => {
   }
 };
 
-const onVisibilityChange = async () => {
-  if (document.visibilityState === 'visible') {
-    try {
-      const result = await chrome.runtime.sendMessage({ action: 'sayHello' });
-      console.log('Service worker response:', result);
-    } catch (error) {
-      console.error('sw error', error);
-    }
-  }
-};
-
 browser.runtime.onMessage.addListener(async (message) => {
   if (message.action === 'refresh') {
-    await refresh();
+    await refresh(message.data);
   }
 });
 
@@ -332,6 +324,9 @@ watch(
       console.warn('QUERY', bookmarksQuery);
       scrollRef.value?.scrollUp();
       bookmarksList.value = await bookmarkStorage.search(bookmarksQuery.value, 0, BOOKMARKS_LIMIT, bookmarksSort.value);
+      if (bookmarksQuery.value.length === 0 && route.params.id) {
+        router.replace({ path: '/bookmarks' });
+      }
     } catch (e) {
       console.error('Error fetching bookmarks:', e);
       notify({ group: 'error', text: 'Error loading bookmarks.' }, NOTIFICATION_DURATION);
@@ -358,6 +353,8 @@ watch(
   { deep: true },
 );
 
+
+
 onMounted(async () => {
   try {
     loading.value = true;
@@ -375,10 +372,5 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
-  document.addEventListener('visibilitychange', onVisibilityChange);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('visibilitychange', onVisibilityChange);
 });
 </script>

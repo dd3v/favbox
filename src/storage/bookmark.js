@@ -1,35 +1,15 @@
-/* eslint-disable no-restricted-globals */
-/* eslint-disable class-methods-use-this */
 import connection from './idb/connection';
 
-function addBookmarks(ctx) {
-  ctx.start();
-
-  ctx.insert({
-    into: 'bookmarks',
-    values: ctx.data.bookmarks,
-    validation: false,
-    skipDataCheck: true,
-    ignore: true,
-  });
-}
-
-self.addBookmarks = addBookmarks;
-
 export default class BookmarkStorage {
-  async createMultipleTx(data) {
-    try {
-      await connection.transaction({
-        method: 'addBookmarks',
-        tables: ['bookmarks'],
-        data: {
-          bookmarks: data,
-        },
-      });
-    } catch (error) {
-      console.error(`Error in createMultipleTx: ${error.message}`);
-      throw error;
-    }
+  async createMany(data) {
+    const result = await connection.insert({
+      into: 'bookmarks',
+      values: data,
+      validation: false,
+      skipDataCheck: true,
+      ignore: true,
+    });
+    return result;
   }
 
   async selectAfterId(id, limit) {
@@ -53,6 +33,7 @@ export default class BookmarkStorage {
       { key: 'tag', condition: { tags: { in: queryParams.tag } } },
       { key: 'domain', condition: { domain: { in: queryParams.domain } } },
       { key: 'keyword', condition: { keywords: { in: queryParams.keyword } } },
+      { key: 'id', condition: { id: { in: queryParams.id } } },
     ];
     conditions.forEach(({ key, condition }) => {
       if (queryParams[key]) {
@@ -350,5 +331,13 @@ export default class BookmarkStorage {
         },
       },
     });
+  }
+
+  async getAllIds() {
+    const response = await connection.select({
+      from: 'bookmarks',
+      columns: ['id'],
+    });
+    return response.map((i) => i.id);
   }
 }
