@@ -21,6 +21,7 @@ module.exports = {
     'class-methods-use-this': 'off',
     'no-unused-expressions': 'off',
     'object-curly-newline': 'off',
+    'no-new': 'off',
     'no-restricted-syntax': [
       'error',
       'ForInStatement',
