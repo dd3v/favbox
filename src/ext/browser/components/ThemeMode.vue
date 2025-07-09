@@ -6,7 +6,7 @@
     >
       <component
         :is="isDark ? IconoirSunLight : IconoirHalfMoon"
-        class="size-4 text-soft-400 hover:text-soft-900 dark:text-white"
+        class="size-4 text-soft-900 hover:text-black dark:text-white dark:hover:text-white"
       />
     </button>
   </div>

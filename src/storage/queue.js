@@ -25,7 +25,6 @@ export default class SaveQueue {
     while (this.queue.length > 0) {
       const batch = this.queue.splice(0, this.batchSize);
       try {
-        // eslint-disable-next-line no-await-in-loop
         await this.storage.createMany(batch);
         this.savedCount += batch.length;
       } catch (error) {

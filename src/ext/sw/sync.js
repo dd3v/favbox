@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import fetchHelper from '@/helpers/fetch';
 import BookmarkStorage from '@/storage/bookmark';
 import AttributeStorage from '@/storage/attribute';

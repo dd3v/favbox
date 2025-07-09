@@ -1,7 +1,48 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwindcss /forms;
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@theme {
+  --font-sans: "SN Pro", sans-serif;
+  --color-soft-50: oklch(0.999 0.001 0);
+  --color-soft-100: oklch(0.995 0.002 0);
+  --color-soft-200: oklch(0.99 0.003 0);
+  --color-soft-300: oklch(0.98 0.004 0);
+  --color-soft-400: oklch(0.95 0.005 0);
+  --color-soft-500: oklch(0.9 0.006 0);
+  --color-soft-600: oklch(0.85 0.007 0);
+  --color-soft-700: oklch(0.8 0.008 0);
+  --color-soft-800: oklch(0.75 0.009 0);
+  --color-soft-900: oklch(0.7 0.01 0);
+
+  --color-gray-50: oklch(0.985 0 0);
+  --color-gray-100: oklch(0.967 0.001 286.375);
+  --color-gray-200: oklch(0.92 0.004 286.32);
+  --color-gray-300: oklch(0.871 0.006 286.286);
+  --color-gray-400: oklch(0.705 0.015 286.067);
+  --color-gray-500: oklch(0.552 0.016 285.938);
+  --color-gray-600: oklch(0.442 0.017 285.786);
+  --color-gray-700: oklch(0.37 0.013 285.805);
+  --color-gray-800: oklch(0.274 0.006 286.033);
+  --color-gray-900: oklch(0.21 0.006 285.885);
+  --color-gray-950: oklch(0.141 0.005 285.823);
+}
+
 
 @layer utilities {
 
@@ -71,7 +112,7 @@
 }
 
 .vue3-treeselect__control {
-  @apply w-full !border-gray-200 !text-xs !text-black !shadow-sm !outline-none focus:!border-gray-300 focus:!ring-0 dark:!border-neutral-800 dark:!bg-neutral-900 dark:!text-white focus:dark:!border-neutral-700;
+  @apply w-full !border-gray-200 !text-xs !text-black !shadow-sm !outline-none focus:!border-gray-300 focus:!ring-0 dark:!border-neutral-800 dark:!bg-neutral-900 dark:!text-white dark:focus:!border-neutral-700;
 }
 
 .vue3-treeselect__input {

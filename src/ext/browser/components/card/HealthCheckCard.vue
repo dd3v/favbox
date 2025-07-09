@@ -1,10 +1,10 @@
 <template>
-  <div class="group relative w-full rounded-md border border-solid bg-white shadow-sm dark:border-neutral-900 dark:bg-neutral-950">
+  <div class="group relative w-full rounded-md border border-solid bg-white shadow-xs dark:border-neutral-900 dark:bg-neutral-950">
     <a
       :href="bookmark.url"
       target="_blank"
     >
-      <div class="flex w-full items-center space-x-5 p-5 text-gray-900 dark:text-neutral-100">
+      <div class="flex w-full items-center gap-x-5 p-5 text-gray-900 dark:text-neutral-100">
         <div>
           <AppBadge
             v-tooltip.bottom-start="{ content: getStatusMessage(bookmark.httpStatus) }"

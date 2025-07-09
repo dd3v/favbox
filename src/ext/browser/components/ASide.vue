@@ -5,9 +5,9 @@
     <RiBookmarkFill class="absolute top-3 size-8 fill-black text-black dark:fill-white dark:text-white" />
     <div
       ref="indicatorRef"
-      class="absolute my-auto size-10 rounded-md bg-soft-200/50 transition-[top] duration-[0.5s] dark:bg-neutral-800"
+      class="absolute my-auto size-10 rounded-md bg-gray-400/20 transition-all duration-500 dark:bg-neutral-800"
     />
-    <ul class="space-y-12">
+    <ul class="flex flex-col gap-y-12">
       <li
         v-for="(item, key) in items"
         :key="item.key"
@@ -22,7 +22,7 @@
         >
           <component
             :is="item.icon"
-            class="pointer-events-none size-6 text-soft-800 dark:text-white"
+            class="pointer-events-none size-6 text-black dark:text-white"
           />
         </router-link>
       </li>
@@ -33,7 +33,7 @@
         href="https://github.com/dd3v/favbox"
         target="_blank"
       >
-        <IconoirGithub class="size-4 text-soft-400 hover:text-soft-900 dark:text-white" />
+        <IconoirGithub class="size-4 text-soft-900 hover:text-black dark:text-white dark:hover:text-white" />
       </a>
       <ThemeMode
         v-tooltip.right="{ content: 'Theme' }"

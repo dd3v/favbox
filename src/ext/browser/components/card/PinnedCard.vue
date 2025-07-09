@@ -7,7 +7,7 @@
       {{ bookmark.title }}
     </div>
     <div class="mt-2 flex items-center justify-between text-xs text-black dark:text-white">
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center gap-x-2">
         <bookmark-favicon
           :bookmark="bookmark"
           class="size-3"
@@ -21,7 +21,7 @@
     </div>
 
     <div class="absolute right-2 top-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
-      <div class="flex space-x-2">
+      <div class="flex gap-x-2">
         <button
           v-tooltip.bottom-start="{ content: 'Unpin bookmark'}"
           aria-label="Unpin bookmark"

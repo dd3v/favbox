@@ -87,8 +87,6 @@
   </div>
 </template>
 <script setup>
-import AppButton from '@/components/app/AppButton.vue';
-import AppProgress from '@/components/app/AppProgress.vue';
 import NumberFlow from '@number-flow/vue';
 import { onMounted, ref, defineEmits } from 'vue';
 import {
@@ -98,6 +96,8 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/vue';
+import AppProgress from '@/components/app/AppProgress.vue';
+import AppButton from '@/components/app/AppButton.vue';
 import PixelarticonsHeart from '~icons/pixelarticons/heart';
 
 const status = ref(false);

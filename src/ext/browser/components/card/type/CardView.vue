@@ -6,7 +6,17 @@
       :href="bookmark.url"
       target="_blank"
     >
-      <bookmark-image :bookmark="bookmark" />
+      <BookmarkImage :bookmark="bookmark">
+        <template #loading>
+          <div class="flex flex-col items-center gap-y-3">
+            <div class="relative">
+              <AppSpinner class="size-6" />
+              <div class="absolute inset-0 animate-ping rounded-full bg-white/30 opacity-20" />
+            </div>
+            <p class="text-sm text-white/70">Loading...</p>
+          </div>
+        </template>
+      </BookmarkImage>
       <div class="flex items-center bg-black/80 p-1">
         <bookmark-favicon
           :bookmark="bookmark"
@@ -41,6 +51,7 @@
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import BookmarkImage from '@/ext/browser/components/card/BookmarkImage.vue';
 import AppBadge from '@/components/app/AppBadge.vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
 
 defineProps({
   bookmark: {
@@ -49,3 +60,6 @@ defineProps({
   },
 });
 </script>
+
+<style scoped>
+</style>

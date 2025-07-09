@@ -54,40 +54,41 @@ const handleClose = () => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .badge {
   @apply inline-flex cursor-pointer items-center space-x-1 truncate text-nowrap rounded-sm px-2 py-0.5 text-xs ring-1 ring-inset;
 }
 
 .badge-red {
-  @apply bg-red-50 text-red-700 ring-red-700/10 dark:bg-red-900 dark:text-red-300 dark:ring-red-400/20;
+  @apply bg-red-50 text-red-700 ring-red-700/10 dark:bg-red-900 dark:text-red-300 dark:ring-red-400/20 shadow shadow-red-500/20;
 }
 
 .badge-yellow {
-  @apply bg-yellow-50 text-yellow-800 ring-yellow-700/10 dark:bg-yellow-900 dark:text-yellow-300 dark:ring-yellow-500/20;
+  @apply bg-yellow-50 text-yellow-800 ring-yellow-700/10 dark:bg-yellow-900 dark:text-yellow-300 dark:ring-yellow-500/20 shadow shadow-yellow-500/20;
 }
 
 .badge-green {
-  @apply bg-green-50 text-green-700 ring-green-700/10 dark:bg-green-900 dark:text-green-300 dark:ring-green-500/20;
+  @apply bg-green-50 text-green-700 ring-green-700/10 dark:bg-green-900 dark:text-green-300 dark:ring-green-500/20 shadow shadow-green-500/20;
 }
 
 .badge-cyan {
-  @apply bg-cyan-50 text-cyan-700 ring-cyan-700/10 dark:bg-cyan-900 dark:text-cyan-300 dark:ring-cyan-500/20;
+  @apply bg-cyan-50 text-cyan-700 ring-cyan-700/10 dark:bg-cyan-900 dark:text-cyan-300 dark:ring-cyan-500/20 shadow shadow-cyan-500/20;
 }
 
 .badge-indigo {
-  @apply bg-indigo-50 text-indigo-700 ring-indigo-700/10 dark:bg-indigo-900 dark:text-indigo-300 dark:ring-indigo-500/20;
+  @apply bg-indigo-50 text-indigo-700 ring-indigo-700/10 dark:bg-indigo-900 dark:text-indigo-300 dark:ring-indigo-500/20 shadow shadow-indigo-500/20;
 }
 
 .badge-purple {
-  @apply bg-purple-50 text-purple-700 ring-purple-700/10 dark:bg-purple-900 dark:text-purple-300 dark:ring-purple-500/20;
+  @apply bg-purple-50 text-purple-700 ring-purple-700/10 dark:bg-purple-900 dark:text-purple-300 dark:ring-purple-500/20 shadow shadow-purple-500/20;
 }
 
 .badge-pink {
-  @apply bg-pink-50 text-pink-700 ring-pink-700/10 dark:bg-pink-900 dark:text-pink-300 dark:ring-pink-500/20;
+  @apply bg-pink-50 text-pink-700 ring-pink-700/10 dark:bg-pink-900 dark:text-pink-300 dark:ring-pink-500/20 shadow shadow-pink-500/20;
 }
 
 .badge-gray {
-  @apply bg-gray-50 text-gray-600 ring-gray-700/10 dark:bg-neutral-700 dark:text-neutral-300 dark:ring-neutral-500/20;
+  @apply bg-gray-50 text-gray-600 ring-gray-700/10 dark:bg-neutral-700 dark:text-neutral-300 dark:ring-neutral-500/20 shadow shadow-gray-400/20;
 }
 
 .close-button {

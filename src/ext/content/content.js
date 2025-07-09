@@ -1,4 +1,7 @@
 let port;
+/**
+ *
+ */
 function connect() {
   console.warn('Keep alive connection..');
   port = browser.runtime.connect({ name: 'favbox' });

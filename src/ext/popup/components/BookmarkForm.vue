@@ -2,7 +2,7 @@
   <form
     @submit.prevent="submit"
   >
-    <div class="space-y-3">
+    <div class="flex flex-col gap-y-3">
       <label
         for="title"
         class="relative"
@@ -54,10 +54,10 @@
 <script setup>
 import { ref } from 'vue';
 
+import Treeselect from '@zanmato/vue3-treeselect';
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import AppButton from '@/components/app/AppButton.vue';
 import tagHelper from '@/helpers/tags';
-import Treeselect from '@zanmato/vue3-treeselect';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 
 const props = defineProps({

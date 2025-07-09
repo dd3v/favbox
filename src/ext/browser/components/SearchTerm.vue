@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-9 w-full overflow-x-auto whitespace-nowrap rounded-md border-2 border-gray-300/50 bg-white px-1 shadow-sm focus-within:border-gray-400/30 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
+    class="flex h-9 w-full overflow-x-auto whitespace-nowrap rounded-md border-1 border-gray-300/50 bg-white px-1 shadow-sm focus-within:border-gray-400/30 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
   >
     <ul class="flex h-full items-center gap-x-1">
       <li
@@ -11,7 +11,7 @@
         <AppBadge
           closable
           :color="getColor(tag.key)"
-          @onClose="onClose(tag.key, tag.value)"
+          @on-close="onClose(tag.key, tag.value)"
         >
           <component
             :is="getIcon(tag.key)"
@@ -37,7 +37,7 @@
     >
     <div class="flex flex-wrap items-center gap-x-1 text-xs text-gray-400 dark:text-neutral-600">
       <button
-        class="m-0 inline-flex appearance-none items-center space-x-1 border-none bg-transparent p-0"
+        class="m-0 inline-flex appearance-none items-center gap-x-1 border-none bg-transparent p-0"
         @click="handleCommandPallete"
       >
         <span class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-lg shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
@@ -50,15 +50,15 @@
     </div>
     <CommandPalette
       ref="cmd"
-      @onVisibilityToggle="cmdToggle"
-      @onSelected="emit('update:modelValue', [...modelValue, ...$event.filter(n => !modelValue.some(e => e.key === n.key && e.value === n.value))])"
+      @on-visibility-toggle="cmdToggle"
+      @on-selected="emit('update:modelValue', [...modelValue, ...$event.filter(n => !modelValue.some(e => e.key === n.key && e.value === n.value))])"
     />
   </div>
 </template>
 
 <script setup>
-import AppBadge from '@/components/app/AppBadge.vue';
 import { ref, computed } from 'vue';
+import AppBadge from '@/components/app/AppBadge.vue';
 import CommandPalette from '@/ext/browser/components/CommandPalette.vue';
 
 import PhHashStraightLight from '~icons/ph/hash-straight-light';

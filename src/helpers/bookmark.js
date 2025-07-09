@@ -1,12 +1,15 @@
 const bookmarkHelper = {
   /**
-  * Counts the total number of bookmarks (excluding folders).
-  *
-  * @returns {Promise<number>}
-  */
+   * Counts the total number of bookmarks (excluding folders).
+   * @returns {Promise<number>}
+   */
   total: async () => {
     const items = await browser.bookmarks.getTree();
     let count = 0;
+    /**
+     *
+     * @param bookmarks
+     */
     function countBookmarks(bookmarks) {
       bookmarks.forEach((bookmark) => {
         if (bookmark.url) {
@@ -22,14 +25,12 @@ const bookmarkHelper = {
   },
 
   /**
-  * Recursively collects all bookmarks and their URLs from the given node.
-  *
-  * @param {Object} node - The bookmark node to start with. This can be a folder or a bookmark.
-  *
-  * @returns {Array<Object>} An array of bookmark objects, each containing:
-  * - `id` {number} - The unique identifier of the bookmark.
-  * - `url` {string} - The URL of the bookmark. This is `undefined` if the node is a folder.
-  */
+   * Recursively collects all bookmarks and their URLs from the given node.
+   * @param {object} node - The bookmark node to start with. This can be a folder or a bookmark.
+   * @returns {Array<object>} An array of bookmark objects, each containing:
+   * - `id` {number} - The unique identifier of the bookmark.
+   * - `url` {string} - The URL of the bookmark. This is `undefined` if the node is a folder.
+   */
   getAllBookmarksFromNode(node) {
     let items = [];
     if (node.url) {
@@ -44,11 +45,10 @@ const bookmarkHelper = {
   },
 
   /**
- * Retrieves the tree of all folders.
- *
- * @async
- * @returns {Promise<Object[]>}
- */
+   * Retrieves the tree of all folders.
+   * @async
+   * @returns {Promise<object[]>}
+   */
   buildFolderUITree: async () => {
     const tree = await browser.bookmarks.getTree();
     const buildFolders = (nodes) => nodes
@@ -64,14 +64,17 @@ const bookmarkHelper = {
   },
 
   /**
-  * Retrieves all bookmarks from the browser.
-  *
-  * @async
-  * @returns {AsyncGenerator<Object>}
- */
+   * Retrieves all bookmarks from the browser.
+   * @async
+   * @returns {AsyncGenerator<object>}
+   */
   async* iterateBookmarks() {
     const bookmarksTree = await browser.bookmarks.getTree();
 
+    /**
+     *
+     * @param node
+     */
     function* processNode(node) {
       if (node.url) {
         yield node;
@@ -89,13 +92,12 @@ const bookmarkHelper = {
   },
 
   /**
-  * Builds a cache of folder IDs to folder names from the browser bookmarks tree.
-  * Recursively traverses the entire bookmarks tree and maps each node's ID to its title.
-  *
-  * @async
-  * @function buildFolderCache
-  * @returns {Promise<Map<string, string>>} A Map where keys are node IDs and values are node titles.
- */
+   * Builds a cache of folder IDs to folder names from the browser bookmarks tree.
+   * Recursively traverses the entire bookmarks tree and maps each node's ID to its title.
+   * @async
+   * @function buildFolderCache
+   * @returns {Promise<Map<string, string>>} A Map where keys are node IDs and values are node titles.
+   */
   buildFoldersMap: async () => {
     const foldersMap = new Map();
     const traverseTree = (nodes) => {

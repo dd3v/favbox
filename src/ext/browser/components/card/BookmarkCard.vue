@@ -3,11 +3,10 @@
     :is="displayComponent"
     :key="bookmark.id"
     :bookmark="bookmark"
-    class="bookmark-card"
   >
     <template #actions>
       <div class="absolute right-2 top-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
-        <div class="flex space-x-2">
+        <div class="flex gap-x-2">
           <button
             v-tooltip.bottom-start="{ content: 'Delete'}"
             class="-translate-y-8 rounded-md bg-red-500 p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-150 ease-out group-hover:translate-y-2 group-hover:opacity-100"
@@ -58,12 +57,12 @@ import CarbonEdit from '~icons/carbon/edit';
 const props = defineProps({
   bookmark: {
     type: Object,
-    requred: true,
+    required: true,
     default: () => {},
   },
   displayType: {
     type: String,
-    requred: true,
+    required: true,
     default: 'masonry',
   },
 });
@@ -84,31 +83,3 @@ const displayComponent = computed({
   },
 });
 </script>
-<style scoped>
-.bookmark-card {
-  opacity: 0;
-  transform: translateY(30px);
-  filter: blur(8px) brightness(0.6);
-  animation: fadeBlurUp 1s ease-out forwards;
-  animation-timeline: view();
-  animation-range: entry 0% entry 40%;
-}
-
-@keyframes fadeBlurUp {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-    filter: blur(8px) brightness(0.6);
-  }
-  60% {
-    opacity: 0.8;
-    transform: translateY(-2px);
-    filter: blur(2px) brightness(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0px) brightness(1);
-  }
-}
-</style>

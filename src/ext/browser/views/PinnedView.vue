@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-screen">
-    <div class="w-1/3 space-y-3 border-r border-gray-300 bg-white dark:border-neutral-900 dark:bg-black">
+    <div class="w-1/3 gap-y-3 border-r border-gray-300 bg-white dark:border-neutral-900 dark:bg-black">
       <div class="relative w-full p-2">
         <input
           id="title"
@@ -19,7 +19,7 @@
         :limit="50"
         @scroll:end="handlePagination"
       >
-        <ul class="w-full cursor-pointer space-y-2 px-2 pb-20">
+        <ul class="w-full cursor-pointer gap-y-2 px-2 pb-20">
           <li
             v-for="bookmark in bookmarks"
             :key="bookmark.id"

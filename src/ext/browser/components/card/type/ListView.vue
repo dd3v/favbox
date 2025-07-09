@@ -17,13 +17,13 @@
         {{ bookmark.title }}
       </div>
       <div class="flex flex-col">
-        <span class="text-xs text-gray-900 dark:text-neutral-100">{{
+        <span class="text-xs text-gray-700 dark:text-neutral-100">{{
           bookmark.domain
         }}</span>
         <p class="my-2 break-words text-xs text-gray-700 dark:text-neutral-500">
           {{ bookmark.description }}
         </p>
-        <div class="flex space-x-2">
+        <div class="flex gap-x-2">
           <app-badge
             v-for="(value, key) in bookmark.tags"
             :key="key"

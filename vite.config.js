@@ -4,11 +4,13 @@ import { resolve } from 'path';
 import { crx } from '@crxjs/vite-plugin';
 import Icons from 'unplugin-icons/vite';
 import AutoImport from 'unplugin-auto-import/vite';
+import tailwindcss from '@tailwindcss/vite';
 import manifest from './manifest.chrome.json';
 
 export default defineConfig({
   plugins: [
     vue(),
+    tailwindcss(),
     crx({ manifest }),
     Icons({
       autoInstall: true,
@@ -16,9 +18,10 @@ export default defineConfig({
     AutoImport({
       imports: [
         {
-          'webextension-polyfill': [['*', 'browser']],
+          'webextension-polyfill': [['default', 'browser']],
         },
       ],
+      dts: false,
     }),
   ],
   optimizeDeps: {

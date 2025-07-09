@@ -1,5 +1,5 @@
 <template>
-  <label class="group flex cursor-pointer items-center space-x-2">
+  <label class="group flex cursor-pointer items-center gap-x-2">
     <input
       v-model="model"
       type="radio"

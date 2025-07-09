@@ -14,7 +14,7 @@
         :key="index"
         closable
         :data-tag="value"
-        @onClose="remove(index)"
+        @on-close="remove(index)"
       >
         <span class="whitespace-nowrap text-xs">{{ value }}</span>
       </AppBadge>
@@ -52,14 +52,14 @@
             :id="`suggestion-${index}`"
             :key="index"
             ref="suggestionRef"
-            class="block cursor-pointer px-4 leading-[2.5] hover:bg-gray-100 dark:hover:bg-neutral-800"
+            class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-800"
             :class="{'bg-neutral-100 dark:bg-neutral-800': highlightedSuggestionIndex === index }"
             role="option"
             :aria-selected="highlightedSuggestionIndex === index"
             @click="add"
             @mouseenter="highlightedSuggestionIndex = index"
           >
-            <div class="inline-flex items-center space-x-1 dark:text-white">
+            <div class="inline-flex items-center gap-x-1 dark:text-white">
               <PhHashStraightLight class="size-4" />
               <span>{{ suggestion }}</span>
             </div>

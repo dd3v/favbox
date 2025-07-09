@@ -1,12 +1,23 @@
 <template>
   <div
-    class="size-full"
-    :class="{ 'flex items-center justify-center': bookmark.image }"
+    class="flex w-full items-center justify-center"
+    :class="{
+      'min-h-[80px] sm:min-h-[120px]': !bookmark.image,
+      'min-h-[60px] sm:min-h-[80px]': bookmark.image && !isLoading && !imageError
+    }"
   >
+    <div
+      v-if="bookmark.image && isLoading"
+      class="flex size-full items-center justify-center"
+    >
+      <slot name="loading">
+        <AppSpinner />
+      </slot>
+    </div>
     <img
-      v-if="bookmark.image"
-      :key="bookmark.id"
-      :src="String(bookmark.image || bookmark.favicon)"
+      v-else-if="bookmark.image && !imageError"
+      :key="`${bookmark.id}-${bookmark.image}`"
+      :src="String(bookmark.image)"
       :alt="bookmark.title"
       class="max-h-full max-w-full object-cover transition-all duration-700 ease-out"
       :class="{
@@ -20,40 +31,55 @@
       v-else
       :favicon="bookmark.favicon"
       :title="bookmark.domain"
-      class="size-full"
+      :bookmark-id="bookmark.id"
+      class="w-full"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import ImagePlaceholder from '@/ext/browser/components/card/ImagePlaceholder.vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
 
-defineProps({
+const props = defineProps({
   bookmark: {
     type: Object,
     required: true,
   },
 });
 
-const showImage = ref(true);
-const isLoading = ref(true);
+const imageError = ref(false);
+const isLoading = ref(false);
+
+// Reset state when bookmark changes
+watch(() => props.bookmark.image, (newImage, oldImage) => {
+  if (newImage !== oldImage) {
+    imageError.value = false;
+    // Only show loading for non-base64 images
+    const isBase64 = newImage?.startsWith('data:');
+    isLoading.value = !!newImage && !isBase64;
+  }
+});
 
 const handleImageLoad = () => {
+  const isBase64 = props.bookmark.image?.startsWith('data:');
+  const delay = isBase64 ? 0 : 200;
   setTimeout(() => {
     isLoading.value = false;
-  }, 200);
+  }, delay);
 };
 
 const handleImageError = () => {
   setTimeout(() => {
-    showImage.value = false;
+    imageError.value = true;
     isLoading.value = false;
   }, 300);
 };
 
 onMounted(() => {
-  isLoading.value = true;
-  showImage.value = true;
+  imageError.value = false;
+  const isBase64 = props.bookmark.image?.startsWith('data:');
+  isLoading.value = !!props.bookmark.image && !isBase64;
 });
 </script>

@@ -12,7 +12,7 @@ const createConnection = () => {
     console.warn('🚫 Web Worker is not supported.');
   } else {
     console.warn('✅ Web Worker is supported.');
-    // eslint-disable-next-line new-cap
+
     connection = new Connection(new jsstoreWorker());
   }
   if (import.meta.env.DEV) {

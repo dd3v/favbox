@@ -11,7 +11,7 @@
         <span class="text-xl font-extralight text-black dark:text-white">
           Total: <NumberFlow :value="total" />
         </span>
-        <div class="flex space-x-3">
+        <div class="flex gap-x-3">
           <AppButton
             v-if="workerStatus"
             variant="gray"
@@ -47,13 +47,13 @@
     </div>
     <div
       v-if="bookmarks.length > 0"
-      class="flex flex-col space-y-3 p-4"
+      class="flex flex-col gap-y-3 p-4"
     >
       <HealthCheckCard
         v-for="(bookmark, key) in bookmarks"
         :key="key"
         :bookmark="bookmark"
-        @onDelete="onDelete"
+        @on-delete="onDelete"
       />
     </div>
     <AppConfirmation ref="confirmation">
@@ -76,6 +76,8 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue';
+import NumberFlow from '@number-flow/vue';
+import { notify } from 'notiwind';
 import BookmarkStorage from '@/storage/bookmark';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
@@ -83,9 +85,7 @@ import HealthCheckCard from '@/ext/browser/components/card/HealthCheckCard.vue';
 import { HTTP_STATUS } from '@/helpers/httpStatus';
 import AppButton from '@/components/app/AppButton.vue';
 import AppProgress from '@/components/app/AppProgress.vue';
-import NumberFlow from '@number-flow/vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
-import { notify } from 'notiwind';
 import { getWorker } from '../../../helpers/worker';
 
 const bookmarkStorage = new BookmarkStorage();

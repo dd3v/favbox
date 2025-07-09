@@ -250,6 +250,9 @@ browser.bookmarks.onImportEnded.addListener(async () => {
   waitUntil(sync());
 });
 
+/**
+ *
+ */
 function refreshUserInterface() {
   try {
     browser.runtime.sendMessage({ action: 'refresh' });

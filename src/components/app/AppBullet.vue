@@ -50,6 +50,7 @@ const dotClass = computed(() => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .dot-red {
   @apply bg-red-50 border-red-400 dark:bg-red-900 dark:border-red-600;
 }

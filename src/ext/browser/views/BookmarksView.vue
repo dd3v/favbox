@@ -14,7 +14,7 @@
       :limit="BOOKMARKS_LIMIT"
       @scroll:end="paginateBookmarks"
     >
-      <div class="sticky top-0 z-10 flex w-full flex-row space-x-3 bg-white/70 p-2 backdrop-blur-lg dark:bg-black/70">
+      <div class="sticky top-0 z-10 flex w-full flex-row gap-x-3 bg-white/70 p-2 backdrop-blur-lg dark:bg-black/70">
         <SearchTerm
           ref="search"
           v-model="bookmarksQuery"
@@ -51,10 +51,10 @@
           :key="key"
           :display-type="viewMode"
           :bookmark="bookmark"
-          @onRemove="handleRemove"
-          @onScreenshot="handleScreenshot"
-          @onEdit="handleEdit"
-          @onPin="handlePin"
+          @on-remove="handleRemove"
+          @on-screenshot="handleScreenshot"
+          @on-edit="handleEdit"
+          @on-pin="handlePin"
         />
       </BookmarkLayout>
     </AppInfiniteScroll>
@@ -69,11 +69,11 @@
           :folders="bookmarksEditState.folders"
           :tags="bookmarksEditState.tags"
           class="w-full"
-          @onSubmit="handleSubmit"
+          @on-submit="handleSubmit"
         />
       </template>
     </AppDrawer>
-    <BookmarksSync @onRefresh="refresh" />
+    <BookmarksSync @on-refresh="refresh" />
     <AppConfirmation
       key="delete"
       ref="deleteConfirmation"
@@ -119,6 +119,7 @@ import {
 } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { notify } from 'notiwind';
+import { useStorage } from '@vueuse/core';
 import AppDrawer from '@/components/app/AppDrawer.vue';
 import AttributeList from '@/ext/browser/components/AttributeList.vue';
 import BookmarkStorage from '@/storage/bookmark';
@@ -134,7 +135,6 @@ import BookmarkCard from '@/ext/browser/components/card/BookmarkCard.vue';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
 import BookmarkForm from '@/ext/browser/components/BookmarkForm.vue';
 import SortDirection from '@/ext/browser/components/SortDirection.vue';
-import { useStorage } from '@vueuse/core';
 import RiBookmarkFill from '~icons/ri/bookmark-fill';
 
 const BOOKMARKS_LIMIT = import.meta.env.VITE_BOOKMARKS_PAGINATION_LIMIT;
@@ -352,8 +352,6 @@ watch(
   },
   { deep: true },
 );
-
-
 
 onMounted(async () => {
   try {

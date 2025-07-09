@@ -1,6 +1,6 @@
 <template>
   <form
-    class="space-y-3"
+    class="flex flex-col gap-y-3"
     @submit.prevent="submit"
   >
     <label
@@ -43,10 +43,10 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import Treeselect from '@zanmato/vue3-treeselect';
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import AppButton from '@/components/app/AppButton.vue';
-import Treeselect from '@zanmato/vue3-treeselect';
 import tagHelper from '@/helpers/tags';
 
 const props = defineProps({

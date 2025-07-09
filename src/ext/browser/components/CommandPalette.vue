@@ -35,70 +35,72 @@
               class="flex h-screen max-h-[32rem] w-full max-w-md overflow-hidden rounded-lg border bg-white/60 shadow-lg backdrop-blur-lg transition-all dark:border-neutral-800 dark:bg-black/40 dark:text-white"
             >
               <div
-                class="flex w-full flex-col items-start justify-center"
+                class="flex w-full flex-col items-start justify-between h-full"
                 @keydown.down.prevent="navigateDown"
                 @keydown.up.prevent="navigateUp"
                 @keydown.enter.prevent="selectActiveItem"
                 @keydown.backspace="handleBackspace"
               >
-                <div class="flex w-full items-center px-4 py-3 text-gray-700">
-                  <span class="mr-2 text-xl text-gray-800 dark:text-gray-200">
-                    <PhMagnifyingGlassLight />
-                  </span>
-                  <input
-                    ref="input"
-                    v-model="searchTerm"
-                    type="text"
-                    class="flex-1 border-none bg-transparent text-sm outline-none ring-0 placeholder:text-gray-600 focus:border-0 focus:border-none focus:ring-0 dark:text-gray-100 dark:placeholder:text-gray-400"
-                    placeholder="Search..."
-                    autocomplete="off"
-                    autocorrect="off"
-                    spellcheck="false"
-                    @blur="refocusInput"
-                  >
-                </div>
-
-                <AppInfiniteScroll
-                  class="list-view max-h-96 w-full flex-1 overflow-y-auto p-1"
-                  :limit="100"
-                  @scroll:end="paginate"
-                >
-                  <div
-                    v-if="isLoading"
-                    class="flex min-h-full items-center justify-center p-4"
-                  >
-                    <AppSpinner class="size-6" />
-                  </div>
-                  <ul
-                    v-else-if="items.length"
-                    class="space-y-2"
-                  >
-                    <li
-                      v-for="(item, index) in items"
-                      :key="index"
-                      ref="item"
-                      class="flex cursor-pointer items-center gap-x-2 rounded-md p-3 transition-colors duration-200 hover:bg-black/5 hover:dark:bg-white/10"
-                      :class="{
-                        'bg-black/10 dark:bg-white/10': activeIndex === index
-                      }"
-                      @click="selectItem(item)"
+                <div class="flex w-full flex-col flex-1 min-h-0">
+                  <div class="flex w-full items-center px-4 py-3 text-gray-700">
+                    <span class="mr-2 text-xl text-gray-800 dark:text-gray-200">
+                      <PhMagnifyingGlassLight />
+                    </span>
+                    <input
+                      ref="input"
+                      v-model="searchTerm"
+                      type="text"
+                      class="flex-1 border-none bg-transparent text-sm outline-none ring-0 placeholder:text-gray-600 focus:border-0 focus:border-none focus:ring-0 dark:text-gray-100 dark:placeholder:text-gray-400"
+                      placeholder="Search..."
+                      autocomplete="off"
+                      autocorrect="off"
+                      spellcheck="false"
+                      @blur="refocusInput"
                     >
-                      <div class="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-white to-gray-100 backdrop-blur-sm dark:from-black/80 dark:to-black/80">
-                        <component
-                          :is="item.icon"
-                          class="size-4 text-gray-700 dark:text-gray-200"
-                        />
-                      </div>
-                      <span class="text-sm text-gray-800 dark:text-gray-100">{{ item.value }}</span>
-                    </li>
-                  </ul>
-                  <div
-                    v-else
-                    class="flex min-h-full items-center justify-center p-4 text-sm font-thin text-gray-400 dark:text-gray-500"
-                  >
-                    No results found.
                   </div>
-                </AppInfiniteScroll>
+
+                  <AppInfiniteScroll
+                    class="list-view w-full flex-1 overflow-y-auto p-1"
+                    :limit="100"
+                    @scroll:end="paginate"
+                  >
+                    <div
+                      v-if="isLoading"
+                      class="flex min-h-full items-center justify-center p-4"
+                    >
+                      <AppSpinner class="size-6" />
+                    </div>
+                    <ul
+                      v-else-if="items.length"
+                      class="gap-y-2"
+                    >
+                      <li
+                        v-for="(item, index) in items"
+                        :key="index"
+                        ref="item"
+                        class="flex cursor-pointer items-center gap-x-2 rounded-md p-3 transition-colors duration-200 hover:bg-black/5 hover:dark:bg-white/10"
+                        :class="{
+                          'bg-black/10 dark:bg-white/10': activeIndex === index
+                        }"
+                        @click="selectItem(item)"
+                      >
+                        <div class="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-white to-gray-100 backdrop-blur-sm dark:from-black/80 dark:to-black/80">
+                          <component
+                            :is="item.icon"
+                            class="size-4 text-gray-700 dark:text-gray-200"
+                          />
+                        </div>
+                        <span class="text-sm text-gray-800 dark:text-gray-100">{{ item.value }}</span>
+                      </li>
+                    </ul>
+                    <div
+                      v-else
+                      class="flex min-h-full items-center justify-center p-4 text-sm font-thin text-gray-400 dark:text-gray-500"
+                    >
+                      No results found.
+                    </div>
+                  </AppInfiniteScroll>
+                </div>
                 <div class="w-full border-t border-gray-200 bg-gray-50 px-4 py-3 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -127,13 +129,13 @@
 
 <script setup>
 import { ref, useTemplateRef, watch, onMounted, onBeforeUnmount } from 'vue';
-import AttributeStorage from '@/storage/attribute';
 import {
   Dialog,
   TransitionRoot,
   TransitionChild,
   DialogPanel,
 } from '@headlessui/vue';
+import AttributeStorage from '@/storage/attribute';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
 import debounce from '@/helpers/debounce';

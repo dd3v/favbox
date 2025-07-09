@@ -16,10 +16,10 @@ export default class MetadataParser {
 
   /**
    * Creates an instance of MetadataParser.
-   * @param {Object} bookmark - The bookmark object from browser.
-   * @param {Object} httpResponse - The HTTP response object containing HTML.
-   * @param {Object} tagHelper - Helper for tag and title processing.
-   * @param {Map<string, string>} [folders=new Map()] - Cache map of folder IDs to names.
+   * @param {object} bookmark - The bookmark object from browser.
+   * @param {object} httpResponse - The HTTP response object containing HTML.
+   * @param {object} tagHelper - Helper for tag and title processing.
+   * @param {Map<string, string>} [folders] - Cache map of folder IDs to names.
    */
   constructor(bookmark, httpResponse, tagHelper, folders = new Map()) {
     const { document } = parseHTML(httpResponse.html);
@@ -189,7 +189,7 @@ export default class MetadataParser {
 
   /**
    * Builds a bookmark entity for Favbox.
-   * @returns {Promise<Object>} A promise that resolves to the bookmark entity object.
+   * @returns {Promise<object>} A promise that resolves to the bookmark entity object.
    */
   async getFavboxBookmark() {
     const entity = {

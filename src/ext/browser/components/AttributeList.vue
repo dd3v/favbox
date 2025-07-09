@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-screen w-full max-w-64 flex-col border-r bg-soft-100/10 p-2 dark:border-neutral-800 dark:bg-black"
+    class="flex h-screen w-full max-w-64 flex-col border-r border-soft-400 bg-soft-100 p-2 dark:border-neutral-800 dark:bg-black"
   >
     <div class="flex w-full">
       <div class="relative w-full">
@@ -11,7 +11,7 @@
           v-model="term"
           autocomplete="off"
           type="text"
-          class="mb-2 h-9 w-full rounded-md border-2 border-gray-300/50 px-9 text-xs text-black shadow-sm outline-none placeholder:text-xs focus:border-gray-400/30 focus:ring-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
+          class="mb-2 h-9 w-full rounded-md border-1 border-gray-300/50 px-9 text-xs text-black shadow-sm outline-none placeholder:text-xs focus:border-gray-400/30 focus:ring-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
         >
         <Popover class="relative">
           <PopoverButton
@@ -38,15 +38,15 @@
             <PopoverPanel
               class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 dark:bg-neutral-900 dark:text-neutral-400"
             >
-              <div class="flex flex-col space-y-4 p-4">
-                <div class="flex items-center space-x-2">
+              <div class="flex flex-col gap-y-4 p-4">
+                <div class="flex items-center gap-x-2">
                   <PhArrowsDownUp class="size-5 text-gray-800 dark:text-gray-200" />
                   <h3 class="text-xs text-gray-800 dark:text-gray-200">
                     Sort By
                   </h3>
                 </div>
 
-                <div class="flex flex-col space-y-2">
+                <div class="flex flex-col gap-y-2">
                   <AppRadio
                     v-model="sort"
                     label="Name ↑ (A-Z)"
@@ -75,20 +75,20 @@
 
                 <div class="border-t border-gray-200 dark:border-gray-700" />
 
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center gap-x-2">
                   <PhListChecks class="size-5 text-gray-800 dark:text-white" />
                   <h3 class="text-xs text-black dark:text-white">
                     Includes
                   </h3>
                 </div>
 
-                <div class="flex flex-col space-y-2">
+                <div class="flex flex-col gap-y-2">
                   <SwitchGroup
                     v-for="(value, key) in includes"
                     :key="key"
                   >
                     <div class="flex items-center justify-between">
-                      <SwitchLabel class="flex items-center space-x-1">
+                      <SwitchLabel class="flex items-center gap-x-1">
                         <AppBullet
                           :size="3"
                           :color="getColor(key)"
