@@ -1,14 +1,18 @@
 <template>
   <app-infinite-scroll
     class="flex h-screen w-full flex-col overflow-y-auto bg-white dark:bg-black"
-    :limit="50"
-    @scroll:end="paginate"
+    :limit="BOOKMARKS_LIMIT"
+    @scroll:end="skip => loadBrokenBookmarks({ skip, limit: BOOKMARKS_LIMIT, append: true })"
   >
     <div
-      class="sticky top-0 z-10 flex w-full flex-col border-solid bg-white/70 p-4 shadow-sm backdrop-blur-lg dark:bg-black/50"
+      v-if="total > 0 || workerStatus"
+      class="sticky top-0 z-10 flex w-full flex-col border-solid bg-white/70 p-4 backdrop-blur-sm dark:bg-black/50"
     >
       <div class="flex w-full items-center justify-between">
-        <span class="text-xl font-extralight text-black dark:text-white">
+        <span
+          v-if="total > 0"
+          class="text-xl font-extralight text-black dark:text-white"
+        >
           Total: <NumberFlow :value="total" />
         </span>
         <div class="flex gap-x-3">
@@ -42,16 +46,17 @@
         v-else
         class="text-2xl font-thin text-black dark:text-white"
       >
-        Looks like there are no broken bookmarks in your browser.
+        ✅ Looks like there are no broken bookmarks in your browser.
       </div>
     </div>
     <div
-      v-if="bookmarks.length > 0"
+      v-show="bookmarks.length > 0"
+      v-auto-animate
       class="flex flex-col gap-y-3 p-4"
     >
       <HealthCheckCard
-        v-for="(bookmark, key) in bookmarks"
-        :key="key"
+        v-for="bookmark in bookmarks"
+        :key="bookmark.id"
         :bookmark="bookmark"
         @on-delete="onDelete"
       />
@@ -86,7 +91,6 @@ import { HTTP_STATUS } from '@/helpers/httpStatus';
 import AppButton from '@/components/app/AppButton.vue';
 import AppProgress from '@/components/app/AppProgress.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
-import { getWorker } from '../../../helpers/worker';
 
 const bookmarkStorage = new BookmarkStorage();
 const bookmarks = ref([]);
@@ -108,23 +112,45 @@ const httpStatuses = [
   HTTP_STATUS.REQUEST_TIMEOUT,
 ];
 
+const BOOKMARKS_LIMIT = import.meta.env.VITE_BOOKMARKS_PAGINATION_LIMIT;
+
+function getWorker() {
+  if (!worker) {
+    const isDevelopment = import.meta.env.DEV;
+    if (isDevelopment) {
+      worker = new Worker(browser.runtime.getURL('workers/ping.js'), { type: 'module' });
+    } else {
+      worker = new Worker(new URL('@/workers/ping.js', import.meta.url), { type: 'module' });
+    }
+  }
+  return worker;
+}
+
 const go = () => {
-  worker.postMessage('start');
+  const workerInstance = getWorker();
+  workerInstance.postMessage('start');
 };
 
 const stop = () => {
-  worker.postMessage('stop');
+  const workerInstance = getWorker();
+  workerInstance.postMessage('stop');
   progress.value = 0;
   workerStatus.value = false;
 };
 
-const paginate = async (skip) => {
+const loadBrokenBookmarks = async ({ skip = 0, limit = BOOKMARKS_LIMIT, append = false } = {}) => {
   try {
-    bookmarks.value.push(
-      ...(await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, skip)),
-    );
+    loading.value = !append;
+    const newBookmarks = await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, skip, limit);
+    if (append) {
+      bookmarks.value.push(...newBookmarks);
+    } else {
+      bookmarks.value = newBookmarks;
+    }
   } catch (e) {
     console.error(e);
+  } finally {
+    if (!append) loading.value = false;
   }
 };
 
@@ -134,19 +160,30 @@ const onDelete = async (bookmark) => {
   }
   try {
     await browser.bookmarks.remove(String(bookmark.id));
+    bookmarks.value = bookmarks.value.filter((b) => b.id !== bookmark.id);
+    total.value = await bookmarkStorage.getTotalByHttpStatus(httpStatuses);
     notify({ group: 'default', text: 'Bookmark successfully removed!' }, import.meta.env.VITE_NOTIFICATION_DURATION);
   } catch (e) {
     console.error(e);
     notify({ group: 'error', text: 'Failed to remove bookmark. Please try again.' }, import.meta.env.VITE_NOTIFICATION_DURATION);
   }
+
+  try {
+    if (bookmarks.value.length < BOOKMARKS_LIMIT) {
+      const more = await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, bookmarks.value.length, 1);
+      console.warn(more);
+      if (more.length) bookmarks.value.push(...more);
+    }
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 onMounted(async () => {
-  // await await bookmarkStorage.setOK();
   loading.value = true;
-  await paginate(0);
-  worker = getWorker();
-  worker.onmessage = async (event) => {
+  await loadBrokenBookmarks();
+  const workerInstance = getWorker();
+  workerInstance.onmessage = async (event) => {
     switch (event.data.type) {
       case 'status':
         workerStatus.value = event.data.value;
@@ -164,12 +201,15 @@ onMounted(async () => {
     }
     console.warn('🌀 Message from worker:', event.data);
   };
-  worker.onerror = (event) => {
+  workerInstance.onerror = (event) => {
     console.error('🌀 Error from worker', event);
   };
-  worker.postMessage('progress');
-  worker.postMessage('status');
+  workerInstance.postMessage('progress');
+  workerInstance.postMessage('status');
   loading.value = false;
 });
-onUnmounted(() => {});
+
+onUnmounted(() => {
+  // terminateWorker();
+});
 </script>

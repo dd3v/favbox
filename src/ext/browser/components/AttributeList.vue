@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-screen w-full max-w-64 flex-col border-r border-soft-400 bg-soft-100 p-2 dark:border-neutral-800 dark:bg-black"
+    class="flex h-screen w-full max-w-64 flex-col border-r border-soft-400 bg-soft-100 p-2 dark:border-neutral-800 dark:bg-black transition-all duration-300 ease-in-out"
   >
     <div class="flex w-full">
       <div class="relative w-full">
@@ -38,85 +38,88 @@
             <PopoverPanel
               class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 dark:bg-neutral-900 dark:text-neutral-400"
             >
-              <div class="flex flex-col gap-y-4 p-4">
-                <div class="flex items-center gap-x-2">
-                  <PhArrowsDownUp class="size-5 text-gray-800 dark:text-gray-200" />
-                  <h3 class="text-xs text-gray-800 dark:text-gray-200">
-                    Sort By
-                  </h3>
-                </div>
-
-                <div class="flex flex-col gap-y-2">
-                  <AppRadio
-                    v-model="sort"
-                    label="Name ↑ (A-Z)"
-                    value="value:asc"
-                    name="sort"
-                  />
-                  <AppRadio
-                    v-model="sort"
-                    label="Name ↓ (Z-A)"
-                    value="value:desc"
-                    name="sort"
-                  />
-                  <AppRadio
-                    v-model="sort"
-                    label="Count ↑ (0-9)"
-                    value="count:asc"
-                    name="sort"
-                  />
-                  <AppRadio
-                    v-model="sort"
-                    label="Count ↓ (9-0)"
-                    value="count:desc"
-                    name="sort"
-                  />
-                </div>
-
-                <div class="border-t border-gray-200 dark:border-gray-700" />
-
-                <div class="flex items-center gap-x-2">
-                  <PhListChecks class="size-5 text-gray-800 dark:text-white" />
-                  <h3 class="text-xs text-black dark:text-white">
-                    Includes
-                  </h3>
-                </div>
-
-                <div class="flex flex-col gap-y-2">
-                  <SwitchGroup
-                    v-for="(value, key) in includes"
-                    :key="key"
-                  >
-                    <div class="flex items-center justify-between">
-                      <SwitchLabel class="flex items-center gap-x-1">
-                        <AppBullet
-                          :size="3"
-                          :color="getColor(key)"
-                        />
-                        <span class="text-xs text-black dark:text-white">{{ key.charAt(0).toUpperCase() + key.slice(1) }}</span>
-                      </SwitchLabel>
-                      <Switch
-                        v-model="includes[key]"
-                        :class="value ? 'bg-black' : 'bg-gray-200'"
-                        class="relative inline-flex h-5 w-8 items-center rounded-full"
-                      >
-                        <span class="sr-only">{{ key }}</span>
-                        <span
-                          :class="value ? 'translate-x-4' : 'translate-x-1'"
-                          class="inline-block size-3 rounded-full bg-white transition"
-                        />
-                      </Switch>
+              <div class="relative">
+                <div class="flex flex-col gap-y-3 p-4">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-x-2">
+                      <PhArrowsDownUp class="size-5 text-gray-800 dark:text-gray-200" />
+                      <h3 class="text-xs text-gray-800 dark:text-gray-200">
+                        Sort By
+                      </h3>
                     </div>
-                  </SwitchGroup>
+                    <button
+                      class="flex size-6 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-neutral-300 -mt-1 -mr-1"
+                      @click="close"
+                    >
+                      <PhX class="size-4" />
+                    </button>
+                  </div>
+
+                  <div class="flex flex-col gap-y-3">
+                    <AppRadio
+                      v-model="sort"
+                      label="Name ↑ (A-Z)"
+                      value="value:asc"
+                      name="sort"
+                    />
+                    <AppRadio
+                      v-model="sort"
+                      label="Name ↓ (Z-A)"
+                      value="value:desc"
+                      name="sort"
+                    />
+                    <AppRadio
+                      v-model="sort"
+                      label="Count ↑ (0-9)"
+                      value="count:asc"
+                      name="sort"
+                    />
+                    <AppRadio
+                      v-model="sort"
+                      label="Count ↓ (9-0)"
+                      value="count:desc"
+                      name="sort"
+                    />
+                  </div>
+
+                  <div class="border-t border-gray-200 dark:border-gray-700" />
+
+                  <div class="flex items-center gap-x-2">
+                    <PhListChecks class="size-5 text-gray-800 dark:text-white" />
+                    <h3 class="text-xs text-black dark:text-white">
+                      Includes
+                    </h3>
+                  </div>
+
+                  <div class="flex flex-col gap-y-3">
+                    <SwitchGroup
+                      v-for="(value, key) in includes"
+                      :key="key"
+                    >
+                      <div class="flex items-center justify-between">
+                        <SwitchLabel class="flex items-center gap-x-1">
+                          <AppBullet
+                            :size="3"
+                            :color="getColor(key)"
+                          />
+                          <span class="text-xs text-black dark:text-white">{{ key.charAt(0).toUpperCase() + key.slice(1) }}</span>
+                        </SwitchLabel>
+                        <Switch
+                          v-model="includes[key]"
+                          :class="value ? 'bg-black dark:bg-neutral-500' : 'bg-neutral-200 dark:bg-neutral-700'"
+                          class="relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-150"
+                        >
+                          <span class="sr-only">{{ key }}</span>
+                          <span
+                            :class="value ? 'translate-x-3.5' : 'translate-x-0.5'"
+                            class="inline-block size-3 rounded-full bg-white transition-transform duration-150"
+                          />
+                        </Switch>
+                      </div>
+                    </SwitchGroup>
+                  </div>
                 </div>
               </div>
-
-              <button
-                class="block size-full cursor-pointer rounded-b-lg border-t border-gray-200 bg-gray-50 p-2 text-center text-sm font-medium text-gray-600 shadow-sm transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-900 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
-                @click="close"
-              >
-                Close
-              </button>
             </PopoverPanel>
           </Transition>
         </Popover>
@@ -181,8 +184,9 @@ import PhHashStraightLight from '~icons/ph/hash-straight-light';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
 import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
+import PhX from '~icons/ph/x';
 
-const emit = defineEmits(['update:modelValue', 'paginate']);
+const emit = defineEmits(['update:modelValue', 'paginate', 'hide']);
 
 const sort = defineModel('sort', { type: String, required: true });
 const includes = defineModel('includes', { type: Object, required: true });

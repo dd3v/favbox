@@ -95,9 +95,9 @@
                     </ul>
                     <div
                       v-else
-                      class="flex min-h-full items-center justify-center p-4 text-sm font-thin text-gray-400 dark:text-gray-500"
+                      class="flex min-h-full items-center justify-center p-4 text-sm font-thin text-gray-800 dark:text-gray-300"
                     >
-                      No results found.
+                      🔍 No results found.
                     </div>
                   </AppInfiniteScroll>
                 </div>

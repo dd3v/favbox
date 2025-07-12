@@ -2,32 +2,27 @@
   <div class="group relative">
     <!-- Animated border background -->
     <div
-      :class="[
-        'animated-gradient absolute -inset-0.5 rounded-lg bg-gradient-to-r opacity-0 transition-all duration-500 group-hover:opacity-60',
-        animatedBorderGradient
-      ]"
+      :class="['animated-gradient absolute -inset-0.5 rounded-lg bg-gradient-to-r opacity-0 transition-all duration-500 group-hover:opacity-60', randomGradient]"
     />
     <!-- Glow effect -->
     <div
-      :class="[
-        'absolute -inset-2 opacity-0 blur-lg transition-all duration-300 group-hover:opacity-50 dark:group-hover:opacity-100',
-        glowGradient
-      ]"
+      :class="['glow-effect absolute -inset-2 opacity-0 blur-lg transition-all duration-300 group-hover:opacity-50 dark:group-hover:opacity-100', glowClass]"
     />
     <div
-      class="group relative mb-1 min-h-max w-full max-w-md overflow-hidden rounded-md border border-solid border-gray-100 bg-white shadow-sm hover:[box-shadow:0px_0px_0px_1px_rgba(233,_226,_238,_0.253)] dark:border-neutral-900 dark:bg-neutral-950 dark:shadow-sm dark:hover:[box-shadow:0px_0px_0px_1px_rgba(233,_226,_238,_0.253)] sm:mb-2 md:mb-3"
+      class="group relative mb-1 min-h-[60px] sm:min-h-[80px] w-full max-w-md overflow-hidden rounded-md border border-solid border-gray-100 bg-white shadow-sm hover:[box-shadow:0px_0px_0px_1px_rgba(233,_226,_238,_0.253)] dark:border-neutral-900 dark:bg-neutral-950 dark:shadow-sm dark:hover:[box-shadow:0px_0px_0px_1px_rgba(233,_226,_238,_0.253)] sm:mb-2 md:mb-3"
     >
       <a
         :href="bookmark.url"
+        rel="noopener noreferrer"
         target="_blank"
       >
         <BookmarkImage :bookmark="bookmark">
           <template #loading>
-            <AppSpinner />
+            <AppSpinner class="size-6" />
           </template>
         </BookmarkImage>
         <div class="p-2">
-          <h1 class="break-words text-sm text-black dark:text-white">{{ bookmark.title }}</h1>
+          <h1 class="break-words text-sm text-black dark:text-white line-clamp-3">{{ bookmark.title }}</h1>
           <p class="break-words py-2 text-xs text-gray-700 dark:text-neutral-500">
             {{ bookmark.description }}
           </p>
@@ -56,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 import AppBadge from '@/components/app/AppBadge.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
 import BookmarkImage from '@/ext/browser/components/card/BookmarkImage.vue';
@@ -69,52 +64,22 @@ defineProps({
   },
 });
 
-const gradientStyles = [
-  {
-    border: 'from-cyan-400 via-blue-300 to-cyan-400',
-    glow: 'glow-cyan-blue',
-  },
-  {
-    border: 'from-indigo-400 via-violet-300 to-indigo-400',
-    glow: 'glow-indigo-violet',
-  },
-  {
-    border: 'from-sky-400 via-cyan-300 to-sky-400',
-    glow: 'glow-sky-cyan',
-  },
-  {
-    border: 'from-amber-400 via-orange-300 to-amber-400',
-    glow: 'glow-amber-orange',
-  },
-  {
-    border: 'from-rose-400 via-pink-300 to-rose-400',
-    glow: 'glow-rose-pink',
-  },
-  {
-    border: 'from-emerald-400 via-teal-300 to-emerald-400',
-    glow: 'glow-emerald-teal',
-  },
-  {
-    border: 'from-purple-400 via-fuchsia-300 to-purple-400',
-    glow: 'glow-purple-fuchsia',
-  },
-  {
-    border: 'from-violet-400 via-purple-300 to-violet-400',
-    glow: 'glow-violet-purple',
-  },
-  {
-    border: 'from-blue-500 via-cyan-400 to-blue-500',
-    glow: 'glow-blue-cyan',
-  },
-  {
-    border: 'from-pink-400 via-rose-300 to-pink-400',
-    glow: 'glow-pink-rose',
-  },
+const gradientClasses = [
+  'gradient-cyan-blue',
+  'gradient-indigo-violet',
+  'gradient-sky-cyan',
+  'gradient-amber-orange',
+  'gradient-rose-pink',
+  'gradient-emerald-teal',
+  'gradient-purple-fuchsia',
+  'gradient-violet-purple',
+  'gradient-blue-cyan',
+  'gradient-pink-rose',
 ];
 
-const selectedStyle = ref(gradientStyles[Math.floor(Math.random() * gradientStyles.length)]);
-const animatedBorderGradient = ref(selectedStyle.value.border);
-const glowGradient = ref(selectedStyle.value.glow);
+const randomGradient = computed(() => gradientClasses[Math.floor(Math.random() * gradientClasses.length)]);
+
+const glowClass = computed(() => `glow-${randomGradient.value.replace('gradient-', '')}`);
 </script>
 
 <style scoped>
@@ -132,6 +97,48 @@ const glowGradient = ref(selectedStyle.value.glow);
   animation: gradient-shift 4s ease-in-out infinite;
 }
 
+/* Gradient classes with full definitions */
+.gradient-cyan-blue {
+  background: linear-gradient(to right, #22d3ee, #93c5fd, #22d3ee);
+}
+
+.gradient-indigo-violet {
+  background: linear-gradient(to right, #818cf8, #c4b5fd, #818cf8);
+}
+
+.gradient-sky-cyan {
+  background: linear-gradient(to right, #0ea5e9, #22d3ee, #0ea5e9);
+}
+
+.gradient-amber-orange {
+  background: linear-gradient(to right, #fbbf24, #fdba74, #fbbf24);
+}
+
+.gradient-rose-pink {
+  background: linear-gradient(to right, #f43f5e, #f9a8d4, #f43f5e);
+}
+
+.gradient-emerald-teal {
+  background: linear-gradient(to right, #10b981, #5eead4, #10b981);
+}
+
+.gradient-purple-fuchsia {
+  background: linear-gradient(to right, #a855f7, #e879f9, #a855f7);
+}
+
+.gradient-violet-purple {
+  background: linear-gradient(to right, #8b5cf6, #a855f7, #8b5cf6);
+}
+
+.gradient-blue-cyan {
+  background: linear-gradient(to right, #3b82f6, #22d3ee, #3b82f6);
+}
+
+.gradient-pink-rose {
+  background: linear-gradient(to right, #ec4899, #f43f5e, #ec4899);
+}
+
+/* Glow effect classes */
 .glow-cyan-blue {
   background: radial-gradient(circle, rgba(34, 211, 238, 0.5) 0%, rgba(59, 130, 246, 0.5) 40%, rgba(34, 211, 238, 0.5) 70%, transparent 100%);
 }

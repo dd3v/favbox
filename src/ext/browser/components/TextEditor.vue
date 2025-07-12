@@ -103,7 +103,7 @@
     </div>
     <editor-content
       :editor="editor"
-      class="w-full flex-1 overflow-auto p-2"
+      class="w-full flex-1 overflow-auto p-2 text-black dark:text-white"
     />
   </div>
 </template>
@@ -152,7 +152,7 @@ onMounted(() => {
     extensions: [StarterKit, Underline, Highlight, Typography],
     editorProps: {
       attributes: {
-        class: 'prose prose-neutral dark:prose-invert text-sm min-h-full w-full p-2 focus:outline-none ',
+        class: 'prose prose-neutral dark:prose-invert text-sm min-h-full w-full p-2 focus:outline-none',
       },
     },
     content: props.modelValue,

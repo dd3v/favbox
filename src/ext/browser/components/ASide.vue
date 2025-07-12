@@ -97,3 +97,11 @@ watch(() => route.name, () => {
   moveButton();
 }, { immediate: true });
 </script>
+<style scoped>
+aside {
+  box-shadow: inset 0 2px 16px 0 rgba(60,60,60,0.14);
+}
+.dark aside {
+  box-shadow: none;
+}
+</style>

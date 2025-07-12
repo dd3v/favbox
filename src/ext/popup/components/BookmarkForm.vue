@@ -39,7 +39,7 @@
         v-model="selectedTags"
         :max="5"
         :suggestions="tags"
-        placeholder="Tag it and press 🏷️"
+        placeholder="Tag it and press enter 🏷️"
       />
       <div class="my-4 flex w-full justify-between">
         <AppButton

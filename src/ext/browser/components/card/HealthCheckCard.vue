@@ -1,38 +1,39 @@
 <template>
   <div class="group relative w-full rounded-md border border-solid bg-white shadow-xs dark:border-neutral-900 dark:bg-neutral-950">
-    <a
-      :href="bookmark.url"
-      target="_blank"
-    >
-      <div class="flex w-full items-center gap-x-5 p-5 text-gray-900 dark:text-neutral-100">
-        <div>
-          <AppBadge
-            v-tooltip.bottom-start="{ content: getStatusMessage(bookmark.httpStatus) }"
-            :color="bookmark.httpStatus === HTTP_STATUS.UNKNOWN_ERROR ? 'yellow' : 'red'"
+    <div class="flex items-center justify-between w-full p-3 text-gray-900 dark:text-neutral-100">
+      <div class="flex items-center gap-x-3 min-w-0 flex-1">
+        <AppBadge
+          v-tooltip.bottom-start="{ content: getStatusMessage(bookmark.httpStatus) }"
+          :color="bookmark.httpStatus === HTTP_STATUS.UNKNOWN_ERROR ? 'yellow' : 'red'"
+        >
+          {{ bookmark.httpStatus }}
+        </AppBadge>
+        <bookmark-favicon
+          :bookmark="bookmark"
+          class="size-4 fill-gray-700 dark:fill-gray-100"
+        />
+        <div class="min-w-0">
+          <a
+            :href="bookmark.url"
+            target="_blank"
+            class="focus-visible:ring-2 focus-visible:ring-blue-500 rounded text-sm text-black dark:text-white no-underline hover:no-underline"
           >
-            {{ bookmark.httpStatus }}
-          </AppBadge>
-        </div>
-        <div>
-          <bookmark-favicon
-            :bookmark="bookmark"
-            class="size-5 fill-gray-700 dark:fill-gray-100"
-          />
-        </div>
-        <div>
-          <h1 class="text-sm text-black dark:text-white"> {{ bookmark.title }}</h1>
-          <p class="text-xs dark:text-neutral-500">{{ bookmark.domain }}</p>
+            {{ bookmark.title }}
+          </a>
+          <p class="text-xs dark:text-neutral-500">
+            {{ bookmark.domain }}
+          </p>
         </div>
       </div>
-      <div class="my-1 ml-5 text-gray-900 dark:text-neutral-100" />
-    </a>
-    <button
-      v-tooltip.bottom-start="{ content: 'Delete'}"
-      class="absolute right-2 top-2 rounded-md bg-red-500 p-1.5 text-white opacity-0 shadow-md transition-opacity duration-150 ease-out group-hover:opacity-100"
-      @click="$emit('onDelete', bookmark)"
-    >
-      <CarbonTrashCan class="size-4" />
-    </button>
+      <button
+        v-tooltip.bottom-start="{ content: 'Delete'}"
+        class="ml-2 p-1 rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
+        aria-label="Delete bookmark"
+        @click="$emit('onDelete', bookmark)"
+      >
+        <CarbonTrashCan class="size-4" />
+      </button>
+    </div>
   </div>
 </template>
 

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
+@plugin  "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -18,7 +19,7 @@
 }
 
 @theme {
-  --font-sans: "SN Pro", sans-serif;
+  --font-sans: "SN Pro", sans-serif; 
   --color-soft-50: oklch(0.999 0.001 0);
   --color-soft-100: oklch(0.995 0.002 0);
   --color-soft-200: oklch(0.99 0.003 0);

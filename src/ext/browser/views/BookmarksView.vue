@@ -1,20 +1,24 @@
 <template>
   <div class="flex w-full overflow-y-hidden dark:bg-black">
-    <AttributeList
-      v-model="bookmarksQuery"
-      v-model:sort="attributesSort"
-      v-model:includes="attributesIncludes"
-      v-model:term="attributesTerm"
-      :items="attributesList"
-      @paginate="paginateAttributes"
-    />
+    <!-- Sidebar with Tailwind responsive classes -->
+    <div class="hidden md:block w-64 max-w-64 flex-shrink-0 transition-all duration-300 ease-in-out">
+      <AttributeList
+        v-model="bookmarksQuery"
+        v-model:sort="attributesSort"
+        v-model:includes="attributesIncludes"
+        v-model:term="attributesTerm"
+        :items="attributesList"
+        @paginate="skip => loadAttributes({ skip, append: true })"
+      />
+    </div>
+
     <AppInfiniteScroll
       ref="scroll"
       class="flex h-screen w-full flex-col overflow-y-auto"
       :limit="BOOKMARKS_LIMIT"
-      @scroll:end="paginateBookmarks"
+      @scroll:end="skip => loadBookmarks({ skip, limit: BOOKMARKS_LIMIT, append: true })"
     >
-      <div class="sticky top-0 z-10 flex w-full flex-row gap-x-3 bg-white/70 p-2 backdrop-blur-lg dark:bg-black/70">
+      <div class="sticky top-0 z-10 flex w-full flex-row gap-x-3 bg-white/70 pb-3 pt-2 px-2 backdrop-blur-sm dark:bg-black/70">
         <SearchTerm
           ref="search"
           v-model="bookmarksQuery"
@@ -30,25 +34,26 @@
         />
       </div>
       <div
-        v-if="bookmarksIsEmpty"
+        v-if="loading"
         class="flex h-5/6 flex-col items-center justify-center px-8 py-12"
       >
-        <div class="mb-6 rounded-full bg-gray-100 p-6 dark:bg-gray-900">
-          <RiBookmarkFill class="size-12 dark:text-white" />
-        </div>
-        <div class="text-center">
-          <h3 class="mb-3 text-xl font-semibold text-gray-900 dark:text-white">
-            No bookmarks found
-          </h3>
-        </div>
+        <AppSpinner class="size-12" />
+      </div>
+      <div
+        v-else-if="bookmarksIsEmpty && !loading"
+        class="flex h-5/6 flex-col items-center justify-center px-8 py-12"
+      >
+        <span class="text-2xl font-thin text-black dark:text-white">
+          🔍 No bookmarks found here. Try changing your search or filters!
+        </span>
       </div>
       <BookmarkLayout
         class="p-2"
         :display-type="viewMode"
       >
         <BookmarkCard
-          v-for="(bookmark, key) in bookmarksList"
-          :key="key"
+          v-for="bookmark in bookmarksList"
+          :key="bookmark.id"
           :display-type="viewMode"
           :bookmark="bookmark"
           @on-remove="handleRemove"
@@ -115,17 +120,19 @@
 
 <script setup>
 import {
-  reactive, ref, watch, onMounted, computed, useTemplateRef,
+  reactive, ref, onMounted, computed, useTemplateRef, watch,
 } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { notify } from 'notiwind';
 import { useStorage } from '@vueuse/core';
 import AppDrawer from '@/components/app/AppDrawer.vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
 import AttributeList from '@/ext/browser/components/AttributeList.vue';
 import BookmarkStorage from '@/storage/bookmark';
 import AttributeStorage from '@/storage/attribute';
 
 import bookmarkHelper from '@/helpers/bookmark';
+import debounce from '@/helpers/debounce';
 import SearchTerm from '@/ext/browser/components/SearchTerm.vue';
 import ViewMode from '@/ext/browser/components/ViewMode.vue';
 import BookmarkLayout from '@/ext/browser/components/BookmarkLayout.vue';
@@ -135,7 +142,6 @@ import BookmarkCard from '@/ext/browser/components/card/BookmarkCard.vue';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
 import BookmarkForm from '@/ext/browser/components/BookmarkForm.vue';
 import SortDirection from '@/ext/browser/components/SortDirection.vue';
-import RiBookmarkFill from '~icons/ri/bookmark-fill';
 
 const BOOKMARKS_LIMIT = import.meta.env.VITE_BOOKMARKS_PAGINATION_LIMIT;
 const ATTRIBUTES_LIMIT = import.meta.env.VITE_ATTRIBUTES_PAGINATION_LIMIT;
@@ -154,6 +160,9 @@ const searchRef = useTemplateRef('search');
 
 const viewMode = useStorage('viewMode', 'masonry');
 const loading = ref(false);
+
+// Track sync state
+const isSyncing = ref(false);
 
 // Reactive state for bookmarks
 const bookmarksList = ref([]);
@@ -174,21 +183,35 @@ const bookmarksEditState = reactive({
 });
 
 const bookmarksIsEmpty = computed(() => bookmarksList.value.length === 0 && !loading.value);
-const bookmarksTotalPlaceholder = computed(() => `Total: ${bookmarksTotal.value}. Press Enter to search.. 🚀`);
+const bookmarksTotalPlaceholder = computed(() => (bookmarksQuery.value.length ? '' : `🚀 Total: ${bookmarksTotal.value}. Search: tag:important domain:example.com folder:work`));
 
-const paginateBookmarks = async (skip) => {
+const loadBookmarks = async ({ skip = 0, limit = BOOKMARKS_LIMIT, append = false, query = bookmarksQuery.value, sort = bookmarksSort.value } = {}) => {
   try {
-    console.warn('skip', skip);
-    bookmarksList.value.push(
-      ...(await bookmarkStorage.search(bookmarksQuery.value, skip, BOOKMARKS_LIMIT, bookmarksSort.value)),
-    );
+    // Clear bookmarks and show spinner immediately for new searches
+    if (!append) {
+      bookmarksList.value = [];
+      loading.value = true;
+    }
+    const newBookmarks = await bookmarkStorage.search(query, skip, limit, sort);
+    if (append) {
+      bookmarksList.value.push(...newBookmarks);
+    } else {
+      bookmarksList.value = newBookmarks;
+    }
   } catch (e) {
     console.error(e);
+    notify({ group: 'error', text: 'Error loading bookmarks.' }, NOTIFICATION_DURATION);
+  } finally {
+    if (!append) {
+      loading.value = false;
+    }
   }
 };
 
 const refresh = async () => {
   try {
+    bookmarksList.value = [];
+    loading.value = true;
     bookmarksTotal.value = await bookmarkStorage.total();
     bookmarksList.value = await bookmarkStorage.search(bookmarksQuery.value, 0, BOOKMARKS_LIMIT, bookmarksSort.value);
     attributesList.value = await attributeStorage.search(
@@ -201,29 +224,32 @@ const refresh = async () => {
   } catch (error) {
     console.error('Error refreshing bookmarks:', error);
     notify({ group: 'error', text: 'Failed to refresh bookmarks.' }, NOTIFICATION_DURATION);
+  } finally {
+    loading.value = false;
   }
 };
 
-const paginateAttributes = async (skip) => {
+const loadAttributes = debounce(async ({ skip = 0, limit = ATTRIBUTES_LIMIT, append = false, includes = attributesIncludes, sort = attributesSort.value, term = attributesTerm.value } = {}) => {
   try {
-    console.warn('paginate attributes', skip);
-    const [sortColumn, sortDirection] = attributesSort.value.split(':');
-    console.warn('paginate attributes', skip, sortColumn, sortDirection);
-    attributesList.value.push(
-      ...(await attributeStorage.search(
-        attributesIncludes,
-        sortColumn,
-        sortDirection,
-        attributesTerm.value,
-        skip,
-        ATTRIBUTES_LIMIT,
-      )),
+    const [sortColumn, sortDirection] = sort.split(':');
+    const newAttributes = await attributeStorage.search(
+      includes,
+      sortColumn,
+      sortDirection,
+      term,
+      skip,
+      limit,
     );
+    if (append) {
+      attributesList.value.push(...newAttributes);
+    } else {
+      attributesList.value = newAttributes;
+    }
   } catch (e) {
-    console.error(e);
+    console.error('Error loading attributes:', e);
     notify({ group: 'error', text: 'Error loading attributes.' }, NOTIFICATION_DURATION);
   }
-};
+}, 200);
 
 const handleRemove = async (bookmark) => {
   if (await deleteConfirmationRef.value.request() === false) {
@@ -238,6 +264,16 @@ const handleRemove = async (bookmark) => {
   } catch (error) {
     console.error('Error removing bookmark:', error);
     notify({ group: 'error', text: 'Failed to remove bookmark. Please try again.' }, NOTIFICATION_DURATION);
+  }
+
+  // Silently load more bookmarks if needed, without showing spinner
+  try {
+    if (bookmarksList.value.length < BOOKMARKS_LIMIT) {
+      const more = await bookmarkStorage.search(bookmarksQuery.value, bookmarksList.value.length, 1, bookmarksSort.value);
+      if (more.length) bookmarksList.value.push(...more);
+    }
+  } catch (e) {
+    console.error('Error loading additional bookmarks after removal:', e);
   }
 };
 
@@ -292,65 +328,69 @@ const handleScreenshot = async (bookmark) => {
     if (granted === false) {
       return;
     }
+    console.warn('Sending screenshot request for bookmark:', bookmark.id);
     const response = await browser.runtime.sendMessage({
       action: 'screenshot',
       bookmark: JSON.parse(JSON.stringify(bookmark)),
     });
+    if (!response) {
+      throw new Error('No response received from screenshot service');
+    }
     if (response.error) {
       throw new Error(response.error);
     }
-    const item = bookmarksList.value.find((i) => i.id === bookmark.id);
-    if (item) {
-      item.image = response.image;
+    if (!response.image) {
+      throw new Error('No image data received from screenshot service');
+    }
+    await bookmarkStorage.updateImageById(bookmark.id, response.image);
+
+    // Update the bookmark in the UI
+    const itemIndex = bookmarksList.value.findIndex((i) => i.id === bookmark.id);
+    if (itemIndex !== -1) {
+      bookmarksList.value[itemIndex] = {
+        ...bookmarksList.value[itemIndex],
+        image: response.image,
+      };
       notify({ group: 'default', text: 'Screenshot saved successfully!' }, NOTIFICATION_DURATION);
     }
   } catch (e) {
     console.error('Screenshot failed:', e);
-    notify({ group: 'error', text: 'Screenshot failed.' }, NOTIFICATION_DURATION);
+    notify({ group: 'error', text: `Screenshot failed: ${e.message}` }, NOTIFICATION_DURATION);
   }
 };
 
 browser.runtime.onMessage.addListener(async (message) => {
   if (message.action === 'refresh') {
-    await refresh(message.data);
+    if (message.data) {
+      isSyncing.value = message.data.progress < 100;
+    }
+    if (isSyncing.value || document.hidden) {
+      await refresh(message.data);
+    }
   }
 });
 
 watch(
   [bookmarksQuery, bookmarksSort],
   async () => {
-    try {
-      loading.value = true;
-      console.warn('QUERY', bookmarksQuery);
-      scrollRef.value?.scrollUp();
-      bookmarksList.value = await bookmarkStorage.search(bookmarksQuery.value, 0, BOOKMARKS_LIMIT, bookmarksSort.value);
-      if (bookmarksQuery.value.length === 0 && route.params.id) {
-        router.replace({ path: '/bookmarks' });
-      }
-    } catch (e) {
-      console.error('Error fetching bookmarks:', e);
-      notify({ group: 'error', text: 'Error loading bookmarks.' }, NOTIFICATION_DURATION);
-    } finally {
-      loading.value = false;
+    bookmarksList.value = [];
+    loading.value = true;
+
+    loadBookmarks({ skip: 0, append: false });
+    scrollRef.value?.scrollUp();
+    if (bookmarksQuery.value.length === 0 && route.params.id) {
+      router.replace({ path: '/bookmarks' });
     }
   },
-  { immediate: true, deep: true },
+  { immediate: false },
 );
 
 watch(
   [attributesSort, attributesTerm, attributesIncludes],
-  async ([newSort, newTerm, newIncludes]) => {
-    try {
-      console.warn('newSort', newSort, 'newTerm', newTerm, 'newIncludes', newIncludes);
-      const [sortColumn, sortDirection] = newSort.split(':');
-      const result = await attributeStorage.search(newIncludes, sortColumn, sortDirection, newTerm, 0, ATTRIBUTES_LIMIT);
-      attributesList.value = result;
-    } catch (e) {
-      console.error('Error fetching attributes:', e);
-      notify({ group: 'error', text: 'Error loading attributes.' }, NOTIFICATION_DURATION);
-    }
+  () => {
+    loadAttributes({ skip: 0, append: false });
   },
-  { deep: true },
+  { immediate: false },
 );
 
 onMounted(async () => {
@@ -363,6 +403,7 @@ onMounted(async () => {
     ]);
     attributesList.value = result;
     bookmarksTotal.value = totalResult;
+    await loadBookmarks();
     searchRef.value.focus();
   } catch (error) {
     console.error('Error during component mount:', error);

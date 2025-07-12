@@ -24,13 +24,14 @@
     <input
       ref="inputRef"
       v-model="term"
+      name="term"
       type="text"
       autocomplete="off"
       autocorrect="off"
       spellcheck="false"
       maxlength="25"
-      :placeholder="modelValue.length ? '' : placeholder"
-      class="w-full min-w-max flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-xs placeholder:text-xs focus:outline-none focus:ring-0"
+      :placeholder="placeholder"
+      class="w-full min-w-max flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-sm placeholder:text-sm focus:outline-none focus:ring-0"
       @keydown.enter="add"
       @keydown.tab.prevent="add"
       @keydown.delete="removeLast"
@@ -40,12 +41,12 @@
         class="m-0 inline-flex appearance-none items-center gap-x-1 border-none bg-transparent p-0"
         @click="handleCommandPallete"
       >
-        <span class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-lg shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+        <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-lg shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
           ⌥
-        </span>
-        <span class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+        </kbd>
+        <kbd class="inline-flex size-6 items-center justify-center rounded-md border border-gray-200 bg-white font-mono text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
           K
-        </span>
+        </kbd>
       </button>
     </div>
     <CommandPalette
@@ -71,7 +72,7 @@ import MdiIdentifier from '~icons/mdi/identifier';
 const props = defineProps({
   placeholder: {
     type: String,
-    default: '...',
+    default: 'Search: tag:important domain:example.com folder:work',
   },
   modelValue: {
     type: Array,

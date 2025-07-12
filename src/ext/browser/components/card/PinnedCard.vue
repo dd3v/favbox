@@ -6,17 +6,18 @@
     <div class="mb-1 flex items-center text-sm text-black dark:text-white">
       {{ bookmark.title }}
     </div>
-    <div class="mt-2 flex items-center justify-between text-xs text-black dark:text-white">
-      <div class="flex items-center gap-x-2">
+    <div class="flex items-center justify-between text-xs text-black dark:text-white mt-2">
+      <div class="flex items-center gap-x-2 min-w-0">
         <bookmark-favicon
           :bookmark="bookmark"
           class="size-3"
         />
-        <span>{{ bookmark.domain }}</span>
+        <span class="truncate">{{ bookmark.domain }}</span>
       </div>
-      <div class="flex items-center">
-        <UitCalender class="mr-1" />
-        <span>{{ formatDate(bookmark.updatedAt) }}</span>
+      <div class="flex items-center text-xs text-gray-400 flex-shrink-0 ml-2">
+        <CarbonTime class="mr-1" />
+        <span class="mr-1">Updated:</span>
+        <span>{{ new Date(bookmark.updatedAt).toLocaleString() }}</span>
       </div>
     </div>
 
@@ -51,7 +52,7 @@ import { computed } from 'vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import CarbonPin from '~icons/carbon/pin';
 import CarbonNewTab from '~icons/carbon/new-tab';
-import UitCalender from '~icons/uit/calender';
+import CarbonTime from '~icons/carbon/time';
 
 const props = defineProps({
   bookmark: {
@@ -67,11 +68,5 @@ const props = defineProps({
 defineEmits(['remove', 'pin', 'edit']);
 
 const activeClass = computed(() => (props.active ? 'bg-gray-100 dark:bg-neutral-600' : 'bg-white dark:bg-neutral-950'));
-
-const formatDate = (date) => new Intl.DateTimeFormat('en-US', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-}).format(new Date(date));
 
 </script>
