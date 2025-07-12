@@ -365,4 +365,64 @@ export default class BookmarkStorage {
     });
     return response.map((i) => i.id);
   }
+
+  async getDuplicatesGrouped(skip = 0, limit = 50) {
+    const connection = await useConnection();
+
+    // Get all URLs with the number of duplicates
+    const groupedResults = await connection.select({
+      from: 'bookmarks',
+      groupBy: 'url',
+      aggregate: {
+        count: ['id'],
+      },
+    });
+
+    // Filter only groups with duplicates (2+ bookmarks)
+    const duplicateGroups = groupedResults.filter((group) => group['count(id)'] > 1);
+
+    // Sort by url (alphabetically)
+    duplicateGroups.sort((a, b) => String(a.url).localeCompare(String(b.url)));
+
+    // Apply pagination
+    const paginatedGroups = duplicateGroups.slice(skip, skip + limit);
+
+    // Get all bookmarks for the current page in one query
+    const urls = paginatedGroups.map((group) => group.url);
+    const allBookmarks = await connection.select({
+      from: 'bookmarks',
+      where: { url: { in: urls } },
+      order: {
+        by: 'dateAdded',
+        type: 'desc',
+      },
+    });
+
+    // Group bookmarks by URL
+    const bookmarksByUrl = {};
+    allBookmarks.forEach((bookmark) => {
+      if (!bookmarksByUrl[bookmark.url]) {
+        bookmarksByUrl[bookmark.url] = [];
+      }
+      bookmarksByUrl[bookmark.url].push(bookmark);
+    });
+
+    // Form the result
+    const groupsWithDetails = paginatedGroups.map((group) => {
+      const bookmarks = bookmarksByUrl[group.url] || [];
+      return {
+        url: group.url,
+        bookmarks,
+        count: group['count(id)'],
+        firstAdded: bookmarks[bookmarks.length - 1], // Oldest
+        lastAdded: bookmarks[0], // Newest
+      };
+    });
+
+    return {
+      groups: groupsWithDetails,
+      total: duplicateGroups.length,
+      hasMore: skip + limit < duplicateGroups.length,
+    };
+  }
 }

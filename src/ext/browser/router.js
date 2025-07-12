@@ -31,6 +31,12 @@ const routes = [
     meta: { page: 3 },
   },
   {
+    path: '/duplicates',
+    name: 'DuplicatesView',
+    component: () => import('./views/DuplicatesView.vue'),
+    meta: { page: 4 },
+  },
+  {
     path: '/',
     redirect: '/bookmarks',
   },

@@ -21,12 +21,14 @@ import AppNotifications from '@/components/app/AppNotifications.vue';
 import ASide from '@/ext/browser/components/ASide.vue';
 import ClarityBookmarkLine from '~icons/clarity/bookmark-line';
 import ClarityPinLine from '~icons/clarity/pin-line';
-import ClarityHeartBrokenLine from '~icons/clarity/heart-broken-line';
+import ClarityCopyLine from '~icons/clarity/copy-line';
+import PhLinkBreak from '~icons/ph/link-break';
 
 const menu = [
   { name: 'BookmarksView', label: 'Bookmarks', icon: ClarityBookmarkLine, tooltip: 'View all bookmarks' },
   { name: 'PinnedView', label: 'Pinned', icon: ClarityPinLine, tooltip: 'View pinned bookmarks' },
-  { name: 'HealthCheckView', label: 'Health Check', icon: ClarityHeartBrokenLine, tooltip: 'Bookmarks with errors' },
+  { name: 'HealthCheckView', label: 'Health Check', icon: PhLinkBreak, tooltip: 'Check broken links' },
+  { name: 'DuplicatesView', label: 'Duplicates', icon: ClarityCopyLine, tooltip: 'Find duplicate bookmarks' },
 ];
 
 onErrorCaptured((e) => {
