@@ -21,19 +21,68 @@ const waitUntil = async (promise) => {
 };
 
 const captureScreenshotByUrl = async (bookmark) => {
-  const tab = await browser.tabs.create({ url: bookmark.url, active: true });
-  await new Promise((resolve) => {
-    browser.tabs.onUpdated.addListener(function listener(tabId, info) {
-      if (tabId === tab.id && info.status === 'complete') {
-        browser.tabs.onUpdated.removeListener(listener);
-        resolve();
-      }
+  let tab = null;
+  let originalTabId = null;
+  try {
+    // remember the originally active tab
+    const [originalTab] = await browser.tabs.query({ active: true, currentWindow: true });
+    originalTabId = originalTab?.id;
+
+    console.warn('[Screenshot] Creating tab for screenshot:', bookmark.url);
+    tab = await browser.tabs.create({ url: bookmark.url, active: false });
+
+    // custom timeout (increased to 10 seconds)
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('[Screenshot] Page load timeout (10s)'));
+      }, 10000);
+
+      browser.tabs.onUpdated.addListener(function listener(tabId, info) {
+        if (tabId === tab.id && info.status === 'complete') {
+          browser.tabs.onUpdated.removeListener(listener);
+          clearTimeout(timeout);
+          resolve();
+        }
+      });
     });
-  });
-  const dataUrl = await browser.tabs.captureVisibleTab(tab.windowId, { format: 'jpeg', quality: 10 });
-  await browser.tabs.remove(tab.id);
-  await bookmarkStorage.updateImageById(bookmark.id, dataUrl);
-  return dataUrl;
+
+    console.warn('[Screenshot] Page loaded, activating tab and capturing screenshot');
+    await browser.tabs.update(tab.id, { active: true });
+
+    const [activeTab] = await browser.tabs.query({ active: true, windowId: tab.windowId });
+    if (!activeTab || activeTab.id !== tab.id) {
+      throw new Error('[Screenshot] Tab is not active before capture');
+    }
+
+    if (!tab.id) {
+      throw new Error('[Screenshot] Tab was closed before capture');
+    }
+
+    const dataUrl = await browser.tabs.captureVisibleTab(tab.windowId, { format: 'jpeg', quality: 10 });
+    console.warn('[Screenshot] Screenshot captured successfully');
+
+    if (originalTabId && originalTabId !== tab.id) {
+      try {
+        await browser.tabs.update(originalTabId, { active: true });
+        console.warn('[Screenshot] Returned user to original tab:', originalTabId);
+      } catch (e) {
+        console.error('[Screenshot] Failed to return to original tab:', e);
+      }
+    }
+    return dataUrl;
+  } catch (error) {
+    console.error('[Screenshot] captureScreenshotByUrl error:', error);
+    throw error;
+  } finally {
+    if (tab && tab.id) {
+      try {
+        await browser.tabs.remove(tab.id);
+        console.warn('[Screenshot] Tab cleaned up');
+      } catch (cleanupError) {
+        console.error('[Screenshot] Error cleaning up tab:', cleanupError);
+      }
+    }
+  }
 };
 
 browser.runtime.onInstalled.addListener(async () => {
@@ -214,26 +263,25 @@ browser.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1185241
 // https://stackoverflow.com/questions/53024819/chrome-extension-sendresponse-not-waiting-for-async-function/53024910#53024910
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  (async () => {
-    switch (message.action) {
-      case 'screenshot':
-        try {
-          console.warn('handle take a screenshot..');
-          const image = await captureScreenshotByUrl(message.bookmark);
-          sendResponse({ image, error: null });
-        } catch (e) {
-          sendResponse({ image: null, error: e.message });
-        }
-        break;
-      case 'sayHello':
-        sendResponse({ message: 'Hello from service worker!' });
-        break;
-      default:
-        console.warn('Unknown message type:', message);
-        break;
-    }
-  })();
-  return true;
+  console.warn('[Message] Received message:', message.action);
+  if (message.action === 'screenshot') {
+    (async () => {
+      try {
+        console.warn('[Screenshot] Starting screenshot capture for bookmark:', message.bookmark.id);
+        const image = await captureScreenshotByUrl(message.bookmark);
+        console.warn('[Screenshot] Screenshot captured successfully, sending response');
+        sendResponse({ image, error: null });
+      } catch (e) {
+        console.error('[Screenshot] Screenshot error:', e);
+        sendResponse({ image: null, error: e && e.message ? e.message : String(e) });
+      }
+    })();
+    return true;
+  }
+
+  console.warn('Unknown message type:', message);
+  sendResponse({ error: 'Unknown message type' });
+  return false;
 });
 
 // https://developer.chrome.com/docs/extensions/reference/api/bookmarks#event-onImportBegan
@@ -250,9 +298,6 @@ browser.bookmarks.onImportEnded.addListener(async () => {
   waitUntil(sync());
 });
 
-/**
- *
- */
 function refreshUserInterface() {
   try {
     browser.runtime.sendMessage({ action: 'refresh' });

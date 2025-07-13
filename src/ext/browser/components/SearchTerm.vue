@@ -68,6 +68,7 @@ import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
 import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
 import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
 import MdiIdentifier from '~icons/mdi/identifier';
+import PhCalendarBlank from '~icons/ph/calendar-blank';
 
 const props = defineProps({
   placeholder: {
@@ -111,20 +112,29 @@ const iconMap = computed(() => ({
   tag: PhHashStraightLight,
   domain: PhGlobeSimpleLight,
   id: MdiIdentifier,
+  dateAdded: PhCalendarBlank,
   default: PhMagnifyingGlassLight,
 }));
 
-const colorMap = computed(() => ({
-  domain: 'yellow',
-  tag: 'gray',
-  keyword: 'green',
-  folder: 'purple',
-  id: 'indigo',
-  default: 'red',
-}));
-
 const getIcon = (key) => iconMap.value[key] || iconMap.value.default;
-const getColor = (key) => colorMap.value[key] || colorMap.value.default;
+function getColor(key) {
+  switch (key) {
+    case 'dateAdded':
+      return 'cyan';
+    case 'folder':
+      return 'purple';
+    case 'keyword':
+      return 'green';
+    case 'tag':
+      return 'gray';
+    case 'domain':
+      return 'yellow';
+    case 'id':
+      return 'indigo';
+    default:
+      return 'gray';
+  }
+}
 
 const focus = () => { inputRef.value.focus(); };
 const handleCommandPallete = () => { cmd.value.toggle(); };

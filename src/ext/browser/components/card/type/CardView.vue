@@ -49,7 +49,7 @@
       <slot name="actions" />
       <span class="flex items-center text-xs text-gray-400 dark:text-neutral-500 ml-2 whitespace-nowrap">
         <PhCalendarBlank class="mr-1 align-text-bottom" />
-        {{ new Date(bookmark.dateAdded).toLocaleDateString() }}
+        {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
       </span>
     </div>
   </div>

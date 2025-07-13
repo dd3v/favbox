@@ -63,6 +63,18 @@ export default class BookmarkStorage {
         },
       });
     }
+    if (queryParams?.dateAdded?.[0]) {
+      const [startStr, endStr] = queryParams.dateAdded[0].split('~');
+      const startDate = new Date(startStr);
+      const endDate = new Date(endStr);
+      const low = startDate.setHours(0, 0, 0, 0);
+      const high = endDate.setHours(23, 59, 59, 999);
+      whereConditions.push({
+        dateAdded: {
+          '-': { low, high },
+        },
+      });
+    }
     return connection.select({
       from: 'bookmarks',
       distinct: true,

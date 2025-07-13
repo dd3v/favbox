@@ -68,6 +68,7 @@ const sync = async () => {
     processed++;
     while (activePromises.size >= maxConcurrent) {
       try {
+        // eslint-disable-next-line no-await-in-loop
         await Promise.race(activePromises);
       } catch (error) {
         console.warn('Error in concurrent processing:', error);

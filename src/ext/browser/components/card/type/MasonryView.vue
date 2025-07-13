@@ -26,16 +26,20 @@
           <p class="break-words py-2 text-xs text-gray-700 dark:text-neutral-500">
             {{ bookmark.description }}
           </p>
-          <div class="flex items-center gap-2">
-            <bookmark-favicon
-              :bookmark="bookmark"
-              class="size-4"
-            />
-            <span class="truncate text-xs font-thin text-gray-700 dark:text-neutral-500">
-              {{ bookmark.domain }}
+          <div class="flex items-center justify-between gap-2">
+            <span class="flex items-center gap-1 text-xs text-gray-400 dark:text-neutral-500 min-w-0 truncate">
+              <bookmark-favicon
+                :bookmark="bookmark"
+                class="size-4"
+              />
+              <span class="truncate">{{ bookmark.domain }}</span>
+            </span>
+            <span class="flex items-center text-xs text-gray-400 dark:text-neutral-500 ml-2 whitespace-nowrap" v-if="bookmark.dateAdded">
+              <PhCalendarBlank class="text-xs mr-1 align-text-bottom text-gray-400 dark:text-neutral-500" />
+              {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
             </span>
           </div>
-          <div class="mt-2.5 flex flex-wrap gap-1">
+          <div class="mt-5 flex flex-wrap gap-1">
             <app-badge
               v-for="(value, key) in bookmark.tags"
               :key="key"
@@ -56,6 +60,7 @@ import AppBadge from '@/components/app/AppBadge.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
 import BookmarkImage from '@/ext/browser/components/card/BookmarkImage.vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
+import PhCalendarBlank from '~icons/ph/calendar-blank';
 
 defineProps({
   bookmark: {

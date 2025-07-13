@@ -32,6 +32,10 @@
           v-model="bookmarksSort"
           v-tooltip.bottom="{ content: 'Sort direction' }"
         />
+        <DatePicker
+          v-model="selectedDate"
+          v-tooltip.bottom="{ content: 'Date range filter' }"
+        />
       </div>
       <div
         v-if="loading"
@@ -44,7 +48,7 @@
         class="flex h-5/6 flex-col items-center justify-center px-8 py-12"
       >
         <span class="text-2xl font-thin text-black dark:text-white">
-          🔍 No bookmarks found here. Try changing your search or filters!
+          🔍 No bookmarks match your search. Try changing the filters or keywords.
         </span>
       </div>
       <BookmarkLayout
@@ -142,6 +146,7 @@ import BookmarkCard from '@/ext/browser/components/card/BookmarkCard.vue';
 import AppConfirmation from '@/components/app/AppConfirmation.vue';
 import BookmarkForm from '@/ext/browser/components/BookmarkForm.vue';
 import SortDirection from '@/ext/browser/components/SortDirection.vue';
+import DatePicker from '@/ext/browser/components/DatePicker.vue';
 
 const BOOKMARKS_LIMIT = import.meta.env.VITE_BOOKMARKS_PAGINATION_LIMIT;
 const ATTRIBUTES_LIMIT = import.meta.env.VITE_ATTRIBUTES_PAGINATION_LIMIT;
@@ -169,6 +174,7 @@ const bookmarksList = ref([]);
 const bookmarksTotal = ref(0);
 const bookmarksQuery = ref(route.params.id ? [{ key: 'id', value: route.params.id }] : []);
 const bookmarksSort = ref('desc');
+const selectedDate = ref(null);
 
 // Reactive state for attributes
 const attributesSort = ref('count:desc');
@@ -344,7 +350,6 @@ const handleScreenshot = async (bookmark) => {
     }
     await bookmarkStorage.updateImageById(bookmark.id, response.image);
 
-    // Update the bookmark in the UI
     const itemIndex = bookmarksList.value.findIndex((i) => i.id === bookmark.id);
     if (itemIndex !== -1) {
       bookmarksList.value[itemIndex] = {
@@ -372,10 +377,12 @@ browser.runtime.onMessage.addListener(async (message) => {
 
 watch(
   [bookmarksQuery, bookmarksSort],
-  async () => {
+  async ([query]) => {
     bookmarksList.value = [];
     loading.value = true;
-
+    if (!query.some((f) => f.key === 'dateAdded')) {
+      selectedDate.value = null;
+    }
     loadBookmarks({ skip: 0, append: false });
     scrollRef.value?.scrollUp();
     if (bookmarksQuery.value.length === 0 && route.params.id) {
@@ -384,6 +391,17 @@ watch(
   },
   { immediate: false },
 );
+
+watch(selectedDate, (date) => {
+  console.warn(date);
+  if (date) {
+    const formatted = date.map((d) => d.toISOString().slice(0, 10));
+    bookmarksQuery.value = [
+      ...bookmarksQuery.value.filter((f) => f.key !== 'dateAdded'),
+      { key: 'dateAdded', value: formatted.join('~') },
+    ];
+  }
+});
 
 watch(
   [attributesSort, attributesTerm, attributesIncludes],

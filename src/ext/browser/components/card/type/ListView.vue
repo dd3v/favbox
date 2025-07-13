@@ -12,7 +12,7 @@
         <span>{{ bookmark.title }}</span>
         <span class="flex items-center text-xs text-gray-400 dark:text-neutral-500 mt-1 sm:mt-0 sm:ml-2">
           <PhCalendarBlank class="text-xs mr-1 align-text-bottom" />
-          {{ new Date(bookmark.dateAdded).toLocaleDateString() }}
+          {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
         </span>
       </div>
       <div class="flex flex-col">

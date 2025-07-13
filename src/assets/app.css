@@ -155,3 +155,29 @@
 .vue3-treeselect__single-value {
   @apply !text-black dark:!text-white;
 }
+
+.dp__theme_light {
+  --dp-background-color: #fff;
+  --dp-text-color: var(--color-gray-900);
+  --dp-hover-color: var(--color-gray-100);
+  --dp-hover-text-color: var(--color-gray-900);
+  --dp-primary-color: var(--color-gray-600);
+  --dp-primary-text-color: #fff;
+  --dp-border-color: var(--color-gray-200);
+  --dp-menu-border-color: var(--color-gray-200);
+  --dp-font-family: "SN Pro", sans-serif;
+  --dp-font-size: 0.75rem;
+}
+
+.dp__theme_dark {
+  --dp-background-color: var(--color-gray-950);
+  --dp-text-color: var(--color-gray-100);
+  --dp-hover-color: var(--color-gray-800);
+  --dp-hover-text-color: var(--color-gray-100);
+  --dp-primary-color: var(--color-gray-400);
+  --dp-primary-text-color: var(--color-gray-900);
+  --dp-border-color: var(--color-gray-700);
+  --dp-menu-border-color: var(--color-gray-700);
+  --dp-font-family: "SN Pro", sans-serif;
+  --dp-font-size: 0.75rem;
+}
