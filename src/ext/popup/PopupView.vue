@@ -61,8 +61,14 @@
     </div>
     <div
       v-else
-      class="flex grow bg-white p-3 dark:bg-black"
+      class="flex grow flex-col gap-3 bg-white p-3 dark:bg-black"
     >
+      <div
+        v-if="errorMessage"
+        class="flex items-center rounded bg-red-100 px-3 py-2 text-xs text-red-500 shadow-xs dark:bg-red-900 dark:text-red-200"
+      >
+        <span>{{ errorMessage }}</span>
+      </div>
       <BookmarkForm
         class="w-full"
         :title="tab.title"
@@ -91,6 +97,7 @@ const folders = await bookmarkHelper.buildFolderUITree();
 const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
 const exists = ref(false);
 const bookmarkId = ref(null);
+const errorMessage = ref('');
 
 try {
   const bookmarks = await browser.bookmarks.search({ url: tab.url });
@@ -109,17 +116,17 @@ console.debug('tab', tab);
 console.debug('bookmarkId', bookmarkId.value);
 
 const handleSubmit = async (data) => {
-  console.warn('data', data);
   try {
+    errorMessage.value = '';
     await browser.bookmarks.create({
       title: data.title,
       parentId: data.parentId,
       url: data.url,
     });
-  } catch (e) {
-    console.error(e);
-  } finally {
     window.close();
+  } catch (e) {
+    errorMessage.value = "😔 Oops, something went wrong. Please try again, or use your browser's built-in bookmark tool.";
+    console.error(e);
   }
 };
 

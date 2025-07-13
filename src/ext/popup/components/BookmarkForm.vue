@@ -41,7 +41,7 @@
         :suggestions="tags"
         placeholder="Tag it and press enter 🏷️"
       />
-      <div class="my-4 flex w-full justify-between">
+      <div class="my-0 flex w-full justify-between">
         <AppButton
           class="w-full"
         >
@@ -52,7 +52,7 @@
   </form>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import Treeselect from '@zanmato/vue3-treeselect';
 import AppTagInput from '@/components/app/AppTagInput.vue';
@@ -86,6 +86,10 @@ const props = defineProps({
 });
 
 const bookmarkTitle = ref(props.title);
+
+watch(() => props.title, (newTitle) => {
+  bookmarkTitle.value = newTitle;
+});
 const selectedFolder = ref(1);
 const selectedTags = ref([]);
 
