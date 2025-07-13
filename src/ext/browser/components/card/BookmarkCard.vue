@@ -15,13 +15,6 @@
             <CarbonTrashCan class="size-4" />
           </button>
           <button
-            v-tooltip.bottom-start="{ content: 'Take a screenshot'}"
-            class="-translate-y-8 rounded-md bg-black p-1.5 text-white opacity-100 shadow-md transition-transform delay-100 duration-300 ease-out group-hover:translate-y-2 group-hover:opacity-100"
-            @click="$emit('onScreenshot', bookmark)"
-          >
-            <CarbonDropPhoto class="size-4" />
-          </button>
-          <button
             v-tooltip.bottom-start="{ content: 'Pin bookmark'}"
             class="-translate-y-8 rounded-md p-1.5  text-white opacity-100 shadow-md transition-transform delay-100 duration-500 ease-out group-hover:translate-y-2 group-hover:opacity-100"
             :class="[

@@ -194,7 +194,7 @@ export default class BookmarkStorage {
     return result;
   }
 
-  async remove(id) {
+  async removeById(id) {
     const connection = await useConnection();
     return connection.remove({
       from: 'bookmarks',

@@ -61,7 +61,6 @@
           :display-type="viewMode"
           :bookmark="bookmark"
           @on-remove="handleRemove"
-          @on-screenshot="handleScreenshot"
           @on-edit="handleEdit"
           @on-pin="handlePin"
         />
@@ -82,7 +81,7 @@
         />
       </template>
     </AppDrawer>
-    <BookmarksSync @on-refresh="refresh" />
+    <BookmarksSync @on-sync="sync" />
     <AppConfirmation
       key="delete"
       ref="deleteConfirmation"
@@ -166,9 +165,6 @@ const searchRef = useTemplateRef('search');
 const viewMode = useStorage('viewMode', 'masonry');
 const loading = ref(false);
 
-// Track sync state
-const isSyncing = ref(false);
-
 // Reactive state for bookmarks
 const bookmarksList = ref([]);
 const bookmarksTotal = ref(0);
@@ -214,7 +210,7 @@ const loadBookmarks = async ({ skip = 0, limit = BOOKMARKS_LIMIT, append = false
   }
 };
 
-const refresh = async () => {
+const sync = async () => {
   try {
     bookmarksList.value = [];
     loading.value = true;
@@ -328,49 +324,23 @@ const handleSubmit = async (data) => {
   }
 };
 
-const handleScreenshot = async (bookmark) => {
-  try {
-    const granted = await screenshotRef.value.request();
-    if (granted === false) {
-      return;
-    }
-    console.warn('Sending screenshot request for bookmark:', bookmark.id);
-    const response = await browser.runtime.sendMessage({
-      action: 'screenshot',
-      bookmark: JSON.parse(JSON.stringify(bookmark)),
-    });
-    if (!response) {
-      throw new Error('No response received from screenshot service');
-    }
-    if (response.error) {
-      throw new Error(response.error);
-    }
-    if (!response.image) {
-      throw new Error('No image data received from screenshot service');
-    }
-    await bookmarkStorage.updateImageById(bookmark.id, response.image);
-
-    const itemIndex = bookmarksList.value.findIndex((i) => i.id === bookmark.id);
-    if (itemIndex !== -1) {
-      bookmarksList.value[itemIndex] = {
-        ...bookmarksList.value[itemIndex],
-        image: response.image,
-      };
-      notify({ group: 'default', text: 'Screenshot saved successfully!' }, NOTIFICATION_DURATION);
-    }
-  } catch (e) {
-    console.error('Screenshot failed:', e);
-    notify({ group: 'error', text: `Screenshot failed: ${e.message}` }, NOTIFICATION_DURATION);
-  }
-};
-
 browser.runtime.onMessage.addListener(async (message) => {
   if (message.action === 'refresh') {
-    if (message.data) {
-      isSyncing.value = message.data.progress < 100;
-    }
-    if (isSyncing.value || document.hidden) {
-      await refresh(message.data);
+    console.warn('checking tab');
+    const [activeTab] = await browser.tabs.query({ active: true, currentWindow: true });
+    const isFavBoxTab = activeTab?.url?.includes('/ext/browser/index.html');
+    if (isFavBoxTab) {
+      console.log('Skipping refresh message - current tab is FavBox bookmarks tab');
+      attributesList.value = await attributeStorage.search(
+        attributesIncludes,
+        ...attributesSort.value.split(':'),
+        attributesTerm.value,
+        0,
+        ATTRIBUTES_LIMIT,
+      );
+    } else {
+      console.warn('refresing..');
+      await sync();
     }
   }
 });

@@ -80,7 +80,7 @@ const sync = async () => {
       try {
         const progress = Math.round((processed / browserTotal) * 100);
         await browser.storage.session.set({ progress });
-        browser.runtime.sendMessage({ action: 'refresh', data: { progress, savedCount: saveQueue.count } });
+        browser.runtime.sendMessage({ action: 'sync', data: { progress, savedCount: saveQueue.count } });
       } catch (e) {
         console.warn('ui refresh from sync', e);
       }
@@ -92,7 +92,7 @@ const sync = async () => {
   try {
     await attributeStorage.refresh();
     await browser.storage.session.set({ progress: 100 });
-    browser.runtime.sendMessage({ action: 'refresh', data: { progress: 100, savedCount: saveQueue.count } });
+    browser.runtime.sendMessage({ action: 'sync', data: { progress: 100, savedCount: saveQueue.count } });
   } catch (e) {
     console.warn('final ui refresh from sync', e);
   }

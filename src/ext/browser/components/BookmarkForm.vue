@@ -66,7 +66,7 @@ const props = defineProps({
   },
 });
 
-const bookmark = ref(props.bookmark);
+const bookmark = ref({ ...props.bookmark });
 const emit = defineEmits(['onSubmit']);
 
 const findLabelById = (data, id) => {
@@ -102,6 +102,6 @@ const submit = () => {
 
 watch(() => bookmark.value.folderId, (newId) => {
   bookmark.value.folderName = findLabelById(props.folders, newId);
-});
+}, { immediate: true });
 
 </script>

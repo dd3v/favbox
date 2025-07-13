@@ -68,7 +68,7 @@
       </Dialog>
     </TransitionRoot>
     <div
-      v-if="!isOpen && !status && progress < 100"
+      v-if="!isOpen && isSyncing"
       class="fixed bottom-4 right-4 z-50"
     >
       <button
@@ -103,26 +103,34 @@ import PixelarticonsHeart from '~icons/pixelarticons/heart';
 const status = ref(false);
 const progress = ref(0);
 const isOpen = ref(false);
+const isSyncing = ref(false);
+
 const close = () => { isOpen.value = false; };
 const open = () => { isOpen.value = true; };
-const emit = defineEmits(['onRefresh']);
+const emit = defineEmits(['onSync']);
 
 onMounted(async () => {
-  status.value = (await browser.storage.session.get('status')).status ?? false;
-  progress.value = (await browser.storage.session.get('progress')).progress ?? 0;
-  isOpen.value = status.value === false && progress.value < 100;
+  const storageData = await browser.storage.session.get(['status', 'progress']);
+  status.value = storageData.status ?? false;
+  progress.value = storageData.progress ?? 0;
+
+  isSyncing.value = !status.value && progress.value > 0 && progress.value < 100;
+
+  isOpen.value = isSyncing.value;
 });
 
 browser.runtime.onMessage.addListener(async (message) => {
-  if (message.action === 'refresh') {
+  if (message.action === 'sync') {
+    const wasSyncing = isSyncing.value;
     progress.value = message.data.progress;
     status.value = message.data.progress >= 100;
-
-    if (message.data.progress >= 100) {
+    isSyncing.value = !status.value && message.data.progress > 0 && message.data.progress < 100;
+    if (isSyncing.value && !wasSyncing) {
+      isOpen.value = true;
+    } else if (message.data.progress >= 100) {
       isOpen.value = false;
     }
-
-    emit('onRefresh', message.data);
+    emit('onSync', message.data);
     console.warn('BookmarksSync', message.data);
   }
 });

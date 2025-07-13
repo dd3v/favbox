@@ -20,17 +20,17 @@ FavBox is a local-first **experimental** browser extension that enhances and sim
 
 Key features:
 
-🔄 sync with your browser profile;\
-🔒 does not send your data to any third-party services;\
-🎨 minimalist and clean UI; \
-🏷 supports tags for easy organization;\
-🔍 provides advanced search, sorting, and filtering capabilities based on tags, domains, folders, and webpage keywords;\
-🌁 multiple display modes; \
-🌗 light and dark theme;\
-🗑️ includes a health check function that detects broken URLs; \
-⌨️ provides quick access to search with hotkeys;  \
-🗒️ includes functionality for creating and managing **local** notes; \
-❤️ free and open source;
+🔄 Syncs with your browser profile \
+🔒 No data sent to third-party services\
+🎨 Minimalist, clean UI\
+🏷️ Tag support for easy organization\
+🔍 Advanced search, sorting, and filtering by tags, domains, folders, and keywords\
+🌁 Multiple display modes\
+🌗 Light and dark themes\
+🗑️ Detects broken and duplicate bookmarks\
+⌨️ Hotkeys for quick search access\
+🗒️ Local notes support\
+❤️ Free and open source
 
 ### Concept
 

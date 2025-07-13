@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "FavBox",
     "description": "A clean, modern bookmark app — local-first by design.",
-    "version": "2.0.4",
+    "version": "2.1.0",
     "permissions": [
         "bookmarks",
         "activeTab",

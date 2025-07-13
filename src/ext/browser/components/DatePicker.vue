@@ -55,7 +55,6 @@ const emit = defineEmits(['update:modelValue']);
 const isOpen = ref(false);
 const rootRef = ref(null);
 
-
 const selectedDate = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),

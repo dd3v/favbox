@@ -34,7 +34,10 @@
               />
               <span class="truncate">{{ bookmark.domain }}</span>
             </span>
-            <span class="flex items-center text-xs text-gray-400 dark:text-neutral-500 ml-2 whitespace-nowrap" v-if="bookmark.dateAdded">
+            <span
+              v-if="bookmark.dateAdded"
+              class="flex items-center text-xs text-gray-400 dark:text-neutral-500 ml-2 whitespace-nowrap"
+            >
               <PhCalendarBlank class="text-xs mr-1 align-text-bottom text-gray-400 dark:text-neutral-500" />
               {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
             </span>

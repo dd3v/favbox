@@ -51,29 +51,31 @@ export default class AttributeStorage {
     });
   }
 
+  // Helper method to extract valid attributes from a bookmark
+  getAttributesFromBookmark(bookmark) {
+    const { domain = '', tags = [], keywords = [], folderName = '' } = bookmark;
+    const isValid = (v) => typeof v === 'string' && v.trim().length > 0;
+    return [
+      isValid(domain) && { key: 'domain', value: domain.trim(), id: `domain-${domain.trim()}` },
+      ...tags.filter(isValid).map((tag) => ({ key: 'tag', value: tag.trim(), id: `tag-${tag.trim()}` })),
+      ...keywords.filter(isValid).map((keyword) => ({ key: 'keyword', value: keyword.trim(), id: `keyword-${keyword.trim()}` })),
+      isValid(folderName) && { key: 'folder', value: folderName.trim(), id: `folder-${folderName.trim()}` },
+    ].filter(Boolean);
+  }
+
   async create(bookmark) {
     const connection = await useConnection();
-    const { domain = '', tags = [], keywords = [], folderName = '' } = bookmark;
-
-    const allAttributes = [
-      domain && { key: 'domain', value: domain, id: `domain-${domain}` },
-      ...tags.map((tag) => ({ key: 'tag', value: tag, id: `tag-${tag}` })),
-      ...keywords.map((keyword) => ({ key: 'keyword', value: keyword, id: `keyword-${keyword}` })),
-      folderName && { key: 'folder', value: folderName, id: `folder-${folderName}` },
-    ].filter(Boolean);
-
+    const allAttributes = this.getAttributesFromBookmark(bookmark);
+    if (allAttributes.length === 0) return;
     const existing = await connection.select({
       from: 'attributes',
       where: { id: { in: allAttributes.map((attr) => attr.id) } },
     });
-
     const existingMap = new Map(existing.map((r) => [r.id, r.count || 0]));
-
     const updatedAttributes = allAttributes.map((attr) => ({
       ...attr,
       count: (existingMap.get(attr.id) || 0) + 1,
     }));
-
     await connection.insert({
       into: 'attributes',
       upsert: true,
@@ -84,25 +86,16 @@ export default class AttributeStorage {
 
   async remove(bookmark) {
     const connection = await useConnection();
-    const { domain = '', tags = [], keywords = [], folderName = '' } = bookmark;
-
-    const allAttributes = [
-      domain && { key: 'domain', value: domain, id: `domain-${domain}` },
-      ...tags.map((tag) => ({ key: 'tag', value: tag, id: `tag-${tag}` })),
-      ...keywords.map((keyword) => ({ key: 'keyword', value: keyword, id: `keyword-${keyword}` })),
-      folderName && { key: 'folder', value: folderName, id: `folder-${folderName}` },
-    ].filter(Boolean);
-
+    const allAttributes = this.getAttributesFromBookmark(bookmark);
+    if (allAttributes.length === 0) return;
     const existing = await connection.select({
       from: 'attributes',
       where: { id: { in: allAttributes.map((attr) => attr.id) } },
     });
-
     const updatedAttributes = existing.map((record) => ({
       ...record,
       count: Math.max(0, (record.count || 0) - 1),
     })).filter((attr) => attr.count > 0);
-
     const toDelete = existing.filter((record) => (record.count || 0) <= 1).map((r) => r.id);
     if (toDelete.length > 0) {
       await connection.remove({
@@ -110,7 +103,6 @@ export default class AttributeStorage {
         where: { id: { in: toDelete } },
       });
     }
-
     if (updatedAttributes.length > 0) {
       await connection.insert({
         into: 'attributes',
@@ -240,27 +232,13 @@ export default class AttributeStorage {
   }
 
   async refresh() {
-    const connection = await useConnection();
     console.time('Execution time attributes');
-
-    const [domains, tags, keywords, folders] = await Promise.all([
+    await Promise.all([
       this.refreshDomains(),
       this.refreshTags(),
       this.refreshKeywords(),
       this.refreshFolders(),
     ]);
-
-    const result = [...domains, ...tags, ...keywords, ...folders];
-
-    await connection.clear('attributes');
-    await connection.insert({
-      into: 'attributes',
-      values: result,
-      validation: false,
-      skipDataCheck: true,
-    });
-
     console.timeEnd('Execution time attributes');
-    return result;
   }
 }
