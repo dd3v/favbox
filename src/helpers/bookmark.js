@@ -7,8 +7,8 @@ const bookmarkHelper = {
     const items = await browser.bookmarks.getTree();
     let count = 0;
     /**
-     *
-     * @param bookmarks
+     * Recursively counts bookmarks in the given array
+     * @param {Array<object>} bookmarks - Array of bookmark objects
      */
     function countBookmarks(bookmarks) {
       bookmarks.forEach((bookmark) => {
@@ -66,14 +66,15 @@ const bookmarkHelper = {
   /**
    * Retrieves all bookmarks from the browser.
    * @async
-   * @returns {AsyncGenerator<object>}
+   * @yields {object} Bookmark object
    */
   async* iterateBookmarks() {
     const bookmarksTree = await browser.bookmarks.getTree();
 
     /**
-     *
-     * @param node
+     * Recursively processes bookmark nodes
+     * @param {object} node - Bookmark node to process
+     * @yields {object} Bookmark object
      */
     function* processNode(node) {
       if (node.url) {

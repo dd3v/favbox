@@ -5,12 +5,10 @@
     @scroll:end="skip => loadBrokenBookmarks({ skip, limit: BOOKMARKS_LIMIT, append: true })"
   >
     <div
-      v-if="total > 0 || workerStatus"
       class="sticky top-0 z-10 flex w-full flex-col border-solid bg-white/70 p-4 backdrop-blur-sm dark:bg-black/50"
     >
       <div class="flex w-full items-center justify-between">
         <span
-          v-if="total > 0"
           class="text-xl font-extralight text-black dark:text-white"
         >
           Total: <NumberFlow :value="total" />
@@ -138,6 +136,13 @@ const stop = () => {
   workerStatus.value = false;
 };
 
+const terminateWorker = () => {
+  if (worker) {
+    worker.terminate();
+    worker = null;
+  }
+};
+
 const loadBrokenBookmarks = async ({ skip = 0, limit = BOOKMARKS_LIMIT, append = false } = {}) => {
   try {
     loading.value = !append;
@@ -182,6 +187,7 @@ const onDelete = async (bookmark) => {
 onMounted(async () => {
   loading.value = true;
   await loadBrokenBookmarks();
+  total.value = await bookmarkStorage.getTotalByHttpStatus(httpStatuses);
   const workerInstance = getWorker();
   workerInstance.onmessage = async (event) => {
     switch (event.data.type) {
@@ -210,6 +216,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  // terminateWorker();
+  terminateWorker();
 });
 </script>

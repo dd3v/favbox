@@ -1,3 +1,6 @@
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
+/* eslint-disable new-cap */
 import { Connection, DATA_TYPE } from 'jsstore';
 import workerInjector from 'jsstore/dist/worker_injector';
 import jsstoreWorker from 'jsstore/dist/jsstore.worker.min.js?worker';

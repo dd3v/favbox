@@ -43,7 +43,6 @@ import ListView from '@/ext/browser/components/card/type/ListView.vue';
 import MasonryView from '@/ext/browser/components/card/type/MasonryView.vue';
 
 import CarbonTrashCan from '~icons/carbon/trash-can';
-import CarbonDropPhoto from '~icons/carbon/drop-photo';
 import CarbonPin from '~icons/carbon/pin';
 import CarbonEdit from '~icons/carbon/edit';
 

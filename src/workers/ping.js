@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { HTTP_STATUS } from '@/helpers/httpStatus';
 import BookmarkStorage from '@/storage/bookmark';
 import fetchHelper from '@/helpers/fetch';
@@ -29,9 +30,6 @@ self.onmessage = (event) => {
   }
 };
 
-/**
- *
- */
 async function doWork() {
   const bookmarkStorage = new BookmarkStorage();
   const limit = 50;
@@ -43,6 +41,7 @@ async function doWork() {
 
     const bookmarks = await bookmarkStorage.selectAfterId(id, limit);
     if (bookmarks.length === 0) break;
+    processed += bookmarks.length;
     percentage = (processed / total) * 100;
     self.postMessage({ type: 'progress', value: Math.ceil(percentage) });
 
@@ -53,12 +52,15 @@ async function doWork() {
       }
       return httpStatus >= HTTP_STATUS.BAD_REQUEST ? { httpStatus, id: bookmark.id } : null;
     }))).filter(Boolean);
-    processed += bookmarks.length;
+
     if (httpResults.length) {
       self.postMessage(JSON.stringify(httpResults));
-
       await Promise.all(httpResults.map((result) => bookmarkStorage.updateHttpStatusById(result.id, result.httpStatus)));
     }
     id = bookmarks[bookmarks.length - 1].id;
   } while (processed < total && running);
+
+  if (running) {
+    self.postMessage({ type: 'progress', value: 100 });
+  }
 }

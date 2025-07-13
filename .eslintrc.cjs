@@ -38,6 +38,7 @@ module.exports = {
     'jsdoc/require-returns-description': 'off',
     'jsdoc/require-param': 'off',
     'jsdoc/require-returns': 'off',
+    'no-await-in-loop': 'off',
   },
   overrides: [
     {
