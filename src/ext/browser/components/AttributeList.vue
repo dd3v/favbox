@@ -11,6 +11,7 @@
           v-model="term"
           autocomplete="off"
           type="text"
+          aria-label="Search attributes"
           class="mb-2 h-9 w-full rounded-md border-1 border-gray-300/50 px-9 text-xs text-black shadow-sm outline-none placeholder:text-xs focus:border-gray-400/30 focus:ring-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus:dark:border-neutral-700"
         >
         <Popover class="relative">
@@ -131,21 +132,33 @@
       class="list-view flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1 text-xs"
       @scroll:end="paginate"
     >
-      <ul>
+      <ul
+        role="listbox"
+        aria-label="Filter options"
+        class="w-full"
+      >
         <li
           v-for="(item, key) in list"
           :key="item.id + key"
+          role="option"
+          :aria-selected="selected(item.key, item.value)"
+          class="w-full"
         >
           <label
             :key="item.id + key"
             :for="item.id + key"
             :class="{'bg-neutral-100 dark:bg-neutral-900': selected(item.key, item.value)}"
-            class="my-1 flex cursor-pointer place-items-end items-center rounded-md px-3 py-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900"
+            class="my-1 flex cursor-pointer place-items-end items-center px-3 py-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900 focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-gray-300 dark:focus-visible:ring-gray-600 focus-visible:ring-offset-0 rounded-md"
+            tabindex="0"
+            role="button"
+            @keydown.enter="update(item.key, item.value)"
+            @keydown.space.prevent="update(item.key, item.value)"
           >
             <component
               :is="getIcon(item)"
               v-tooltip.top="{ content: getTooltip(item) }"
-              class="size-4"
+              class="size-4 select-none"
+              tabindex="-1"
             />
             <input
               :id="item.id + key"

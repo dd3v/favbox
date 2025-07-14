@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full overflow-y-hidden dark:bg-black">
     <!-- Sidebar with Tailwind responsive classes -->
-    <div class="hidden md:block w-64 max-w-64 flex-shrink-0 transition-all duration-300 ease-in-out">
+    <div class="hidden md:block w-68 max-w-68 flex-shrink-0 transition-all duration-300 ease-in-out">
       <AttributeList
         v-model="bookmarksQuery"
         v-model:sort="attributesSort"

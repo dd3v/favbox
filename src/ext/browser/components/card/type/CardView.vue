@@ -25,6 +25,7 @@
       :href="bookmark.url"
       target="_blank"
       rel="noopener noreferrer"
+      :aria-label="`Open link: ${bookmark.title}`"
       class="block"
     >
       <BookmarkImage

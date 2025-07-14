@@ -1,9 +1,13 @@
 <template>
   <div
     role="combobox"
-    aria-expanded="showSuggestionContainer"
+    :aria-expanded="showSuggestionContainer"
     aria-haspopup="listbox"
+    aria-controls="tag-suggestion-list"
+    tabindex="0"
     @click="focus"
+    @keydown.enter="focus"
+    @keydown.space.prevent="focus"
   >
     <div
       class="flex min-h-9 w-full flex-wrap items-center gap-1 whitespace-normal rounded-md border border-gray-200 bg-white px-2 py-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus-within:dark:border-neutral-700"
@@ -43,6 +47,7 @@
     >
       <div
         v-if="showSuggestionContainer"
+        id="tag-suggestion-list"
         class="z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white text-xs shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-neutral-900 dark:text-neutral-400"
         role="listbox"
       >
@@ -56,8 +61,13 @@
             :class="{'bg-neutral-100 dark:bg-neutral-800': highlightedSuggestionIndex === index }"
             role="option"
             :aria-selected="highlightedSuggestionIndex === index"
+            tabindex="-1"
             @click="add"
             @mouseenter="highlightedSuggestionIndex = index"
+            @focus="highlightedSuggestionIndex = index"
+            @focusin="highlightedSuggestionIndex = index"
+            @keydown.enter="add"
+            @keydown.space.prevent="add"
           >
             <div class="inline-flex items-center gap-x-1 dark:text-white">
               <PhHashStraightLight class="size-4" />

@@ -32,14 +32,10 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="flex h-screen max-h-[32rem] w-full max-w-md overflow-hidden rounded-lg border bg-white/60 shadow-lg backdrop-blur-lg transition-all dark:border-neutral-800 dark:bg-black/40 dark:text-white"
+              class="flex h-screen max-h-[32rem] w-full max-w-md overflow-hidden rounded-lg border bg-white/60 shadow-lg backdrop-blur-lg transition-all dark:border-neutral-800 dark:bg-black/40 dark:text-white focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 [&:focus]:outline-none [&:focus]:ring-0 [&:focus-visible]:outline-none [&:focus-visible]:ring-0"
             >
               <div
                 class="flex w-full flex-col items-start justify-between h-full"
-                @keydown.down.prevent="navigateDown"
-                @keydown.up.prevent="navigateUp"
-                @keydown.enter.prevent="selectActiveItem"
-                @keydown.backspace="handleBackspace"
               >
                 <div class="flex w-full flex-col flex-1 min-h-0">
                   <div class="flex w-full items-center px-4 py-3 text-gray-700">
@@ -50,12 +46,17 @@
                       ref="input"
                       v-model="searchTerm"
                       type="text"
+                      aria-label="Search command palette"
                       class="flex-1 border-none bg-transparent text-sm outline-none ring-0 placeholder:text-gray-600 focus:border-0 focus:border-none focus:ring-0 dark:text-gray-100 dark:placeholder:text-gray-400"
                       placeholder="Search..."
                       autocomplete="off"
                       autocorrect="off"
                       spellcheck="false"
                       @blur="refocusInput"
+                      @keydown.down.prevent="navigateDown"
+                      @keydown.up.prevent="navigateUp"
+                      @keydown.enter.prevent="selectActiveItem"
+                      @keydown.backspace="handleBackspace"
                     >
                   </div>
 
@@ -73,18 +74,27 @@
                     <ul
                       v-else-if="items.length"
                       class="gap-y-2"
+                      role="menu"
                     >
                       <li
                         v-for="(item, index) in items"
                         :key="index"
                         ref="item"
-                        class="flex cursor-pointer items-center gap-x-2 rounded-md p-3 transition-colors duration-200 hover:bg-black/5 hover:dark:bg-white/10"
+                        class="flex cursor-pointer items-center gap-x-2 rounded-md p-3 transition-colors duration-200 hover:bg-black/5 hover:dark:bg-white/10 focus:outline-none focus-visible:ring-1 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500"
                         :class="{
                           'bg-black/10 dark:bg-white/10': activeIndex === index
                         }"
+                        role="menuitem"
+                        tabindex="0"
                         @click="selectItem(item)"
+                        @keydown.enter="selectItem(item)"
+                        @keydown.arrow-up.prevent="navigateUp"
+                        @keydown.arrow-down.prevent="navigateDown"
+                        @focus="activeIndex = index"
                       >
-                        <div class="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-white to-gray-100 backdrop-blur-sm dark:from-black/80 dark:to-black/80">
+                        <div
+                          class="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-white to-gray-100 backdrop-blur-sm dark:from-black/80 dark:to-black/80"
+                        >
                           <component
                             :is="item.icon"
                             class="size-4 text-gray-700 dark:text-gray-200"
@@ -101,19 +111,27 @@
                     </div>
                   </AppInfiniteScroll>
                 </div>
-                <div class="w-full border-t border-gray-200 bg-gray-50 px-4 py-3 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+                <div
+                  class="w-full border-t border-gray-200 bg-gray-50 px-4 py-3 backdrop-blur-sm dark:border-white/10 dark:bg-white/5"
+                >
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                      <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200">↑↓</kbd>
+                      <kbd
+                        class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200"
+                      >↑↓</kbd>
                       <span class="text-xs text-gray-600 dark:text-gray-300">navigate</span>
                     </div>
                     <div class="flex items-center gap-4">
                       <div class="flex items-center gap-2">
-                        <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200">↵</kbd>
+                        <kbd
+                          class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200"
+                        >↵</kbd>
                         <span class="text-xs text-gray-600 dark:text-gray-300">select</span>
                       </div>
                       <div class="flex items-center gap-2">
-                        <kbd class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200">esc</kbd>
+                        <kbd
+                          class="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 text-xs text-gray-700 shadow-sm dark:border-transparent dark:bg-black dark:text-gray-200"
+                        >esc</kbd>
                       </div>
                     </div>
                   </div>
@@ -128,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, useTemplateRef, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, useTemplateRef, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import {
   Dialog,
   TransitionRoot,
@@ -254,9 +272,22 @@ const selectItem = (item) => {
   handleCommandSelect(item);
 };
 
+// Фокусируем input при открытии палитры
+watch(isOpen, (open) => {
+  if (open) {
+    nextTick(() => {
+      inputRef.value?.focus();
+    });
+  }
+});
+
+// Фокусируем input после выбора элемента
 const selectActiveItem = () => {
   if (activeIndex.value >= 0 && activeIndex.value < items.value.length) {
     selectItem(items.value[activeIndex.value]);
+    nextTick(() => {
+      inputRef.value?.focus();
+    });
   }
 };
 

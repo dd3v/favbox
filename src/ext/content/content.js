@@ -19,7 +19,10 @@ try {
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'getHTML') {
-    sendResponse({ html: document.documentElement.outerHTML });
+    const headElement = document.head;
+    const headHTML = headElement ? headElement.outerHTML : '';
+    const completeHTML = `<!DOCTYPE html><html>${headHTML}<body></body></html>`;
+    sendResponse({ html: completeHTML });
   }
 });
 

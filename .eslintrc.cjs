@@ -5,12 +5,12 @@ module.exports = {
     webextensions: true,
     node: true,
   },
-  extends: ['plugin:vue/recommended', 'airbnb-base', 'plugin:jsdoc/recommended'],
+  extends: ['plugin:vue/recommended', 'airbnb-base', 'plugin:jsdoc/recommended', 'plugin:vuejs-accessibility/recommended'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['vue', 'import', 'jsdoc'],
+  plugins: ['vue', 'import', 'jsdoc', 'vuejs-accessibility'],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
@@ -30,8 +30,8 @@ module.exports = {
     ],
     'no-use-before-define': ['error', { functions: false }],
     'no-param-reassign': ['error', { props: false }],
-    'import/no-unresolved': ['error', { ignore: ['^~icons/', '^floating-vue', '\\.css$', '\\.scss$', '\\.sass$'] }],
-    'import/extensions': ['error', { ignore: ['^~icons/', '^floating-vue', '\\.css$', '\\.scss$', '\\.sass$'] }],
+    'import/no-unresolved': ['error', { ignore: ['^~icons/', '^floating-vue', '^floating-vue/dist/style', '^floating-vue/style', '\\.css$', '\\.scss$', '\\.sass$'] }],
+    'import/extensions': ['error', { ignore: ['^~icons/', '^floating-vue', '^floating-vue/dist/style', '^floating-vue/style', '\\.css$', '\\.scss$', '\\.sass$'] }],
     // JSDoc rules
     'jsdoc/require-jsdoc': 'off',
     'jsdoc/require-param-description': 'off',
@@ -39,39 +39,27 @@ module.exports = {
     'jsdoc/require-param': 'off',
     'jsdoc/require-returns': 'off',
     'no-await-in-loop': 'off',
+    // Accessibility rules
+    'vuejs-accessibility/alt-text': 'error',
+    'vuejs-accessibility/anchor-has-content': 'error',
+    'vuejs-accessibility/aria-props': 'error',
+    'vuejs-accessibility/aria-unsupported-elements': 'error',
+    'vuejs-accessibility/click-events-have-key-events': 'error',
+    'vuejs-accessibility/heading-has-content': 'error',
+    'vuejs-accessibility/iframe-has-title': 'error',
+    'vuejs-accessibility/interactive-supports-focus': 'error',
+    'vuejs-accessibility/label-has-for': 'error',
+    'vuejs-accessibility/media-has-caption': 'warn',
+    'vuejs-accessibility/mouse-events-have-key-events': 'error',
+    'vuejs-accessibility/no-access-key': 'error',
+    'vuejs-accessibility/no-autofocus': 'error',
+    'vuejs-accessibility/no-distracting-elements': 'error',
+    'vuejs-accessibility/no-redundant-roles': 'error',
+    'vuejs-accessibility/role-has-required-aria-props': 'error',
+    'vuejs-accessibility/tabindex-no-positive': 'error',
+    'vuejs-accessibility/no-static-element-interactions': 'error',
+    'vuejs-accessibility/form-control-has-label': 'error',
   },
-  overrides: [
-    {
-      files: ['vite.config.js'],
-      rules: {
-        'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-      },
-    },
-    {
-      files: ['vite.config.js', 'tailwind.config.js'],
-      rules: {
-        'import/no-unresolved': 'off',
-        'import/no-extraneous-dependencies': 'off',
-        'import/no-cycle': 'off',
-        'import/named': 'off',
-        'import/order': 'off',
-        'import/no-duplicates': 'off',
-        'import/no-self-import': 'off',
-        'import/no-relative-packages': 'off',
-        'import/no-named-as-default': 'off',
-        'import/no-named-as-default-member': 'off',
-        'import/default': 'off',
-        'import/namespace': 'off',
-      },
-    },
-    {
-      files: ['src/ext/browser/app.js'],
-      rules: {
-        // 'floating-vue/dist/style.css'; ???
-        'import/extensions': 'off',
-      },
-    },
-  ],
   settings: {
     'import/resolver': {
       alias: {
@@ -82,4 +70,5 @@ module.exports = {
     'import/ignore': [
     ],
   },
+  ignorePatterns: ['vite.config.js', 'vite.config.firefox.js', 'src/ext/browser/app.js'],
 };

@@ -1,6 +1,10 @@
 <template>
-  <label class="group flex cursor-pointer items-center gap-x-2">
+  <label
+    :for="inputId"
+    class="group flex cursor-pointer items-center gap-x-2"
+  >
     <input
+      :id="inputId"
       v-model="model"
       type="radio"
       :name="name"
@@ -12,6 +16,8 @@
   </label>
 </template>
 <script setup>
+import { useId } from 'vue';
+
 const model = defineModel({ type: String, required: true });
 defineProps({
   value: {
@@ -27,4 +33,6 @@ defineProps({
     required: true,
   },
 });
+
+const inputId = useId();
 </script>

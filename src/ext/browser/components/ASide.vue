@@ -12,13 +12,15 @@
         v-for="(item, key) in items"
         :key="item.key"
         :ref="el => setMenuItemRef(el, item.name)"
-        @click="handleClick"
       >
         <router-link
           :key="key"
           v-tooltip.right="{ content: item.tooltip }"
           :to="{ name: item.name }"
           class="relative"
+          tabindex="0"
+          @click="handleClick"
+          @keydown.enter="handleClick"
         >
           <component
             :is="item.icon"
@@ -32,6 +34,7 @@
         v-tooltip.right="{ content: 'GitHub' }"
         href="https://github.com/dd3v/favbox"
         target="_blank"
+        aria-label="GitHub repository"
       >
         <IconoirGithub class="size-4 text-soft-900 hover:text-black dark:text-white dark:hover:text-white" />
       </a>

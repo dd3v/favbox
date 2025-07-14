@@ -26,6 +26,7 @@
       v-model="term"
       name="term"
       type="text"
+      aria-label="Search"
       autocomplete="off"
       autocorrect="off"
       spellcheck="false"

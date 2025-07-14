@@ -19,11 +19,19 @@
         :limit="BOOKMARKS_LIMIT"
         @scroll:end="offset => loadBookmarks({ offset, append: true })"
       >
-        <ul class="w-full flex flex-col cursor-pointer gap-y-2 px-2 pb-20">
+        <ul
+          class="w-full flex flex-col cursor-pointer gap-y-2 px-2 pb-20 mt-1"
+          role="listbox"
+        >
           <li
             v-for="bookmark in bookmarks"
             :key="`${bookmark.id}-${bookmark.updatedAt}`"
+            role="option"
+            :aria-selected="bookmark.id === currentBookmarkId"
+            tabindex="0"
+            class="focus:outline-none focus-visible:ring-1 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 rounded-md"
             @click="openEditor(bookmark)"
+            @keydown.enter="openEditor(bookmark)"
           >
             <PinnedCard
               :bookmark="bookmark"

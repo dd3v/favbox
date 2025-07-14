@@ -16,7 +16,7 @@
       </div>
       <div class="flex items-center text-xs text-gray-400 flex-shrink-0 ml-2">
         <CarbonTime class="mr-1" />
-        <span class="mr-1">Updated:</span>
+        <span class="mr-1">Last viewed:</span>
         <span>{{ new Date(bookmark.updatedAt).toLocaleString() }}</span>
       </div>
     </div>
