@@ -54,8 +54,8 @@ async function doWork() {
     }))).filter(Boolean);
 
     if (httpResults.length) {
-      self.postMessage(JSON.stringify(httpResults));
       await Promise.all(httpResults.map((result) => bookmarkStorage.updateHttpStatusById(result.id, result.httpStatus)));
+      self.postMessage(JSON.stringify(httpResults));
     }
     id = bookmarks[bookmarks.length - 1].id;
   } while (processed < total && running);

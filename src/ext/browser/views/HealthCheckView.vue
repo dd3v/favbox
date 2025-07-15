@@ -196,8 +196,6 @@ onMounted(async () => {
         break;
       case 'progress':
         progress.value = parseInt(event.data.value, 10);
-        total.value = await bookmarkStorage.getTotalByHttpStatus(httpStatuses);
-        bookmarks.value = await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, 0);
         if (progress.value === 100) {
           stop();
         }
@@ -205,6 +203,8 @@ onMounted(async () => {
       default:
         console.error('🌀 Undefined message from worker:', event.data);
     }
+    total.value = await bookmarkStorage.getTotalByHttpStatus(httpStatuses);
+    bookmarks.value = await bookmarkStorage.getBookmarksByHttpStatusCode(httpStatuses, 0);
     console.warn('🌀 Message from worker:', event.data);
   };
   workerInstance.onerror = (event) => {

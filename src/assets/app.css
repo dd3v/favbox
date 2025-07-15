@@ -156,7 +156,7 @@
   @apply !text-black dark:!text-white;
 }
 
-.dp__theme_light {
+:root .dp__theme_light {
   --dp-background-color: #fff;
   --dp-text-color: var(--color-gray-900);
   --dp-hover-color: var(--color-gray-100);
@@ -169,7 +169,7 @@
   --dp-font-size: 0.75rem;
 }
 
-.dp__theme_dark {
+:root .dp__theme_dark {
   --dp-background-color: var(--color-gray-950);
   --dp-text-color: var(--color-gray-100);
   --dp-hover-color: var(--color-gray-800);
