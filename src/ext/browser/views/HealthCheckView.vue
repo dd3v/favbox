@@ -1,5 +1,5 @@
 <template>
-  <app-infinite-scroll
+  <AppInfiniteScroll
     class="flex h-screen w-full flex-col overflow-y-auto bg-white dark:bg-black"
     :limit="BOOKMARKS_LIMIT"
     @scroll:end="skip => loadBrokenBookmarks({ skip, limit: BOOKMARKS_LIMIT, append: true })"
@@ -74,7 +74,7 @@
         Delete
       </template>
     </AppConfirmation>
-  </app-infinite-scroll>
+  </AppInfiniteScroll>
 </template>
 
 <script setup>

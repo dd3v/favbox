@@ -1,19 +1,21 @@
 <template>
   <aside
-    class="sticky top-0 flex h-full min-h-screen w-14 min-w-14 flex-col items-center justify-center border-soft-900 bg-soft-50 align-middle shadow-inner dark:border-r dark:border-neutral-900 dark:bg-neutral-950"
+    class="flex flex-col h-full min-h-0 w-14 min-w-14 border-soft-900 bg-soft-50 shadow-inner dark:border-r dark:border-neutral-900 dark:bg-neutral-950 relative"
   >
-    <RiBookmarkFill class="absolute top-3 size-8 fill-black text-black dark:fill-white dark:text-white" />
+    <div class="flex flex-col items-center pt-3 pb-2 shrink-0">
+      <RiBookmarkFill class="size-8 fill-black text-black dark:fill-white dark:text-white" />
+    </div>
     <div
       ref="indicatorRef"
-      class="absolute my-auto size-10 rounded-md bg-gray-400/20 transition-all duration-500 dark:bg-neutral-800"
+      class="absolute left-1/2 -translate-x-1/2 size-10 rounded-md bg-gray-400/20 transition-all duration-500 dark:bg-neutral-800 pointer-events-none z-10"
     />
-    <ul class="flex flex-col gap-y-12">
+    <ul class="flex-1 flex flex-col items-center justify-center gap-y-8 overflow-auto py-4 min-h-[60px] max-h-full relative z-10">
       <li
         v-for="(item, key) in items"
         :key="item.key"
         :ref="el => setMenuItemRef(el, item.name)"
       >
-        <router-link
+        <RouterLink
           :key="key"
           v-tooltip.right="{ content: item.tooltip }"
           :to="{ name: item.name }"
@@ -26,10 +28,13 @@
             :is="item.icon"
             class="pointer-events-none size-6 text-black dark:text-white"
           />
-        </router-link>
+        </RouterLink>
       </li>
     </ul>
-    <div class="absolute bottom-1 flex flex-col items-center">
+    <div class="flex flex-col items-center gap-y-5 py-3 mt-auto shrink-0">
+      <ThemeMode
+        v-tooltip.right="{ content: 'Theme' }"
+      />
       <a
         v-tooltip.right="{ content: 'GitHub' }"
         href="https://github.com/dd3v/favbox"
@@ -38,10 +43,6 @@
       >
         <IconoirGithub class="size-4 text-soft-900 hover:text-black dark:text-white dark:hover:text-white" />
       </a>
-      <ThemeMode
-        v-tooltip.right="{ content: 'Theme' }"
-        class="mt-2"
-      />
     </div>
   </aside>
 </template>
@@ -53,7 +54,7 @@ import { useRoute } from 'vue-router';
 
 import ThemeMode from '@/ext/browser/components/ThemeMode.vue';
 import RiBookmarkFill from '~icons/ri/bookmark-fill';
-import IconoirGithub from '~icons/iconoir/github?width=24px&height=24px';
+import IconoirGithub from '~icons/iconoir/github';
 
 defineProps({
   items: {

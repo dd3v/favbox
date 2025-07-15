@@ -113,7 +113,7 @@ export default class AttributeStorage {
     }
   }
 
-  async refreshDomains() {
+  async refreshDomains(truncate = true) {
     const connection = await useConnection();
     const flattenDomains = await connection.select({
       from: 'bookmarks',
@@ -128,10 +128,12 @@ export default class AttributeStorage {
       count: item['count(id)'],
     }));
 
-    await connection.remove({
-      from: 'attributes',
-      where: { key: 'domain' },
-    });
+    if (truncate) {
+      await connection.remove({
+        from: 'attributes',
+        where: { key: 'domain' },
+      });
+    }
     await connection.insert({
       into: 'attributes',
       values: result,
@@ -142,7 +144,7 @@ export default class AttributeStorage {
     return result;
   }
 
-  async refreshTags() {
+  async refreshTags(truncate = true) {
     const connection = await useConnection();
     const flattenTags = await connection.select({
       from: 'bookmarks',
@@ -158,10 +160,12 @@ export default class AttributeStorage {
       count: item['count(id)'],
     }));
 
-    await connection.remove({
-      from: 'attributes',
-      where: { key: 'tag' },
-    });
+    if (truncate) {
+      await connection.remove({
+        from: 'attributes',
+        where: { key: 'tag' },
+      });
+    }
     await connection.insert({
       into: 'attributes',
       values: result,
@@ -172,7 +176,7 @@ export default class AttributeStorage {
     return result;
   }
 
-  async refreshKeywords() {
+  async refreshKeywords(truncate = true) {
     const connection = await useConnection();
     const flattenKeywords = await connection.select({
       from: 'bookmarks',
@@ -188,10 +192,12 @@ export default class AttributeStorage {
       count: item['count(id)'],
     }));
 
-    await connection.remove({
-      from: 'attributes',
-      where: { key: 'keyword' },
-    });
+    if (truncate) {
+      await connection.remove({
+        from: 'attributes',
+        where: { key: 'keyword' },
+      });
+    }
     await connection.insert({
       into: 'attributes',
       values: result,
@@ -202,7 +208,7 @@ export default class AttributeStorage {
     return result;
   }
 
-  async refreshFolders() {
+  async refreshFolders(truncate = true) {
     const connection = await useConnection();
     const flattenFolders = await connection.select({
       from: 'bookmarks',
@@ -217,10 +223,12 @@ export default class AttributeStorage {
       count: item['count(id)'],
     }));
 
-    await connection.remove({
-      from: 'attributes',
-      where: { key: 'folder' },
-    });
+    if (truncate) {
+      await connection.remove({
+        from: 'attributes',
+        where: { key: 'folder' },
+      });
+    }
     await connection.insert({
       into: 'attributes',
       values: result,
@@ -233,11 +241,13 @@ export default class AttributeStorage {
 
   async refresh() {
     console.time('Execution time attributes');
+    const connection = await useConnection();
+    connection.clear('attributes');
     await Promise.all([
-      this.refreshDomains(),
-      this.refreshTags(),
-      this.refreshKeywords(),
-      this.refreshFolders(),
+      this.refreshDomains(false),
+      this.refreshTags(false),
+      this.refreshKeywords(false),
+      this.refreshFolders(false),
     ]);
     console.timeEnd('Execution time attributes');
   }

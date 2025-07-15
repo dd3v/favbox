@@ -8,7 +8,7 @@
         >
           {{ bookmark.httpStatus }}
         </AppBadge>
-        <bookmark-favicon
+        <BookmarkFavicon
           :bookmark="bookmark"
           class="size-4 fill-gray-700 dark:fill-gray-100"
         />

@@ -4,7 +4,7 @@
   >
     <div class="flex items-center justify-between w-full text-gray-900 dark:text-neutral-100">
       <div class="flex items-center gap-x-3 min-w-0 flex-1">
-        <bookmark-favicon
+        <BookmarkFavicon
           :bookmark="bookmark"
           class="size-4 fill-gray-700 dark:fill-gray-100"
         />
@@ -23,13 +23,13 @@
             {{ bookmark.domain }}
           </p>
           <div class="flex flex-wrap gap-x-1 gap-y-1 mt-1">
-            <app-badge
+            <AppBadge
               v-for="(value, key) in bookmark.tags"
               :key="key"
               class="text-xs px-1.5 py-0.5 truncate max-w-[60px]"
             >
               {{ value }}
-            </app-badge>
+            </AppBadge>
           </div>
         </div>
       </div>

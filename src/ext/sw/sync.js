@@ -88,12 +88,28 @@ const sync = async () => {
   await Promise.all(activePromises);
   await saveQueue.flush();
 
+  // bidirectional sync: remove outdated bookmarks from IndexedDB
+  try {
+    const browserIds = new Set();
+    for await (const bookmark of bookmarkHelper.iterateBookmarks()) {
+      browserIds.add(bookmark.id);
+    }
+    const idbIds = await bookmarkStorage.getAllIds();
+    const toDelete = idbIds.filter((id) => !browserIds.has(id));
+    if (toDelete.length > 0) {
+      console.log(`🗑 Removing outdated bookmarks: ${toDelete.length}`);
+      await bookmarkStorage.removeByIds(toDelete);
+    }
+  } catch (e) {
+    console.warn('Error while removing outdated bookmarks:', e);
+  }
+
   try {
     await attributeStorage.refresh();
     await browser.storage.session.set({ progress: 100 });
     browser.runtime.sendMessage({ action: 'sync', data: { progress: 100, savedCount: saveQueue.count } });
   } catch (e) {
-    console.warn('final ui refresh from sync', e);
+    console.error('final ui refresh from sync', e);
   }
 
   await browser.storage.session.set({ status: true });

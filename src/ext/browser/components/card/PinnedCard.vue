@@ -8,7 +8,7 @@
     </div>
     <div class="flex items-center justify-between text-xs text-black dark:text-white mt-2">
       <div class="flex items-center gap-x-2 min-w-0">
-        <bookmark-favicon
+        <BookmarkFavicon
           :bookmark="bookmark"
           class="size-3"
         />

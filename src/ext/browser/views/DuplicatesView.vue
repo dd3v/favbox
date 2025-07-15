@@ -1,6 +1,6 @@
 <template>
   <div class="h-screen w-full flex flex-col">
-    <app-infinite-scroll
+    <AppInfiniteScroll
       class="flex flex-col flex-1 overflow-y-auto bg-white dark:bg-black"
       :limit="50"
       @scroll:end="skip => loadDuplicates({ skip, limit: BOOKMARKS_LIMIT, append: true })"
@@ -57,7 +57,7 @@
           </div>
         </div>
       </div>
-    </app-infinite-scroll>
+    </AppInfiniteScroll>
     <AppConfirmation ref="confirmation">
       <template #title>
         Delete bookmark
