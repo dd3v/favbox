@@ -60,9 +60,12 @@
                   </div>
                 </div>
               </div>
-              <div class="flex gap-x-3 bg-gray-50 px-4 py-3 dark:bg-neutral-950 sm:flex sm:flex-row-reverse sm:px-6">
+              <div
+                class="flex flex-col gap-2 bg-gray-50 px-4 py-3 dark:bg-neutral-950 sm:flex-row-reverse sm:gap-x-3 sm:gap-y-0 sm:px-6"
+              >
                 <AppButton
                   variant="red"
+                  class="w-full sm:w-auto"
                   @click="confirm"
                 >
                   <slot name="confirm" />
@@ -70,6 +73,7 @@
                 <AppButton
                   ref="cancelButtonRef"
                   variant="gray"
+                  class="w-full sm:w-auto"
                   @click="cancel"
                 >
                   <slot name="cancel" />

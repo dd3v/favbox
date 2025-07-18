@@ -157,7 +157,7 @@
             <component
               :is="getIcon(item)"
               v-tooltip.top="{ content: getTooltip(item) }"
-              class="size-4 select-none"
+              class="size-4 select-none focus:outline-none"
               tabindex="-1"
             />
             <input

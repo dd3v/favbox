@@ -7,7 +7,6 @@
     tabindex="0"
     @click="focus"
     @keydown.enter="focus"
-    @keydown.space.prevent="focus"
   >
     <div
       class="flex min-h-9 w-full flex-wrap items-center gap-1 whitespace-normal rounded-md border border-gray-200 bg-white px-2 py-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus-within:dark:border-neutral-700"

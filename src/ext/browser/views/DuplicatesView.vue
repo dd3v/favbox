@@ -43,7 +43,15 @@
                 {{ group.count }}
               </div>
               <span class="text-xs text-gray-900 dark:text-white truncate w-full">
-                {{ group.url }}
+                <a
+                  :href="group.url"
+                  class="block max-w-xs md:max-w-md lg:max-w-2xl truncate hover:underline focus:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  :title="group.url"
+                >
+                  {{ group.url }}
+                </a>
               </span>
             </div>
           </div>
