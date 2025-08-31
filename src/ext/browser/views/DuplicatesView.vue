@@ -6,7 +6,6 @@
       @scroll:end="skip => loadDuplicates({ skip, limit: BOOKMARKS_LIMIT, append: true })"
     >
       <div
-        v-if="total > 0"
         class="sticky top-0 z-10 flex w-full flex-col  bg-white/70 p-4 backdrop-blur-sm dark:bg-black/50"
       >
         <div class="flex w-full items-center justify-between">
@@ -157,8 +156,7 @@ const onDelete = async (bookmark) => {
   }
 };
 
-onMounted(() => {
-  removedGroupsCount.value = 0;
-  loadDuplicates();
+onMounted(async () => {
+  await loadDuplicates();
 });
 </script>
