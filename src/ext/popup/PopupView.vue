@@ -2,7 +2,7 @@
   <div class="relative inset-0 flex h-full min-h-64 min-w-96 flex-col">
     <div class="flex items-center justify-between bg-white p-3 dark:bg-black">
       <div class="flex items-center gap-3">
-        <div class="flex size-[48px] items-center justify-center rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 text-[18px] font-bold text-white shadow-md dark:bg-gradient-to-r dark:from-gray-100 dark:to-gray-300 dark:text-black">
+        <div class="flex size-12 items-center justify-center rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 text-lg font-bold text-white shadow-md dark:bg-gradient-to-r dark:from-gray-100 dark:to-gray-300 dark:text-black">
           <RiBookmarkFill class="size-6" />
         </div>
         <h4 class="font-sans text-xl font-semibold tracking-tight dark:text-white">
@@ -10,7 +10,7 @@
         </h4>
       </div>
       <div class="group relative inline-flex items-center justify-center">
-        <div class="absolute inset-0 animate-pulse rounded-md bg-gradient-to-r from-red-500 via-blue-500 via-cyan-500 via-purple-500 to-green-500 opacity-0 blur-lg transition-all duration-500 group-hover:opacity-100 group-hover:blur-md group-hover:duration-200" />
+        <div class="absolute inset-0 animate-pulse rounded-md bg-gradient-to-r from-red-500 via-blue-500 to-green-500 opacity-0 blur-lg transition-all duration-500 group-hover:opacity-100 group-hover:blur-md group-hover:duration-200" />
         <button
           class="group relative inline-flex items-center justify-center rounded-md border border-black bg-white px-4 py-2 text-xs font-medium text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-black hover:text-white hover:shadow-lg dark:border-white dark:bg-black dark:text-white dark:hover:bg-white dark:hover:text-black"
           @click="openApp"

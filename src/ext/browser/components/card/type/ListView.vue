@@ -26,7 +26,10 @@
         <p class="my-2 break-words text-xs text-gray-700 dark:text-neutral-500">
           {{ bookmark.description }}
         </p>
-        <div class="flex flex-wrap gap-2">
+        <div
+          v-if="bookmark.tags && bookmark.tags.length"
+          class="flex flex-wrap gap-2"
+        >
           <AppBadge
             v-for="(value, key) in bookmark.tags"
             :key="key"

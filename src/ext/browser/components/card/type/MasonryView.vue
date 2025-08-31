@@ -42,7 +42,10 @@
               {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
             </span>
           </div>
-          <div class="mt-5 flex flex-wrap gap-1">
+          <div
+            v-if="bookmark.tags && bookmark.tags.length"
+            class="mt-5 flex flex-wrap gap-1"
+          >
             <AppBadge
               v-for="(value, key) in bookmark.tags"
               :key="key"

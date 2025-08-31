@@ -11,7 +11,10 @@
       >
         {{ bookmark.title }}
       </a>
-      <div class="flex flex-wrap items-center gap-2 my-2">
+      <div
+        v-if="bookmark.tags && bookmark.tags.length"
+        class="flex flex-wrap items-center gap-2 my-2"
+      >
         <AppBadge
           v-for="(value, key) in bookmark.tags"
           :key="key"

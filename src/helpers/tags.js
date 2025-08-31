@@ -1,7 +1,3 @@
-/**
- * A helper object for manipulating tags in a string.
- * @namespace tagHelper
- */
 const tagHelper = {
   /**
    * Converts a string and an array of tags into a single string.
@@ -38,7 +34,6 @@ const tagHelper = {
       .filter((tag) => tag && tag.length > 0 && !/^\uFE0F+$/.test(tag));
     return tags;
   },
-
 };
 
 export default tagHelper;
