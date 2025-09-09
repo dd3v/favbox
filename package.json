@@ -64,7 +64,7 @@
     "terser": "^5.31.0",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-icons": "^22.1.0",
-    "vite": "^7.0.3",
+    "vite": "^7.1.5",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^3.0.5",
     "vue-eslint-parser": "^10.2.0"
