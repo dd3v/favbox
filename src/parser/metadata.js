@@ -143,28 +143,8 @@ export default class MetadataParser {
     if (metaImage) {
       return new URL(metaImage, this.#bookmark.url).href;
     }
-    const youtubeThumbnail = this.#getYouTubeThumbnail();
-    if (youtubeThumbnail) {
-      return youtubeThumbnail;
-    }
     const src = this.#searchPagePreview();
     return src ? new URL(src, this.#bookmark.url).href : null;
-  }
-
-  /**
-   * Gets YouTube video thumbnail URL from video ID.
-   * @returns {string|null} The YouTube thumbnail URL, or null if not a YouTube video.
-   * @private
-   */
-  #getYouTubeThumbnail() {
-    const { url } = this.#bookmark;
-    if (!url) return null;
-    const youtubeMatch = url.match(/(?:youtube\.com\/.*[?&]v=|youtu\.be\/)([^"&?/\s]{11})/);
-    if (youtubeMatch?.[1]) {
-      return `https://img.youtube.com/vi/${youtubeMatch[1]}/maxresdefault.jpg`;
-    }
-
-    return null;
   }
 
   /**
