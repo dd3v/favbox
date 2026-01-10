@@ -13,7 +13,7 @@ export default class BookmarkStorage {
     return result;
   }
 
-  async selectAfterId(id, limit) {
+  async findAfterId(id, limit) {
     const connection = await useConnection();
     const query = {
       from: 'bookmarks',
@@ -31,13 +31,15 @@ export default class BookmarkStorage {
     query.forEach(({ key, value }) => {
       (queryParams[key] ??= []).push(value);
     });
+
     const conditions = [
-      { key: 'folder', condition: { folderName: { in: queryParams.folder } } },
+      { key: 'folder', condition: { folderId: { in: queryParams.folder } } },
       { key: 'tag', condition: { tags: { in: queryParams.tag } } },
       { key: 'domain', condition: { domain: { in: queryParams.domain } } },
       { key: 'keyword', condition: { keywords: { in: queryParams.keyword } } },
       { key: 'id', condition: { id: { in: queryParams.id } } },
     ];
+
     conditions.forEach(({ key, condition }) => {
       if (queryParams[key]) {
         whereConditions.push(condition);
@@ -65,14 +67,10 @@ export default class BookmarkStorage {
     }
     if (queryParams?.dateAdded?.[0]) {
       const [startStr, endStr] = queryParams.dateAdded[0].split('~');
-      const startDate = new Date(startStr);
-      const endDate = new Date(endStr);
-      const low = startDate.setHours(0, 0, 0, 0);
-      const high = endDate.setHours(23, 59, 59, 999);
+      const low = new Date(startStr).setHours(0, 0, 0, 0);
+      const high = new Date(endStr).setHours(23, 59, 59, 999);
       whereConditions.push({
-        dateAdded: {
-          '-': { low, high },
-        },
+        dateAdded: { '-': { low, high } },
       });
     }
     return connection.select({
@@ -125,7 +123,7 @@ export default class BookmarkStorage {
     });
   }
 
-  async getPinnedBookmarks(skip = 0, limit = 50, term = '') {
+  async findPinned(skip = 0, limit = 50, term = '') {
     const connection = await useConnection();
     const whereConditions = [{ pinned: 1 }];
     if (term) {
@@ -202,17 +200,6 @@ export default class BookmarkStorage {
     });
   }
 
-  async createMultiple(data) {
-    const connection = await useConnection();
-    return connection.insert({
-      into: 'bookmarks',
-      values: data,
-      validation: false,
-      skipDataCheck: true,
-      ignore: true,
-    });
-  }
-
   async getIds(ids) {
     const connection = await useConnection();
     const response = await connection.select({
@@ -226,7 +213,7 @@ export default class BookmarkStorage {
     return response.map((i) => i.id);
   }
 
-  async getByFolderName(folderId) {
+  async getByFolderId(folderId) {
     const connection = await useConnection();
     const response = await connection.select({
       from: 'bookmarks',
@@ -239,16 +226,16 @@ export default class BookmarkStorage {
     return response.length === 1 ? response.shift() : null;
   }
 
-  async updateFolderNameByFolderId(id, title) {
+  async updateBookmarksFolderName(folderId, folderName) {
     const connection = await useConnection();
     return connection.update({
       in: 'bookmarks',
       set: {
-        folderName: title,
-        folderId: id,
+        folderName,
+        updatedAt: new Date().toISOString(),
       },
       where: {
-        folderId: id,
+        folderId,
       },
     });
   }
@@ -335,7 +322,7 @@ export default class BookmarkStorage {
     });
   }
 
-  async getBookmarksByHttpStatusCode(statuses, skip = 0, limit = 50) {
+  async findByHttpStatus(statuses, skip = 0, limit = 50) {
     const connection = await useConnection();
     return connection.select({
       from: 'bookmarks',
@@ -357,10 +344,6 @@ export default class BookmarkStorage {
     const connection = await useConnection();
     return connection.count({
       from: 'bookmarks',
-      order: {
-        by: 'id',
-        type: 'desc',
-      },
       where: {
         httpStatus: {
           in: statuses,
@@ -411,13 +394,7 @@ export default class BookmarkStorage {
     });
 
     // Group bookmarks by URL
-    const bookmarksByUrl = {};
-    allBookmarks.forEach((bookmark) => {
-      if (!bookmarksByUrl[bookmark.url]) {
-        bookmarksByUrl[bookmark.url] = [];
-      }
-      bookmarksByUrl[bookmark.url].push(bookmark);
-    });
+    const bookmarksByUrl = Object.groupBy(allBookmarks, (b) => b.url);
 
     // Form the result
     const groupsWithDetails = paginatedGroups.map((group) => {
@@ -436,5 +413,32 @@ export default class BookmarkStorage {
       total: duplicateGroups.length,
       hasMore: skip + limit < duplicateGroups.length,
     };
+  }
+
+  async aggregateByField(field, flatten = false) {
+    const connection = await useConnection();
+    const query = {
+      from: 'bookmarks',
+      groupBy: field,
+      aggregate: { count: ['id'] },
+    };
+    if (flatten) query.flatten = [field];
+
+    const rows = await connection.select(query);
+    return rows
+      .filter((r) => r[field])
+      .map((r) => ({ field, value: r[field], count: r['count(id)'] }));
+  }
+
+  async aggregateDomains() {
+    return this.aggregateByField('domain');
+  }
+
+  async aggregateTags() {
+    return this.aggregateByField('tags', true);
+  }
+
+  async aggregateKeywords() {
+    return this.aggregateByField('keywords', true);
   }
 }

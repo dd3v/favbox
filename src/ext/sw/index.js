@@ -1,9 +1,9 @@
 import BookmarkStorage from '@/storage/bookmark';
 import AttributeStorage from '@/storage/attribute';
 import MetadataParser from '@/parser/metadata';
-import fetchHelper from '@/helpers/fetch';
-import tagHelper from '@/helpers/tags';
-import bookmarkHelper from '@/helpers/bookmark';
+import { fetchUrl } from '@/services/httpClient';
+import { extractTitle, extractTags } from '@/services/tags';
+import { getFoldersMap, getBookmarksFromNode } from '@/services/browserBookmarks';
 import sync from './sync';
 import ping from './ping';
 
@@ -75,15 +75,15 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
     console.warn('response from tab', response);
   } catch (e) {
     console.error('No tabs. It is weird. Fetching data from internet.. 🌎', e);
-    response = await fetchHelper.fetch(bookmark.url, 15000);
+    response = await fetchUrl(bookmark.url, 15000);
   }
 
   try {
     if (response === null) {
       throw new Error('No page data: response is null');
     }
-    const foldersMap = await bookmarkHelper.buildFoldersMap();
-    const entity = await (new MetadataParser(bookmark, response, tagHelper, foldersMap)).getFavboxBookmark();
+    const foldersMap = await getFoldersMap();
+    const entity = await (new MetadataParser(bookmark, response, foldersMap)).getFavboxBookmark();
     if (entity.image === null && activeTab) {
       try {
         console.warn('📸 No image, take a screenshot', activeTab);
@@ -100,6 +100,9 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
     console.log('🎉 Bookmark has been created..');
   } catch (e) {
     console.error('🎉', e, id, bookmark);
+  } finally {
+    response = null;
+    activeTab = null;
   }
   console.timeEnd(`bookmark-created-${id}`);
 });
@@ -111,31 +114,40 @@ browser.bookmarks.onChanged.addListener(async (id, changeInfo) => {
     const [bookmark] = await browser.bookmarks.get(id);
     // folder
     if (!bookmark.url) {
-      console.warn('changeInfo', changeInfo, bookmark);
-      console.warn('Folder', bookmark);
-      await bookmarkStorage.updateFolderNameByFolderId(bookmark.id, bookmark.title);
-      console.log('🔄 Folder has been updated..', id, changeInfo);
+      // Only update if title actually changed
+      if (changeInfo.title !== undefined) {
+        await bookmarkStorage.updateBookmarksFolderName(bookmark.id, changeInfo.title);
+        console.log('🔄 Folder has been updated..', id, changeInfo);
+      }
     }
     // bookmark
     if (bookmark.url) {
-      await bookmarkStorage.update(id, {
-        title: tagHelper.getTitle(changeInfo.title),
-        tags: tagHelper.getTags(changeInfo.title),
-        url: bookmark.url,
-        updatedAt: new Date().toISOString(),
-      });
+      const oldBookmark = await bookmarkStorage.getById(id);
+      // Only update if title actually changed (changeInfo.title contains new value)
+      if (changeInfo.title !== undefined) {
+        await bookmarkStorage.update(id, {
+          title: extractTitle(changeInfo.title),
+          tags: extractTags(changeInfo.title),
+          url: bookmark.url,
+          updatedAt: new Date().toISOString(),
+        });
+        const newBookmark = await bookmarkStorage.getById(id);
+        if (oldBookmark && newBookmark) {
+          await attributeStorage.update(newBookmark, oldBookmark);
+        }
+      } else {
+        // Title didn't change, but url or other fields might have - update only url
+        await bookmarkStorage.update(id, {
+          url: bookmark.url,
+          updatedAt: new Date().toISOString(),
+        });
+      }
       console.log('🔄 Bookmark has been updated..', id, changeInfo);
     }
   } catch (e) {
     console.error('🔄', e, id, changeInfo);
   }
-  try {
-    await attributeStorage.refreshTags();
-    await attributeStorage.refreshFolders();
-    refreshUserInterface();
-  } catch (e) {
-    console.error('🔄 Error updating attributes', e);
-  }
+  refreshUserInterface();
   console.timeEnd(`bookmark-changed-${id}`);
 });
 
@@ -143,16 +155,23 @@ browser.bookmarks.onChanged.addListener(async (id, changeInfo) => {
 browser.bookmarks.onMoved.addListener(async (id, moveInfo) => {
   console.time(`bookmark-moved-${id}`);
   try {
-    const [folder] = await browser.bookmarks.get(moveInfo.parentId);
-    console.log('🗂 Bookmark has been moved..', id, moveInfo, folder);
-    await bookmarkStorage.update(id, {
-      folderName: folder.title,
-      folder,
-      folderId: folder.id,
-      updatedAt: new Date().toISOString(),
-    });
-    await attributeStorage.refreshFolders();
-    refreshUserInterface();
+    const [item] = await browser.bookmarks.get(id);
+    // Only process bookmarks (with url), not folders
+    if (item.url) {
+      const [folder] = await browser.bookmarks.get(moveInfo.parentId);
+      console.log('🗂 Bookmark has been moved..', id, moveInfo, folder);
+      await bookmarkStorage.update(id, {
+        folderName: folder.title,
+        folderId: folder.id,
+        updatedAt: new Date().toISOString(),
+      });
+      refreshUserInterface();
+    } else {
+      // Folder moved - update folderName for all bookmarks in this folder
+      console.log('🗂 Folder has been moved..', id, moveInfo);
+      await bookmarkStorage.updateBookmarksFolderName(id, item.title);
+      refreshUserInterface();
+    }
   } catch (e) {
     console.error('🗂', e, id, moveInfo);
   }
@@ -166,12 +185,18 @@ browser.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
   // folder has been deleted..
   if (removeInfo.node.children !== undefined) {
     try {
-      const items = bookmarkHelper.getAllBookmarksFromNode(removeInfo.node);
+      const items = getBookmarksFromNode(removeInfo.node);
       const bookmarksToRemove = items.map((bookmark) => bookmark.id);
       if (bookmarksToRemove.length) {
-        const total = await bookmarkStorage.removeByIds(bookmarksToRemove);
-        await attributeStorage.refresh();
-        console.log('🗑️ Folder has been removed..', total, id, removeInfo);
+        await bookmarkStorage.removeByIds(bookmarksToRemove);
+        // Full refresh after folder deletion
+        const [domains, tags, keywords] = await Promise.all([
+          bookmarkStorage.aggregateDomains(),
+          bookmarkStorage.aggregateTags(),
+          bookmarkStorage.aggregateKeywords(),
+        ]);
+        await attributeStorage.refreshFromAggregated(domains, tags, keywords, true);
+        console.log('🗑️ Folder has been removed..', bookmarksToRemove.length, id, removeInfo);
       }
       refreshUserInterface();
     } catch (e) {
@@ -183,7 +208,9 @@ browser.bookmarks.onRemoved.addListener(async (id, removeInfo) => {
   try {
     const bookmark = await bookmarkStorage.getById(id);
     if (!bookmark) {
-      throw new Error(`Bookmark with ID ${id} not found in storage.`);
+      // Bookmark not found in storage - might have been deleted already or never synced
+      console.warn(`Bookmark with ID ${id} not found in storage, skipping removal.`);
+      return;
     }
     await bookmarkStorage.removeById(id);
     await attributeStorage.remove(bookmark);

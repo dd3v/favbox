@@ -1,4 +1,5 @@
 import { parseHTML } from 'linkedom';
+import { extractTitle, extractTags } from '@/services/tags';
 
 /**
  * Class for parsing bookmark metadata from HTML documents.
@@ -12,22 +13,18 @@ export default class MetadataParser {
 
   #folders;
 
-  #tagHelper;
-
   /**
    * Creates an instance of MetadataParser.
    * @param {object} bookmark - The bookmark object from browser.
    * @param {object} httpResponse - The HTTP response object containing HTML.
-   * @param {object} tagHelper - Helper for tag and title processing.
    * @param {Map<string, string>} [folders] - Cache map of folder IDs to names.
    */
-  constructor(bookmark, httpResponse, tagHelper, folders = new Map()) {
+  constructor(bookmark, httpResponse, folders = new Map()) {
     const { document } = parseHTML(httpResponse.html);
     this.#bookmark = bookmark;
     this.#dom = document;
     this.#httpResponse = httpResponse;
     this.#folders = folders;
-    this.#tagHelper = tagHelper;
   }
 
   /**
@@ -113,18 +110,24 @@ export default class MetadataParser {
   #getImageFromMeta() {
     const selectors = [
       'meta[property="og:image"]',
-      'meta[name="twitter:image"]',
       'meta[property="og:image:url"]',
+      'meta[property="og:image:secure_url"]',
+      'meta[name="twitter:image"]',
+      'meta[name="twitter:image:src"]',
       'meta[name="image"]',
       'meta[name="og:image"]',
       'link[rel="image_src"]',
+      'link[rel="preload"][as="image"]',
       'meta[property="forem:logo"]',
     ];
 
     for (const selector of selectors) {
       const element = this.#dom.querySelector(selector);
       if (element) {
-        return element.getAttribute('content') || element.getAttribute('href') || null;
+        const imageUrl = element.getAttribute('content') || element.getAttribute('href') || element.getAttribute('src') || null;
+        if (imageUrl) {
+          return imageUrl;
+        }
       }
     }
 
@@ -136,8 +139,32 @@ export default class MetadataParser {
    * @returns {string|null} The URL of the main image, or null if not found.
    */
   getImage() {
-    const src = this.#getImageFromMeta() || this.#searchPagePreview();
+    const metaImage = this.#getImageFromMeta();
+    if (metaImage) {
+      return new URL(metaImage, this.#bookmark.url).href;
+    }
+    const youtubeThumbnail = this.#getYouTubeThumbnail();
+    if (youtubeThumbnail) {
+      return youtubeThumbnail;
+    }
+    const src = this.#searchPagePreview();
     return src ? new URL(src, this.#bookmark.url).href : null;
+  }
+
+  /**
+   * Gets YouTube video thumbnail URL from video ID.
+   * @returns {string|null} The YouTube thumbnail URL, or null if not a YouTube video.
+   * @private
+   */
+  #getYouTubeThumbnail() {
+    const { url } = this.#bookmark;
+    if (!url) return null;
+    const youtubeMatch = url.match(/(?:youtube\.com\/.*[?&]v=|youtu\.be\/)([^"&?/\s]{11})/);
+    if (youtubeMatch?.[1]) {
+      return `https://img.youtube.com/vi/${youtubeMatch[1]}/maxresdefault.jpg`;
+    }
+
+    return null;
   }
 
   /**
@@ -192,18 +219,19 @@ export default class MetadataParser {
    * @returns {Promise<object>} A promise that resolves to the bookmark entity object.
    */
   async getFavboxBookmark() {
+    console.warn(this.getImage());
     const entity = {
       id: this.#bookmark.id,
       folderId: this.#bookmark.parentId,
       folderName: this.#getFolderName(),
-      title: this.#tagHelper.getTitle(this.#bookmark.title),
+      title: extractTitle(this.#bookmark.title),
       description: this.getDescription(),
       favicon: this.getFavicon(),
       image: this.getImage(),
       domain: this.getDomain(),
       keywords: this.getKeywords(),
       url: this.#bookmark.url,
-      tags: this.#tagHelper.getTags(this.#bookmark.title),
+      tags: extractTags(this.#bookmark.title),
       pinned: 0,
       notes: '',
       httpStatus: this.#httpResponse.httpStatus,

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="group relative w-full max-w-md overflow-hidden rounded-xl border border-solid border-gray-200 bg-white shadow-md p-0 flex flex-col dark:border-neutral-800 dark:bg-neutral-950"
+    class="group relative w-full max-w-md mx-auto overflow-hidden rounded-xl border border-solid border-gray-200 bg-white shadow-md p-0 flex flex-col dark:border-neutral-800 dark:bg-neutral-950"
   >
     <div class="px-4 pt-4 flex-1 flex flex-col">
       <a
@@ -42,19 +42,21 @@
       </BookmarkImage>
     </a>
     <!-- footer -->
-    <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 mt-2 dark:border-neutral-800">
+    <div class="flex flex-col gap-2 px-4 py-3 border-t border-gray-200 mt-2 sm:flex-row sm:items-center sm:justify-between dark:border-neutral-800">
       <span class="flex items-center gap-1 text-xs text-gray-400 dark:text-neutral-500 min-w-0 truncate">
         <BookmarkFavicon
           :bookmark="bookmark"
-          class="w-3 h-3"
+          class="w-3 h-3 shrink-0"
         />
         <span class="truncate">{{ bookmark.domain }}</span>
       </span>
-      <slot name="actions" />
-      <span class="flex items-center text-xs text-gray-400 dark:text-neutral-500 ml-2 whitespace-nowrap">
-        <PhCalendarBlank class="mr-1 align-text-bottom" />
-        {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
-      </span>
+      <div class="flex items-center gap-2 sm:order-last">
+        <slot name="actions" />
+        <span class="flex items-center text-xs text-gray-400 dark:text-neutral-500 whitespace-nowrap">
+          <PhCalendarBlank class="mr-1 align-text-bottom shrink-0" />
+          {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
+        </span>
+      </div>
     </div>
   </div>
 </template>

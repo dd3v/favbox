@@ -9,12 +9,11 @@ const ping = () => {
     }
   };
   const forceReconnect = (port) => {
-    console.warn('🔔 Reconnect...');
+    console.warn('Reconnect...');
     deleteTimer(port);
     port.disconnect();
   };
 
-  // https://developer.browser.com/blog/longer-esw-lifetimes/
   // https://bugs.chromium.org/p/chromium/issues/detail?id=1152255
   // https://bugs.chromium.org/p/chromium/issues/detail?id=1189678
   browser.runtime.onConnect.addListener((port) => {

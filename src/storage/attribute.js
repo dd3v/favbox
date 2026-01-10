@@ -1,3 +1,4 @@
+import hashCode from '@/services/hash';
 import useConnection from './idb/connection';
 
 export default class AttributeStorage {
@@ -51,15 +52,13 @@ export default class AttributeStorage {
     });
   }
 
-  // Helper method to extract valid attributes from a bookmark
   getAttributesFromBookmark(bookmark) {
-    const { domain = '', tags = [], keywords = [], folderName = '' } = bookmark;
+    const { domain = '', tags = [], keywords = [] } = bookmark;
     const isValid = (v) => typeof v === 'string' && v.trim().length > 0;
     return [
-      isValid(domain) && { key: 'domain', value: domain.trim(), id: `domain-${domain.trim()}` },
-      ...tags.filter(isValid).map((tag) => ({ key: 'tag', value: tag.trim(), id: `tag-${tag.trim()}` })),
-      ...keywords.filter(isValid).map((keyword) => ({ key: 'keyword', value: keyword.trim(), id: `keyword-${keyword.trim()}` })),
-      isValid(folderName) && { key: 'folder', value: folderName.trim(), id: `folder-${folderName.trim()}` },
+      isValid(domain) && { key: 'domain', value: domain.trim(), id: hashCode('domain', domain.trim()) },
+      ...tags.filter(isValid).map((tag) => ({ key: 'tag', value: tag.trim(), id: hashCode('tag', tag.trim()) })),
+      ...keywords.filter(isValid).map((keyword) => ({ key: 'keyword', value: keyword.trim(), id: hashCode('keyword', keyword.trim()) })),
     ].filter(Boolean);
   }
 
@@ -113,142 +112,71 @@ export default class AttributeStorage {
     }
   }
 
-  async refreshDomains(truncate = true) {
+  /**
+   * Update attributes when bookmark changes.
+   * Removes old attributes and adds new ones incrementally.
+   * @param {object} newBookmark - Updated bookmark
+   * @param {object} oldBookmark - Previous bookmark state
+   */
+  async update(newBookmark, oldBookmark) {
+    if (oldBookmark) {
+      await this.remove(oldBookmark);
+    }
+    await this.create(newBookmark);
+  }
+
+  /**
+   * Refresh attributes from aggregated data.
+   * @param {Array} domains - Array of {field: 'domain', value: string, count: number}
+   * @param {Array} tags - Array of {field: 'tags', value: string, count: number}
+   * @param {Array} keywords - Array of {field: 'keywords', value: string, count: number}
+   * @param {boolean} truncate - Whether to clear existing attributes before inserting
+   */
+  async refreshFromAggregated(domains = [], tags = [], keywords = [], truncate = true) {
     const connection = await useConnection();
-    const flattenDomains = await connection.select({
-      from: 'bookmarks',
-      aggregate: { count: ['id'] },
-      groupBy: 'domain',
+
+    const toAttribute = (key, { value, count }) => ({
+      key,
+      value: String(value).trim(),
+      id: hashCode(key, String(value).trim()),
+      count,
     });
 
-    const result = flattenDomains.map((item) => ({
-      key: 'domain',
-      value: item.domain,
-      id: `domain-${item.domain}`,
-      count: item['count(id)'],
-    }));
+    const attributes = [
+      ...domains.map((r) => toAttribute('domain', r)),
+      ...tags.map((r) => toAttribute('tag', r)),
+      ...keywords.map((r) => toAttribute('keyword', r)),
+    ];
 
     if (truncate) {
-      await connection.remove({
-        from: 'attributes',
-        where: { key: 'domain' },
+      await connection.clear('attributes');
+    }
+
+    if (attributes.length > 0) {
+      await connection.insert({
+        into: 'attributes',
+        values: attributes,
+        validation: false,
+        skipDataCheck: true,
       });
     }
+
+    return attributes;
+  }
+
+  async clear() {
+    const connection = await useConnection();
+    await connection.clear('attributes');
+  }
+
+  async saveMany(attributes) {
+    if (!attributes.length) return;
+    const connection = await useConnection();
     await connection.insert({
       into: 'attributes',
-      values: result,
+      values: attributes,
       validation: false,
       skipDataCheck: true,
     });
-
-    return result;
-  }
-
-  async refreshTags(truncate = true) {
-    const connection = await useConnection();
-    const flattenTags = await connection.select({
-      from: 'bookmarks',
-      flatten: ['tags'],
-      groupBy: 'tags',
-      aggregate: { count: ['id'] },
-    });
-
-    const result = flattenTags.map((item) => ({
-      key: 'tag',
-      value: item.tags,
-      id: `tag-${item.tags}`,
-      count: item['count(id)'],
-    }));
-
-    if (truncate) {
-      await connection.remove({
-        from: 'attributes',
-        where: { key: 'tag' },
-      });
-    }
-    await connection.insert({
-      into: 'attributes',
-      values: result,
-      validation: false,
-      skipDataCheck: true,
-    });
-
-    return result;
-  }
-
-  async refreshKeywords(truncate = true) {
-    const connection = await useConnection();
-    const flattenKeywords = await connection.select({
-      from: 'bookmarks',
-      flatten: ['keywords'],
-      groupBy: 'keywords',
-      aggregate: { count: ['id'] },
-    });
-
-    const result = flattenKeywords.map((item) => ({
-      key: 'keyword',
-      value: item.keywords,
-      id: `keyword-${item.keywords}`,
-      count: item['count(id)'],
-    }));
-
-    if (truncate) {
-      await connection.remove({
-        from: 'attributes',
-        where: { key: 'keyword' },
-      });
-    }
-    await connection.insert({
-      into: 'attributes',
-      values: result,
-      validation: false,
-      skipDataCheck: true,
-    });
-
-    return result;
-  }
-
-  async refreshFolders(truncate = true) {
-    const connection = await useConnection();
-    const flattenFolders = await connection.select({
-      from: 'bookmarks',
-      groupBy: 'folderName',
-      aggregate: { count: ['id'] },
-    });
-
-    const result = flattenFolders.map((item) => ({
-      key: 'folder',
-      value: item.folderName,
-      id: `folder-${item.folderName}`,
-      count: item['count(id)'],
-    }));
-
-    if (truncate) {
-      await connection.remove({
-        from: 'attributes',
-        where: { key: 'folder' },
-      });
-    }
-    await connection.insert({
-      into: 'attributes',
-      values: result,
-      validation: false,
-      skipDataCheck: true,
-    });
-
-    return result;
-  }
-
-  async refresh() {
-    console.time('Execution time attributes');
-    const connection = await useConnection();
-    connection.clear('attributes');
-    await Promise.all([
-      this.refreshDomains(false),
-      this.refreshTags(false),
-      this.refreshKeywords(false),
-      this.refreshFolders(false),
-    ]);
-    console.timeEnd('Execution time attributes');
   }
 }

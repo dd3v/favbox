@@ -1,6 +1,5 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import MetadataParser from '@/parser/metadata';
-import tagHelper from '@/helpers/tags';
 
 describe('MetadataParser', () => {
   let mockBookmark;
@@ -23,14 +22,14 @@ describe('MetadataParser', () => {
 
   describe('constructor', () => {
     it('should create instance with all required parameters', () => {
-      const parser = new MetadataParser(mockBookmark, { html: '<html></html>' }, tagHelper, mockFolders);
+      const parser = new MetadataParser(mockBookmark, { html: '<html></html>' }, mockFolders);
       expect(parser).toBeInstanceOf(MetadataParser);
     });
   });
 
   describe('getTitle', () => {
     it('should return bookmark title when available', () => {
-      const parser = new MetadataParser({ title: 'Test Bookmark' }, { html: '<html></html>' }, tagHelper);
+      const parser = new MetadataParser({ title: 'Test Bookmark' }, { html: '<html></html>' });
       expect(parser.getTitle()).toBe('Test Bookmark');
     });
 
@@ -47,7 +46,7 @@ describe('MetadataParser', () => {
           </body>
         </html>
       `;
-      const parser = new MetadataParser({ title: '' }, { html }, tagHelper);
+      const parser = new MetadataParser({ title: '' }, { html });
       expect(parser.getTitle()).toBe('Example Page Title');
     });
 
@@ -63,7 +62,7 @@ describe('MetadataParser', () => {
           </body>
         </html>
       `;
-      const parser = new MetadataParser({ title: '' }, { html }, tagHelper);
+      const parser = new MetadataParser({ title: '' }, { html });
       expect(parser.getTitle()).toBe('OG Title');
     });
 
@@ -77,13 +76,13 @@ describe('MetadataParser', () => {
           </body>
         </html>
       `;
-      const parser = new MetadataParser({ title: '' }, { html }, tagHelper);
+      const parser = new MetadataParser({ title: '' }, { html });
       expect(parser.getTitle()).toBe('Main Heading');
     });
 
     it('should return empty string when no title is found', () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
-      const parser = new MetadataParser({ title: '' }, { html }, tagHelper);
+      const parser = new MetadataParser({ title: '' }, { html });
       expect(parser.getTitle()).toBe('');
     });
   });
@@ -100,7 +99,7 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({}, { html }, tagHelper);
+      const parser = new MetadataParser({}, { html });
       expect(parser.getDescription()).toBe('OG Description');
     });
 
@@ -114,13 +113,13 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({}, { html }, tagHelper);
+      const parser = new MetadataParser({}, { html });
       expect(parser.getDescription()).toBe('This is a test description');
     });
 
     it('should return null when no description is found', () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
-      const parser = new MetadataParser({}, { html }, tagHelper);
+      const parser = new MetadataParser({}, { html });
       expect(parser.getDescription()).toBeNull();
     });
   });
@@ -137,7 +136,7 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html });
       expect(parser.getImage()).toBe('https://example.com/image.jpg');
     });
 
@@ -151,13 +150,13 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html });
       expect(parser.getImage()).toBe('https://example.com/hero.jpg');
     });
 
     it('should return null when no image is found', () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
-      const parser = new MetadataParser({}, { html }, tagHelper);
+      const parser = new MetadataParser({}, { html });
       expect(parser.getImage()).toBeNull();
     });
 
@@ -171,24 +170,24 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html });
       expect(parser.getImage()).toBe('https://example.com/relative-image.jpg');
     });
   });
 
   describe('getDomain', () => {
     it('should extract domain from URL', () => {
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html: '<html></html>' }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html: '<html></html>' });
       expect(parser.getDomain()).toBe('example.com');
     });
 
     it('should remove www prefix', () => {
-      const parser = new MetadataParser({ url: 'https://www.example.com' }, { html: '<html></html>' }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://www.example.com' }, { html: '<html></html>' });
       expect(parser.getDomain()).toBe('example.com');
     });
 
     it('should handle URLs without protocol by adding https', () => {
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html: '<html></html>' }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html: '<html></html>' });
       expect(parser.getDomain()).toBe('example.com');
     });
   });
@@ -204,13 +203,13 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html });
       expect(parser.getFavicon()).toBe('https://example.com/favicon.ico');
     });
 
     it('should fallback to default favicon when not found', () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html });
       expect(parser.getFavicon()).toBe('https://example.com/favicon.ico');
     });
 
@@ -225,7 +224,7 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html });
       expect(parser.getFavicon()).toBe('https://example.com/favicon.svg');
     });
   });
@@ -241,13 +240,13 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({}, { html }, tagHelper);
+      const parser = new MetadataParser({}, { html });
       expect(parser.getKeywords()).toEqual(['test', 'example', 'bookmark']);
     });
 
     it('should return empty array when no keywords are found', () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
-      const parser = new MetadataParser({}, { html }, tagHelper);
+      const parser = new MetadataParser({}, { html });
       expect(parser.getKeywords()).toEqual([]);
     });
 
@@ -261,14 +260,14 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser({}, { html }, tagHelper);
+      const parser = new MetadataParser({}, { html });
       expect(parser.getKeywords()).toEqual([]);
     });
   });
 
   describe('getUrl', () => {
     it('should return bookmark URL', () => {
-      const parser = new MetadataParser({ url: 'https://example.com' }, { html: '<html></html>' }, tagHelper);
+      const parser = new MetadataParser({ url: 'https://example.com' }, { html: '<html></html>' });
       expect(parser.getUrl()).toBe('https://example.com');
     });
   });
@@ -287,7 +286,7 @@ describe('MetadataParser', () => {
           <body></body>
         </html>
       `;
-      const parser = new MetadataParser(mockBookmark, { html }, tagHelper, mockFolders);
+      const parser = new MetadataParser(mockBookmark, { html }, mockFolders);
       const entity = await parser.getFavboxBookmark();
 
       expect(entity).toMatchObject({
@@ -314,9 +313,9 @@ describe('MetadataParser', () => {
       expect(new Date(entity.updatedAt)).toBeInstanceOf(Date);
     });
 
-    it('should use real tagHelper for title and tags processing', async () => {
+    it('should use real tag functions for title and tags processing', async () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
-      const parser = new MetadataParser(mockBookmark, { html }, tagHelper, mockFolders);
+      const parser = new MetadataParser(mockBookmark, { html }, mockFolders);
       const entity = await parser.getFavboxBookmark();
 
       expect(entity.title).toBe('Test Bookmark');
@@ -326,7 +325,7 @@ describe('MetadataParser', () => {
     it('should handle missing folder name', async () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
       const emptyFolders = new Map();
-      const parser = new MetadataParser(mockBookmark, { html }, tagHelper, emptyFolders);
+      const parser = new MetadataParser(mockBookmark, { html }, emptyFolders);
       const entity = await parser.getFavboxBookmark();
 
       expect(entity.folderName).toBe('Unknown');
@@ -334,8 +333,8 @@ describe('MetadataParser', () => {
 
     it('should handle bookmark with tags in title', async () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
-      const bookmarkWithTags = { ...mockBookmark, title: 'Test Bookmark 🏷️ #tag1 #tag2' };
-      const parser = new MetadataParser(bookmarkWithTags, { html }, tagHelper, mockFolders);
+      const bookmarkWithTags = { ...mockBookmark, title: `Test Bookmark ${String.fromCodePoint(0x1f3f7)} #tag1 #tag2` };
+      const parser = new MetadataParser(bookmarkWithTags, { html }, mockFolders);
       const entity = await parser.getFavboxBookmark();
 
       expect(entity.title).toBe('Test Bookmark');
@@ -345,7 +344,7 @@ describe('MetadataParser', () => {
     it('should handle bookmark with tags but no separator', async () => {
       const html = '<!DOCTYPE html><html><head></head><body></body></html>';
       const bookmarkWithTagsNoSeparator = { ...mockBookmark, title: 'Test Bookmark #tag1 #tag2' };
-      const parser = new MetadataParser(bookmarkWithTagsNoSeparator, { html }, tagHelper, mockFolders);
+      const parser = new MetadataParser(bookmarkWithTagsNoSeparator, { html }, mockFolders);
       const entity = await parser.getFavboxBookmark();
 
       expect(entity.title).toBe('Test Bookmark #tag1 #tag2');
@@ -356,12 +355,12 @@ describe('MetadataParser', () => {
   describe('error handling', () => {
     it('should handle malformed HTML gracefully', () => {
       const malformedHtml = '<html><head><title>Test</title><meta name="description" content="Test"';
-      const parser = new MetadataParser({}, { html: malformedHtml }, tagHelper);
+      const parser = new MetadataParser({}, { html: malformedHtml });
       expect(parser).toBeInstanceOf(MetadataParser);
     });
 
     it('should handle empty HTML', () => {
-      const parser = new MetadataParser({}, { html: '' }, tagHelper);
+      const parser = new MetadataParser({}, { html: '' });
       expect(parser).toBeInstanceOf(MetadataParser);
     });
   });

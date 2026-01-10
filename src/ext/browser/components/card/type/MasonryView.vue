@@ -9,7 +9,7 @@
       :class="['glow-effect absolute -inset-2 opacity-0 blur-lg transition-all duration-300 group-hover:opacity-50 dark:group-hover:opacity-100', glowClass]"
     />
     <div
-      class="group relative mb-1 min-h-[60px] sm:min-h-[80px] w-full max-w-md overflow-hidden rounded-md border border-solid border-gray-100 bg-white shadow-sm hover:[box-shadow:0px_0px_0px_1px_rgba(233,_226,_238,_0.253)] dark:border-neutral-900 dark:bg-neutral-950 dark:shadow-sm dark:hover:[box-shadow:0px_0px_0px_1px_rgba(233,_226,_238,_0.253)] sm:mb-2 md:mb-3"
+      class="group relative mb-1 min-h-[60px] sm:min-h-[80px] w-full overflow-hidden rounded-md border border-solid border-gray-100 bg-white shadow-sm hover:[box-shadow:0px_0px_0px_1px_rgba(233,_226,_238,_0.253)] dark:border-neutral-900 dark:bg-neutral-950 dark:shadow-sm dark:hover:[box-shadow:0px_0px_0px_1px_rgba(233,_226,_238,_0.253)] sm:mb-2 md:mb-3"
     >
       <a
         :href="bookmark.url"
@@ -21,24 +21,24 @@
             <AppSpinner class="size-6" />
           </template>
         </BookmarkImage>
-        <div class="p-2">
+        <div class="p-2 sm:p-3">
           <h1 class="break-words text-sm text-black dark:text-white line-clamp-3">{{ bookmark.title }}</h1>
           <p class="break-words py-2 text-xs text-gray-700 dark:text-neutral-500">
             {{ bookmark.description }}
           </p>
-          <div class="flex items-center justify-between gap-2">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <span class="flex items-center gap-1 text-xs text-gray-400 dark:text-neutral-500 min-w-0 truncate">
               <BookmarkFavicon
                 :bookmark="bookmark"
-                class="size-4"
+                class="size-4 shrink-0"
               />
               <span class="truncate">{{ bookmark.domain }}</span>
             </span>
             <span
               v-if="bookmark.dateAdded"
-              class="flex items-center text-xs text-gray-400 dark:text-neutral-500 ml-2 whitespace-nowrap"
+              class="flex items-center text-xs text-gray-400 dark:text-neutral-500 whitespace-nowrap"
             >
-              <PhCalendarBlank class="text-xs mr-1 align-text-bottom text-gray-400 dark:text-neutral-500" />
+              <PhCalendarBlank class="text-xs mr-1 align-text-bottom text-gray-400 dark:text-neutral-500 shrink-0" />
               {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
             </span>
           </div>

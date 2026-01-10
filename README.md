@@ -7,11 +7,17 @@
 <a href="https://github.com/dd3v/favbox"><img src="https://img.shields.io/badge/Made%20With-Love-orange.svg" alt="love"></a>
 </p>
 
-![image](app_demo.png) 
+<p align="center">
+  <a href="app_demo.png"><img src="app_demo.png" alt="FavBox Light Theme" width="48%"></a>
+  <a href="app_demo_dark.png"><img src="app_demo_dark.png" alt="FavBox Dark Theme" width="48%"></a>
+</p>
 
 <p align="center">
 <a href="https://chrome.google.com/webstore/detail/favbox/eangbddipcghohfjefjmfihcjgjnnemj">
 <img src="https://img.shields.io/badge/Google%20Chrome-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white">
+</a>
+<a href="https://addons.mozilla.org/firefox/addon/favbox/">
+<img src="https://img.shields.io/badge/Firefox-FF7139?style=for-the-badge&logo=Firefox&logoColor=white">
 </a>
 </p>
 
@@ -21,7 +27,7 @@ FavBox is a local-first **experimental** browser extension that enhances and sim
 Key features:
 
 🔄 Syncs with your browser profile \
-🔒 No data sent to third-party services\
+🔒 No third‑party data sharing. No ads. No tracking. \
 🎨 Minimalist, clean UI\
 🏷️ Tag support for easy organization\
 🔍 Advanced search, sorting, and filtering by tags, domains, folders, and keywords\
@@ -51,28 +57,42 @@ This way, your tags become available on other devices without using any cloud se
 
 ```
 ├── public                 # Static assets (icons, etc.)
-│   └── icons
+│   └── icons
 ├── src                    # Source code
-│   ├── assets             # Global assets
-│   ├── components         # Common reusable app components
-│   │   └── app
-│   ├── ext                # Browser extension includes main app, popup, content script, and service worker
-│   │   ├── browser        # FavBox app
-│   │   │   ├── components # FavBox components
-│   │   │   ├── layouts   
-│   │   │   └── views
-│   │   ├── content        # Content scripts
-│   │   ├── popup          # Extension PopUp window
-│   │   └── sw             # Service Worker of the browser extension
-│   ├── helpers            # Shared utilities
-│   ├── parser             # Library to parse HTML content
-│   ├── storage            # IndexedDB storage
-│   │   └── idb
-│   └── workers            # JS Workers
+│   ├── assets             # Global styles
+│   ├── components         # Shared UI components
+│   │   └── app
+│   ├── composables        # Vue composables
+│   ├── constants          # Application constants
+│   ├── ext                # Browser extension
+│   │   ├── browser        # FavBox main app
+│   │   │   ├── components
+│   │   │   ├── layouts
+│   │   │   └── views
+│   │   ├── content        # Content scripts
+│   │   ├── popup          # Extension popup
+│   │   └── sw             # Service worker
+│   ├── parser             # HTML metadata parser
+│   ├── services           # Business logic
+│   └── storage            # IndexedDB storage
+│       └── idb
 └── tests
     ├── integration
     └── unit
 ```
+
+### Permissions
+
+| Permission | Why needed |
+|------------|------------|
+| `bookmarks` | Read and manage bookmarks|
+| `activeTab` | Capture page screenshot for visual previews |
+| `tabs` | Get current tab info when saving bookmarks |
+| `storage` | Store sync status and extension settings |
+| `alarms` | Keep service worker alive for background sync |
+| `contextMenus` | Add "Save to FavBox" to right-click menu |
+| `<all_urls>` | Fetch page metadata (title, description, favicon) |
+
 
 ### Building
 1. `pnpm run build` to build into `dist`

@@ -31,16 +31,17 @@
     >
       <div class="relative z-0 flex flex-col items-center p-6">
         <div
-          class="group relative flex aspect-square size-20 items-center justify-center overflow-hidden rounded-2xl border border-white/30 bg-white/30 shadow-lg backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-white/40 hover:shadow-2xl mb-4 dark:border-white/20 dark:bg-white/10 dark:shadow-xl dark:hover:bg-white/20 dark:hover:shadow-2xl"
+          class="group relative flex aspect-square size-20 items-center justify-center overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/20 dark:bg-white/5 shadow-xl backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-white/30 dark:hover:bg-white/10 hover:shadow-2xl mb-4"
           :class="props.rounded"
+          style="backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);"
         >
           <!-- Favicon or fallback letter -->
           <img
-            v-if="bookmark.favicon && !faviconError"
-            :src="bookmark.favicon"
+            v-if="faviconUrl"
+            :src="faviconUrl"
             :alt="bookmark.title"
             class="relative z-10 max-h-8 max-w-8 rounded-sm object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-110"
-            @error="() => faviconError = true"
+            @error="handleFaviconError"
           >
           <div
             v-else
@@ -79,18 +80,22 @@ const props = defineProps({
 
 const imageError = ref(false);
 const isLoading = ref(false);
-const faviconError = ref(false);
+const originalFailed = ref(false);
+const fallbackFailed = ref(false);
 
 const patterns = [
   // grid
   'bg-white dark:bg-black bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]',
   // dots
   'bg-white dark:bg-black bg-[radial-gradient(circle,rgba(79,79,79,0.18)_1.5px,transparent_1.5px)] bg-[size:18px_18px]',
-  // gradients
-  'bg-gradient-to-br from-pink-100 via-blue-100 to-green-100 dark:from-indigo-900 dark:via-purple-900 dark:to-gray-900',
-  'bg-gradient-to-tr from-yellow-100 via-pink-100 to-blue-200 dark:from-cyan-900 dark:via-blue-900 dark:to-emerald-900',
-  'bg-gradient-to-b from-white to-gray-200 dark:from-fuchsia-900 dark:via-pink-900 dark:to-gray-900',
-  'bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 dark:from-gray-900 dark:via-slate-800 dark:to-blue-900',
+  // gradients - dark theme with black emphasis
+  'bg-gradient-to-br from-pink-100 via-blue-100 to-green-100 dark:from-black dark:via-black dark:to-black',
+  'bg-gradient-to-tr from-yellow-100 via-pink-100 to-blue-200 dark:from-black dark:via-zinc-950 dark:to-black',
+  'bg-gradient-to-b from-white to-gray-200 dark:from-black dark:via-black dark:to-black',
+  'bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 dark:from-black dark:via-neutral-950 dark:to-black',
+  // subtle dark gradients
+  'bg-gradient-to-br from-pink-100 via-blue-100 to-green-100 dark:from-black dark:via-slate-950 dark:to-black',
+  'bg-gradient-to-tr from-yellow-100 via-pink-100 to-blue-200 dark:from-black dark:via-zinc-950 dark:to-black',
 ];
 
 const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
@@ -100,15 +105,36 @@ const handleImageError = () => {
   isLoading.value = false;
 };
 
+const faviconUrl = computed(() => {
+  if (props.bookmark.favicon && !originalFailed.value) {
+    return props.bookmark.favicon;
+  }
+
+  if (!fallbackFailed.value && props.bookmark.domain) {
+    return `https://icons.duckduckgo.com/ip3/${encodeURIComponent(props.bookmark.domain)}.ico`;
+  }
+
+  return null;
+});
+
 const fallbackLetter = computed(() => {
   const title = props.bookmark.domain || props.bookmark.title;
   if (!title) return '?';
   return title.charAt(0).toUpperCase();
 });
 
+const handleFaviconError = () => {
+  if (!originalFailed.value) {
+    originalFailed.value = true;
+  } else {
+    fallbackFailed.value = true;
+  }
+};
+
 onMounted(() => {
   imageError.value = false;
-  faviconError.value = false;
+  originalFailed.value = false;
+  fallbackFailed.value = false;
   isLoading.value = !!props.bookmark.image && !props.bookmark.image?.startsWith('data:');
 });
 </script>

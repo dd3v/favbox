@@ -17,7 +17,7 @@
             :is="getIcon(tag.key)"
             class="mr-1 size-4"
           />
-          {{ tag.value }}
+          {{ tag.label || tag.value }}
         </AppBadge>
       </li>
     </ul>
@@ -74,7 +74,7 @@ import PhCalendarBlank from '~icons/ph/calendar-blank';
 const props = defineProps({
   placeholder: {
     type: String,
-    default: 'Search: tag:important domain:example.com folder:work',
+    default: 'Search: tag:important domain:example.com',
   },
   modelValue: {
     type: Array,
@@ -133,7 +133,7 @@ function getColor(key) {
     case 'id':
       return 'indigo';
     default:
-      return 'gray';
+      return 'pink';
   }
 }
 

@@ -5,10 +5,10 @@
   >
     <button
       v-tooltip.bottom="{ content: 'Date filter' }"
-      class="inline-flex size-9 items-center justify-center rounded-md border-1 border-gray-400/30 bg-white text-gray-700 shadow-sm hover:bg-gray-50 font-sans text-base dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
+      class="inline-flex size-9 items-center justify-center rounded-md border border-gray-400/30 bg-white text-gray-700 shadow-sm hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
       @click="toggleCalendar"
     >
-      <IconoirCalendar class="size-5 cursor-pointer text-gray-700 dark:text-neutral-400" />
+      <IconoirCalendar class="size-5 text-gray-700 dark:text-neutral-400" />
     </button>
     <Transition
       enter-active-class="transition duration-200 ease-out"
@@ -20,7 +20,7 @@
     >
       <div
         v-if="isOpen"
-        class="absolute right-0 z-50 mt-2 origin-top-right shadow-md"
+        class="absolute right-0 z-50 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 dark:bg-neutral-900"
       >
         <VueDatePicker
           v-model="selectedDate"
@@ -29,7 +29,6 @@
           :range="true"
           :inline="true"
           :auto-apply="true"
-          :close-on-auto-apply="true"
           @update:model-value="onDateSelected"
         />
       </div>
@@ -66,18 +65,14 @@ const toggleCalendar = () => {
   isOpen.value = !isOpen.value;
 };
 
-const closeCalendar = () => {
-  isOpen.value = false;
-};
-
 const onDateSelected = (value) => {
   selectedDate.value = value;
-  closeCalendar();
+  isOpen.value = false;
 };
 
 const handleClickOutside = (event) => {
   if (isOpen.value && rootRef.value && !rootRef.value.contains(event.target)) {
-    closeCalendar();
+    isOpen.value = false;
   }
 };
 
@@ -88,5 +83,4 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleClickOutside);
 });
-
 </script>

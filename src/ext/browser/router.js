@@ -19,9 +19,9 @@ const routes = [
     },
   },
   {
-    path: '/pinned',
-    name: 'PinnedView',
-    component: () => import('./views/PinnedView.vue'),
+    path: '/notes',
+    name: 'NotesView',
+    component: () => import('./views/NotesView.vue'),
     meta: { page: 2 },
   },
   {

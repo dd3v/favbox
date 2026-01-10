@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex h-screen w-full max-w-64 flex-col border-r border-soft-400 bg-soft-100 p-2 dark:border-neutral-800 dark:bg-black transition-all duration-300 ease-in-out"
-  >
+  <div class="flex h-full flex-col">
     <div class="flex w-full">
       <div class="relative w-full">
         <div class="absolute top-2 flex items-center pl-2">
@@ -37,7 +35,7 @@
             leave-to-class="translate-y-1 opacity-0"
           >
             <PopoverPanel
-              class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 dark:bg-neutral-900 dark:text-neutral-400"
+              class="absolute right-1 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 dark:bg-neutral-900 dark:text-neutral-400"
             >
               <div class="relative">
                 <div class="flex flex-col gap-y-3 p-4">
@@ -129,7 +127,7 @@
     <AppInfiniteScroll
       ref="scrollRef"
       :limit="200"
-      class="list-view flex h-screen scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1 text-xs"
+      class="list-view flex h-full scroll-p-0.5 flex-col overflow-y-auto overflow-x-hidden py-1 text-xs"
       @scroll:end="paginate"
     >
       <ul
@@ -151,8 +149,8 @@
             class="my-1 flex cursor-pointer place-items-end items-center px-3 py-2 text-gray-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900 focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-gray-300 dark:focus-visible:ring-gray-600 focus-visible:ring-offset-0 rounded-md"
             tabindex="0"
             role="button"
-            @keydown.enter="update(item.key, item.value)"
-            @keydown.space.prevent="update(item.key, item.value)"
+            @keydown.enter="update(item)"
+            @keydown.space.prevent="update(item)"
           >
             <component
               :is="getIcon(item)"
@@ -167,9 +165,9 @@
               name="item"
               :value="item.value"
               :checked="selected(item.key, item.value)"
-              @input="update(item.key, item.value)"
+              @input="update(item)"
             >
-            <span class="truncate px-1"> {{ item.value }} </span>
+            <span class="truncate px-1"> {{ item.label || item.value }} </span>
             <span
               class="ml-auto"
             >{{ item.count }}</span>
@@ -196,10 +194,9 @@ import MaterialSymbolsLightCategorySearchOutline from '~icons/material-symbols-l
 import PhHashStraightLight from '~icons/ph/hash-straight-light';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
-import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
 import PhX from '~icons/ph/x';
 
-const emit = defineEmits(['update:modelValue', 'paginate', 'hide']);
+const emit = defineEmits(['update:modelValue', 'paginate']);
 
 const sort = defineModel('sort', { type: String, required: true });
 const includes = defineModel('includes', { type: Object, required: true });
@@ -207,9 +204,8 @@ const term = defineModel('term', { type: String, required: true });
 
 const props = defineProps({
   modelValue: {
-    type: Object,
+    type: Array,
     required: true,
-
   },
   items: {
     type: Array,
@@ -220,14 +216,12 @@ const props = defineProps({
 const iconMap = {
   keyword: PhListMagnifyingGlassLight,
   domain: PhGlobeSimpleLight,
-  folder: PhFolderSimpleLight,
   tag: PhHashStraightLight,
 };
 
 const tooltipMap = {
   keyword: 'Filter by keywords',
   domain: 'Filter by website',
-  folder: 'Filter by folder',
   tag: 'Filter by tag',
 };
 
@@ -254,8 +248,6 @@ const getColor = (key) => {
       return 'gray';
     case 'keyword':
       return 'green';
-    case 'folder':
-      return 'purple';
     case 'locale':
       return 'cyan';
     case 'type':
@@ -265,13 +257,13 @@ const getColor = (key) => {
   }
 };
 
-const update = (key, value) => {
+const update = (item) => {
   const updatedModelValue = [...props.modelValue];
-  const index = updatedModelValue.findIndex((item) => item.key === key && item.value === value);
+  const index = updatedModelValue.findIndex((f) => f.key === item.key && f.value === item.value);
   if (index !== -1) {
     updatedModelValue.splice(index, 1);
   } else {
-    updatedModelValue.push({ key, value });
+    updatedModelValue.push({ key: item.key, value: item.value, label: item.label || item.value });
   }
   emit('update:modelValue', updatedModelValue);
 };
@@ -298,5 +290,4 @@ onBeforeUnmount(() => {
 watch([sort, includes, term], () => {
   scrollRef.value.scrollUp();
 });
-
 </script>

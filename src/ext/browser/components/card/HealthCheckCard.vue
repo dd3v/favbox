@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between w-full p-3 text-gray-900 dark:text-neutral-100">
       <div class="flex items-center gap-x-3 min-w-0 flex-1">
         <AppBadge
-          v-tooltip.bottom-start="{ content: getStatusMessage(bookmark.httpStatus) }"
+          v-tooltip.bottom-start="{ content: STATUS_MESSAGE.get(bookmark.httpStatus) ?? 'Unknown Status' }"
           :color="bookmark.httpStatus === HTTP_STATUS.UNKNOWN_ERROR ? 'yellow' : 'red'"
         >
           {{ bookmark.httpStatus }}
@@ -40,7 +40,7 @@
 <script setup>
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import AppBadge from '@/components/app/AppBadge.vue';
-import { getStatusMessage, HTTP_STATUS } from '@/helpers/httpStatus';
+import { STATUS_MESSAGE, HTTP_STATUS } from '@/constants/httpStatus';
 import CarbonTrashCan from '~icons/carbon/trash-can';
 
 defineProps({

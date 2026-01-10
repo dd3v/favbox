@@ -32,7 +32,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="flex h-screen max-h-[32rem] w-full max-w-md overflow-hidden rounded-lg border bg-white/60 shadow-lg backdrop-blur-lg transition-all dark:border-neutral-800 dark:bg-black/40 dark:text-white focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 [&:focus]:outline-none [&:focus]:ring-0 [&:focus-visible]:outline-none [&:focus-visible]:ring-0"
+              class="flex h-screen max-h-[32rem] w-full max-w-md overflow-hidden rounded-lg border bg-white/60 shadow-lg backdrop-blur-lg transition-all dark:border-neutral-800 dark:bg-black/40 dark:text-white focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
             >
               <div
                 class="flex w-full flex-col items-start justify-between h-full"
@@ -86,8 +86,8 @@
                         }"
                         role="menuitem"
                         tabindex="0"
-                        @click="selectItem(item)"
-                        @keydown.enter="selectItem(item)"
+                        @click="handleCommandSelect(item)"
+                        @keydown.enter="handleCommandSelect(item)"
                         @keydown.arrow-up.prevent="navigateUp"
                         @keydown.arrow-down.prevent="navigateDown"
                         @focus="activeIndex = index"
@@ -156,13 +156,12 @@ import {
 import AttributeStorage from '@/storage/attribute';
 import AppInfiniteScroll from '@/components/app/AppInfiniteScroll.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
-import debounce from '@/helpers/debounce';
+import { useDebounceFn } from '@vueuse/core';
 
 import PhMagnifyingGlassLight from '~icons/ph/magnifying-glass-light';
 import PhHashStraightLight from '~icons/ph/hash-straight-light';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 import PhListMagnifyingGlassLight from '~icons/ph/list-magnifying-glass-light';
-import PhFolderSimpleLight from '~icons/ph/folder-simple-light';
 
 const attributeStorage = new AttributeStorage();
 const emit = defineEmits(['onSelected', 'onVisibilityToggle']);
@@ -178,17 +177,11 @@ const isLoading = ref(false);
 
 const commands = [
   { key: 'command', value: 'tag', icon: PhHashStraightLight },
-  { key: 'command', value: 'folder', icon: PhFolderSimpleLight },
   { key: 'command', value: 'domain', icon: PhGlobeSimpleLight },
   { key: 'command', value: 'keyword', icon: PhListMagnifyingGlassLight },
 ];
 
-const iconMap = {
-  tag: PhHashStraightLight,
-  folder: PhFolderSimpleLight,
-  domain: PhGlobeSimpleLight,
-  keyword: PhListMagnifyingGlassLight,
-};
+const iconMap = Object.fromEntries(commands.map((c) => [c.value, c.icon]));
 
 const paginate = async (skip) => {
   try {
@@ -225,7 +218,7 @@ const navigateUp = () => {
   }
 };
 
-const performSearch = debounce(async () => {
+const performSearch = useDebounceFn(async () => {
   if (!command.value) {
     const term = searchTerm.value.trim().toLowerCase();
     items.value = term === '' ? commands : commands.filter((k) => k.value.toLowerCase().includes(term));
@@ -268,23 +261,9 @@ const handleCommandSelect = (selectedCommand) => {
   }
 };
 
-const selectItem = (item) => {
-  handleCommandSelect(item);
-};
-
-// Фокусируем input при открытии палитры
-watch(isOpen, (open) => {
-  if (open) {
-    nextTick(() => {
-      inputRef.value?.focus();
-    });
-  }
-});
-
-// Фокусируем input после выбора элемента
 const selectActiveItem = () => {
   if (activeIndex.value >= 0 && activeIndex.value < items.value.length) {
-    selectItem(items.value[activeIndex.value]);
+    handleCommandSelect(items.value[activeIndex.value]);
     nextTick(() => {
       inputRef.value?.focus();
     });
@@ -326,10 +305,13 @@ watch(searchTerm, () => {
   }
 });
 
-watch(isOpen, (newValue) => {
-  if (newValue) {
+watch(isOpen, (open) => {
+  if (open) {
     items.value = commands;
     activeIndex.value = 0;
+    nextTick(() => {
+      inputRef.value?.focus();
+    });
   }
 });
 

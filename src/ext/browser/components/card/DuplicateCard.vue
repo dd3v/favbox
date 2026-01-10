@@ -1,8 +1,6 @@
 <template>
-  <div
-    class="group relative w-full min-w-xs overflow-hidden rounded border border-gray-200 bg-white p-3 shadow-xs hover:shadow-sm transition-shadow dark:border-neutral-700 dark:bg-neutral-900"
-  >
-    <div class="flex items-center justify-between w-full text-gray-900 dark:text-neutral-100">
+  <div class="group relative w-full rounded-md border border-solid bg-white shadow-xs dark:border-neutral-900 dark:bg-neutral-950">
+    <div class="flex items-center justify-between w-full p-3 text-gray-900 dark:text-neutral-100">
       <div class="flex items-center gap-x-3 min-w-0 flex-1">
         <BookmarkFavicon
           :bookmark="bookmark"
@@ -46,19 +44,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import AppBadge from '@/components/app/AppBadge.vue';
 import CarbonTrashCan from '~icons/carbon/trash-can';
 
-const props = defineProps({
+defineProps({
   bookmark: {
     type: Object,
     required: true,
   },
-});
-
-const bookmark = computed({
-  get: () => props.bookmark,
 });
 </script>

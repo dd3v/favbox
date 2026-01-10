@@ -85,7 +85,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import BookmarkForm from '@/ext/popup/components/BookmarkForm.vue';
-import bookmarkHelper from '@/helpers/bookmark';
+import { getFolderTree } from '@/services/browserBookmarks';
 import BookmarkStorage from '@/storage/bookmark';
 import LineMdConfirm from '~icons/line-md/confirm?width=24px&height=24px';
 import RiBookmarkFill from '~icons/ri/bookmark-fill';
@@ -93,7 +93,7 @@ import RiArrowRightLine from '~icons/ri/arrow-right-line';
 import RiArrowRightSLine from '~icons/ri/arrow-right-s-line';
 
 const tags = await (new BookmarkStorage()).getTags();
-const folders = await bookmarkHelper.buildFolderUITree();
+const folders = await getFolderTree();
 const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
 const exists = ref(false);
 const bookmarkId = ref(null);

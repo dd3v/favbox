@@ -22,6 +22,7 @@ module.exports = {
     'no-unused-expressions': 'off',
     'object-curly-newline': 'off',
     'no-new': 'off',
+    'no-bitwise': 'off',
     'no-restricted-syntax': [
       'error',
       'ForInStatement',

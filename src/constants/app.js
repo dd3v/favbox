@@ -1,0 +1,2 @@
+export const PAGINATION_LIMIT = 100;
+export const NOTIFICATION_DURATION = 3000;

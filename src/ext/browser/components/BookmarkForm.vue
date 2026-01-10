@@ -26,6 +26,7 @@
       placeholder=""
       :before-clear-all="onBeforeClearAll"
       :always-open="false"
+      :default-expand-level="Infinity"
       :options="folders"
     />
     <AppTagInput
@@ -47,7 +48,7 @@ import Treeselect from '@zanmato/vue3-treeselect';
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import AppButton from '@/components/app/AppButton.vue';
-import tagHelper from '@/helpers/tags';
+import { joinTitleAndTags } from '@/services/tags';
 
 const props = defineProps({
   bookmark: {
@@ -91,7 +92,7 @@ const onBeforeClearAll = () => {
 const submit = () => {
   const value = JSON.parse(JSON.stringify(bookmark.value));
   emit('onSubmit', {
-    browserTitle: tagHelper.toString(value.title, value.tags),
+    browserTitle: joinTitleAndTags(value.title, value.tags),
     title: value.title,
     folderName: value.folderName,
     folderId: value.folderId,

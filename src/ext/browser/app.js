@@ -2,7 +2,6 @@ import { createApp } from 'vue';
 import masonry from 'vue-next-masonry';
 import Notifications from 'notiwind';
 import FloatingVue from 'floating-vue';
-import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 import router from './router';
 import AppLayout from './layouts/AppLayout.vue';
 import 'floating-vue/dist/style.css';
@@ -15,7 +14,6 @@ const app = createApp(AppLayout)
   .use(router)
   .use(masonry)
   .use(Notifications)
-  .use(FloatingVue)
-  .use(autoAnimatePlugin);
+  .use(FloatingVue);
 
 app.mount('#app');

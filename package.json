@@ -1,6 +1,6 @@
 {
   "name": "favbox",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "private": false,
   "type": "module",
   "scripts": {
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@fontsource/sn-pro": "^5.2.5",
-    "@formkit/auto-animate": "^0.8.2",
     "@headlessui/vue": "^1.7.21",
     "@number-flow/vue": "^0.4.3",
     "@tailwindcss/vite": "^4.1.11",

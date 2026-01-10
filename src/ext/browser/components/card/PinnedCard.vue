@@ -3,8 +3,13 @@
     class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid p-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
     :class="activeClass"
   >
-    <div class="mb-1 flex items-center text-sm text-black dark:text-white">
-      {{ bookmark.title }}
+    <div class="mb-1 flex items-center gap-x-1.5 text-sm text-black dark:text-white">
+      <span
+        v-if="bookmark.notes"
+        v-tooltip.top="'Has notes'"
+        class="size-2 flex-shrink-0 rounded-full bg-purple-500"
+      />
+      <span class="truncate">{{ bookmark.title }}</span>
     </div>
     <div class="flex items-center justify-between text-xs text-black dark:text-white mt-2">
       <div class="flex items-center gap-x-2 min-w-0">

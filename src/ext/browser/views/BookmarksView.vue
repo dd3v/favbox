@@ -2,64 +2,106 @@
   <div class="flex w-full overflow-y-hidden dark:bg-black">
     <!-- Sidebar with Tailwind responsive classes -->
     <div class="hidden md:block w-68 max-w-68 flex-shrink-0 transition-all duration-300 ease-in-out">
-      <AttributeList
-        v-model="bookmarksQuery"
-        v-model:sort="attributesSort"
-        v-model:includes="attributesIncludes"
-        v-model:term="attributesTerm"
-        :items="attributesList"
-        @paginate="skip => loadAttributes({ skip, append: true })"
-      />
+      <div class="flex h-screen w-full max-w-64 flex-col border-r border-soft-400 bg-soft-100 p-2 dark:border-neutral-800 dark:bg-black transition-all duration-300 ease-in-out">
+        <TabGroup>
+          <TabList class="mb-2 flex gap-1 rounded-md bg-gray-100 p-1 dark:bg-neutral-900">
+            <Tab
+              v-slot="{ selected }"
+              class="w-full focus:outline-none"
+            >
+              <div
+                :class="selected ? 'bg-white shadow-sm dark:bg-neutral-800' : 'hover:bg-gray-200 dark:hover:bg-neutral-700'"
+                class="rounded-md px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors dark:text-neutral-300"
+              >
+                Search
+              </div>
+            </Tab>
+            <Tab
+              v-slot="{ selected }"
+              class="w-full focus:outline-none"
+            >
+              <div
+                :class="selected ? 'bg-white shadow-sm dark:bg-neutral-800' : 'hover:bg-gray-200 dark:hover:bg-neutral-700'"
+                class="rounded-md px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors dark:text-neutral-300"
+              >
+                Folders
+              </div>
+            </Tab>
+          </TabList>
+
+          <TabPanels class="flex-1 overflow-hidden">
+            <TabPanel class="flex h-full flex-col">
+              <AttributeList
+                v-model="bookmarksQuery"
+                v-model:sort="attributesSort"
+                v-model:includes="attributesIncludes"
+                v-model:term="attributesTerm"
+                :items="attributesList"
+                @paginate="skip => loadAttributes({ skip, append: true })"
+              />
+            </TabPanel>
+
+            <TabPanel class="h-full overflow-hidden">
+              <FolderTree
+                v-model="bookmarksQuery"
+                :folders="folderTree"
+              />
+            </TabPanel>
+          </TabPanels>
+        </TabGroup>
+      </div>
     </div>
 
     <AppInfiniteScroll
       ref="scroll"
       class="flex h-screen w-full flex-col overflow-y-auto"
-      :limit="BOOKMARKS_LIMIT"
-      @scroll:end="skip => loadBookmarks({ skip, limit: BOOKMARKS_LIMIT, append: true })"
+      :limit="PAGINATION_LIMIT"
+      @scroll:end="loadMore"
     >
-      <div class="sticky top-0 z-10 flex w-full flex-row gap-x-3 bg-white/70 pb-3 pt-2 px-2 backdrop-blur-sm dark:bg-black/70">
+      <div class="sticky top-0 z-10 flex w-full flex-col gap-2 bg-white/70 pb-3 pt-2 px-2 backdrop-blur-sm sm:flex-row sm:gap-x-3 dark:bg-black/70">
         <SearchTerm
           ref="search"
           v-model="bookmarksQuery"
           :placeholder="bookmarksTotalPlaceholder"
+          class="flex-1"
         />
-        <ViewMode
-          v-model="viewMode"
-          v-tooltip.bottom="{ content: 'Display mode' }"
-        />
-        <SortDirection
-          v-model="bookmarksSort"
-          v-tooltip.bottom="{ content: 'Sort direction' }"
-        />
-        <DatePicker
-          v-model="selectedDate"
-          v-tooltip.bottom="{ content: 'Date range filter' }"
-        />
+        <div class="flex shrink-0 gap-x-2 sm:gap-x-3">
+          <ViewMode
+            v-model="viewMode"
+            v-tooltip.bottom="{ content: 'Display mode' }"
+          />
+          <SortDirection
+            v-model="bookmarksSort"
+            v-tooltip.bottom="{ content: 'Sort direction' }"
+          />
+          <DatePicker v-model="selectedDate" />
+        </div>
       </div>
       <div
         v-if="loading"
-        class="flex h-5/6 flex-col items-center justify-center px-8 py-12"
+        class="flex flex-1 flex-col items-center justify-center p-5"
       >
         <AppSpinner class="size-12" />
       </div>
       <div
         v-else-if="bookmarksIsEmpty && !loading"
-        class="flex h-5/6 flex-col items-center justify-center px-8 py-12"
+        class="flex flex-1 flex-col items-center justify-center p-5"
       >
-        <span class="text-2xl font-thin text-black dark:text-white">
+        <span class="px-4 text-center text-lg font-thin text-black sm:text-2xl dark:text-white">
           🔍 No bookmarks match your search. Try changing the filters or keywords.
         </span>
       </div>
       <BookmarkLayout
-        class="p-2"
+        v-if="!loading"
+        class="p-2 sm:p-4"
         :display-type="viewMode"
       >
         <BookmarkCard
-          v-for="bookmark in bookmarksList"
+          v-for="(bookmark, index) in bookmarksList"
           :key="bookmark.id"
           :display-type="viewMode"
           :bookmark="bookmark"
+          :style="{ '--delay': `${Math.min(index * 80, 960)}ms` }"
           @on-remove="handleRemove"
           @on-edit="handleEdit"
           @on-pin="handlePin"
@@ -127,15 +169,17 @@ import {
 } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { notify } from 'notiwind';
-import { useStorage } from '@vueuse/core';
+import { useStorage, useDebounceFn } from '@vueuse/core';
+import { PAGINATION_LIMIT, NOTIFICATION_DURATION } from '@/constants/app';
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue';
 import AppDrawer from '@/components/app/AppDrawer.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
 import AttributeList from '@/ext/browser/components/AttributeList.vue';
+import FolderTree from '@/ext/browser/components/FolderTree.vue';
 import BookmarkStorage from '@/storage/bookmark';
 import AttributeStorage from '@/storage/attribute';
 
-import bookmarkHelper from '@/helpers/bookmark';
-import debounce from '@/helpers/debounce';
+import { getFolderTree } from '@/services/browserBookmarks';
 import SearchTerm from '@/ext/browser/components/SearchTerm.vue';
 import ViewMode from '@/ext/browser/components/ViewMode.vue';
 import BookmarkLayout from '@/ext/browser/components/BookmarkLayout.vue';
@@ -147,9 +191,6 @@ import BookmarkForm from '@/ext/browser/components/BookmarkForm.vue';
 import SortDirection from '@/ext/browser/components/SortDirection.vue';
 import DatePicker from '@/ext/browser/components/DatePicker.vue';
 
-const BOOKMARKS_LIMIT = import.meta.env.VITE_BOOKMARKS_PAGINATION_LIMIT;
-const ATTRIBUTES_LIMIT = import.meta.env.VITE_ATTRIBUTES_PAGINATION_LIMIT;
-const NOTIFICATION_DURATION = import.meta.env.VITE_NOTIFICATION_DURATION;
 const bookmarkStorage = new BookmarkStorage();
 const attributeStorage = new AttributeStorage();
 
@@ -175,8 +216,9 @@ const selectedDate = ref(null);
 // Reactive state for attributes
 const attributesSort = ref('count:desc');
 const attributesTerm = ref('');
-const attributesIncludes = reactive({ domain: true, folder: true, tag: true, keyword: true });
+const attributesIncludes = reactive({ domain: true, tag: true, keyword: true });
 const attributesList = ref([]);
+const folderTree = ref([]);
 
 const bookmarksEditState = reactive({
   bookmark: null,
@@ -185,28 +227,27 @@ const bookmarksEditState = reactive({
 });
 
 const bookmarksIsEmpty = computed(() => bookmarksList.value.length === 0 && !loading.value);
-const bookmarksTotalPlaceholder = computed(() => (bookmarksQuery.value.length ? '' : `🚀 Total: ${bookmarksTotal.value}. Search: tag:important domain:example.com folder:work`));
+const bookmarksTotalPlaceholder = computed(() => (bookmarksQuery.value.length ? '' : `🚀 Total: ${bookmarksTotal.value}. Search: tag:important domain:example.com`));
 
-const loadBookmarks = async ({ skip = 0, limit = BOOKMARKS_LIMIT, append = false, query = bookmarksQuery.value, sort = bookmarksSort.value } = {}) => {
+const load = async () => {
   try {
-    // Clear bookmarks and show spinner immediately for new searches
-    if (!append) {
-      bookmarksList.value = [];
-      loading.value = true;
-    }
-    const newBookmarks = await bookmarkStorage.search(query, skip, limit, sort);
-    if (append) {
-      bookmarksList.value.push(...newBookmarks);
-    } else {
-      bookmarksList.value = newBookmarks;
-    }
+    loading.value = true;
+    bookmarksList.value = await bookmarkStorage.search(bookmarksQuery.value, 0, PAGINATION_LIMIT, bookmarksSort.value);
   } catch (e) {
     console.error(e);
     notify({ group: 'error', text: 'Error loading bookmarks.' }, NOTIFICATION_DURATION);
   } finally {
-    if (!append) {
-      loading.value = false;
-    }
+    loading.value = false;
+  }
+};
+
+const loadMore = async (offset) => {
+  try {
+    const more = await bookmarkStorage.search(bookmarksQuery.value, offset, PAGINATION_LIMIT, bookmarksSort.value);
+    bookmarksList.value.push(...more);
+  } catch (e) {
+    console.error(e);
+    notify({ group: 'error', text: 'Error loading bookmarks.' }, NOTIFICATION_DURATION);
   }
 };
 
@@ -215,13 +256,13 @@ const sync = async () => {
     bookmarksList.value = [];
     loading.value = true;
     bookmarksTotal.value = await bookmarkStorage.total();
-    bookmarksList.value = await bookmarkStorage.search(bookmarksQuery.value, 0, BOOKMARKS_LIMIT, bookmarksSort.value);
+    bookmarksList.value = await bookmarkStorage.search(bookmarksQuery.value, 0, PAGINATION_LIMIT, bookmarksSort.value);
     attributesList.value = await attributeStorage.search(
       attributesIncludes,
       ...attributesSort.value.split(':'),
       attributesTerm.value,
       0,
-      ATTRIBUTES_LIMIT,
+      PAGINATION_LIMIT,
     );
   } catch (error) {
     console.error('Error refreshing bookmarks:', error);
@@ -231,7 +272,7 @@ const sync = async () => {
   }
 };
 
-const loadAttributes = debounce(async ({ skip = 0, limit = ATTRIBUTES_LIMIT, append = false, includes = attributesIncludes, sort = attributesSort.value, term = attributesTerm.value } = {}) => {
+const loadAttributes = useDebounceFn(async ({ skip = 0, limit = PAGINATION_LIMIT, append = false, includes = attributesIncludes, sort = attributesSort.value, term = attributesTerm.value } = {}) => {
   try {
     const [sortColumn, sortDirection] = sort.split(':');
     const newAttributes = await attributeStorage.search(
@@ -270,7 +311,7 @@ const handleRemove = async (bookmark) => {
 
   // Silently load more bookmarks if needed, without showing spinner
   try {
-    if (bookmarksList.value.length < BOOKMARKS_LIMIT) {
+    if (bookmarksList.value.length < PAGINATION_LIMIT) {
       const more = await bookmarkStorage.search(bookmarksQuery.value, bookmarksList.value.length, 1, bookmarksSort.value);
       if (more.length) bookmarksList.value.push(...more);
     }
@@ -283,7 +324,7 @@ const handleEdit = async (bookmark) => {
   try {
     bookmarksEditState.bookmark = JSON.parse(JSON.stringify(bookmark));
     drawerRef.value.open();
-    const [tags, folders] = await Promise.all([bookmarkStorage.getTags(), bookmarkHelper.buildFolderUITree()]);
+    const [tags, folders] = await Promise.all([bookmarkStorage.getTags(), getFolderTree()]);
     bookmarksEditState.tags = tags;
     bookmarksEditState.folders = folders;
   } catch (error) {
@@ -297,7 +338,7 @@ const handlePin = (bookmark) => {
     const status = bookmark.pinned ? 0 : 1;
     bookmark.pinned = status;
     bookmarkStorage.updatePinStatusById(bookmark.id, status);
-    const message = status ? 'Bookmark successfully pinned!' : 'Bookmark successfully unpinned!';
+    const message = status ? 'Added to notes!' : 'Removed from notes!';
     notify({ group: 'default', text: message }, NOTIFICATION_DURATION);
   } catch (e) {
     console.error(e);
@@ -314,6 +355,8 @@ const handleSubmit = async (data) => {
     if (bookmark) {
       bookmark.title = data.title;
       bookmark.tags = data.tags;
+      bookmark.folderId = data.folderId;
+      bookmark.folderName = data.folderName;
     }
     notify({ group: 'default', text: 'Bookmark successfully saved!' }, NOTIFICATION_DURATION);
   } catch (error) {
@@ -326,34 +369,27 @@ const handleSubmit = async (data) => {
 
 browser.runtime.onMessage.addListener(async (message) => {
   if (message.action === 'refresh') {
-    console.warn('checking tab');
-    const [activeTab] = await browser.tabs.query({ active: true, currentWindow: true });
-    const isFavBoxTab = activeTab?.url?.includes('/ext/browser/index.html');
-    if (isFavBoxTab) {
-      console.log('Skipping refresh message - current tab is FavBox bookmarks tab');
-      attributesList.value = await attributeStorage.search(
-        attributesIncludes,
-        ...attributesSort.value.split(':'),
-        attributesTerm.value,
-        0,
-        ATTRIBUTES_LIMIT,
-      );
-    } else {
-      console.warn('refresing..');
-      await sync();
-    }
+    console.log('Refreshing bookmarks view...');
+    const [attrs, folders, total, bookmarks] = await Promise.all([
+      attributeStorage.search(attributesIncludes, ...attributesSort.value.split(':'), attributesTerm.value, 0, PAGINATION_LIMIT),
+      getFolderTree(),
+      bookmarkStorage.total(),
+      bookmarkStorage.search(bookmarksQuery.value, 0, PAGINATION_LIMIT, bookmarksSort.value),
+    ]);
+    attributesList.value = attrs;
+    folderTree.value = folders;
+    bookmarksTotal.value = total;
+    bookmarksList.value = bookmarks;
   }
 });
 
 watch(
   [bookmarksQuery, bookmarksSort],
   async ([query]) => {
-    bookmarksList.value = [];
-    loading.value = true;
     if (!query.some((f) => f.key === 'dateAdded')) {
       selectedDate.value = null;
     }
-    loadBookmarks({ skip: 0, append: false });
+    await load();
     scrollRef.value?.scrollUp();
     if (bookmarksQuery.value.length === 0 && route.params.id) {
       router.replace({ path: '/bookmarks' });
@@ -363,7 +399,6 @@ watch(
 );
 
 watch(selectedDate, (date) => {
-  console.warn(date);
   if (date) {
     const formatted = date.map((d) => d.toISOString().slice(0, 10));
     bookmarksQuery.value = [
@@ -385,13 +420,15 @@ onMounted(async () => {
   try {
     loading.value = true;
     const [sortColumn, sortDirection] = attributesSort.value.split(':');
-    const [result, totalResult] = await Promise.all([
-      attributeStorage.search(attributesIncludes, sortColumn, sortDirection, attributesTerm.value, 0, ATTRIBUTES_LIMIT),
+    const [result, totalResult, folders] = await Promise.all([
+      attributeStorage.search(attributesIncludes, sortColumn, sortDirection, attributesTerm.value, 0, PAGINATION_LIMIT),
       bookmarkStorage.total(),
+      getFolderTree(),
     ]);
     attributesList.value = result;
     bookmarksTotal.value = totalResult;
-    await loadBookmarks();
+    folderTree.value = folders;
+    await load();
     searchRef.value.focus();
   } catch (error) {
     console.error('Error during component mount:', error);

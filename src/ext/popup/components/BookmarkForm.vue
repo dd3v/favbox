@@ -57,7 +57,7 @@ import { ref, watch } from 'vue';
 import Treeselect from '@zanmato/vue3-treeselect';
 import AppTagInput from '@/components/app/AppTagInput.vue';
 import AppButton from '@/components/app/AppButton.vue';
-import tagHelper from '@/helpers/tags';
+import { joinTitleAndTags } from '@/services/tags';
 import PhGlobeSimpleLight from '~icons/ph/globe-simple-light';
 
 const props = defineProps({
@@ -100,7 +100,6 @@ const onBeforeClearAll = () => {
 const emit = defineEmits(['submit']);
 
 const submit = () => {
-  const data = { title: tagHelper.toString(bookmarkTitle.value, selectedTags.value), url: props.url, parentId: String(selectedFolder.value) };
-  emit('submit', data);
+  emit('submit', { title: joinTitleAndTags(bookmarkTitle.value, selectedTags.value), url: props.url, parentId: String(selectedFolder.value) });
 };
 </script>

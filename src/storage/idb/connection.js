@@ -12,14 +12,14 @@ const createConnection = () => {
   if (typeof Worker === 'undefined') {
     connection = new Connection();
     connection.addPlugin(workerInjector);
-    console.warn('🚫 Web Worker is not supported.');
+    console.warn('Web Worker is not supported.');
   } else {
-    console.warn('✅ Web Worker is supported.');
+    console.warn('Web Worker is supported.');
 
     connection = new Connection(new jsstoreWorker());
   }
   if (import.meta.env.DEV) {
-    console.warn('🔧 DEV MODE');
+    console.warn('DEV MODE');
     connection.logStatus = true;
   }
 };
