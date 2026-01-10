@@ -70,7 +70,7 @@ This way, your tags become available on other devices without using any cloud se
 │   │   ├── popup          # Extension popup
 │   │   └── sw             # Service worker
 │   ├── parser             # HTML metadata parser
-│   ├── services           # Business logic
+│   ├── services           # Utility services (HTTP client, bookmarks API, tags, hash)
 │   └── storage            # IndexedDB storage
 │       └── idb
 └── tests
