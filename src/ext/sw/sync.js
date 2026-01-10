@@ -7,7 +7,7 @@ import hashCode from '@/services/hash';
 
 const MAX_CONCURRENT = 50;
 const BATCH_SIZE = 100;
-const PROGRESS_UPDATE_INTERVAL = 1000;
+const PROGRESS_UPDATE_INTERVAL = 3000;
 
 const bookmarkStorage = new BookmarkStorage();
 const attributeStorage = new AttributeStorage();
@@ -85,6 +85,7 @@ const sync = async () => {
       bookmarksToProcess.push(bookmark);
     }
   }
+  bookmarksToProcess.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
   console.log(`To process: ${bookmarksToProcess.length}`);
 
