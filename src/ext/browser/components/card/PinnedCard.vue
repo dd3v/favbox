@@ -4,10 +4,12 @@
     :class="activeClass"
   >
     <div class="mb-1 flex items-center gap-x-1.5 text-sm text-black dark:text-white">
-      <span
+      <AppBullet
         v-if="bookmark.notes"
         v-tooltip.top="'Has notes'"
-        class="size-2 flex-shrink-0 rounded-full bg-purple-500"
+        color="purple"
+        :size="2"
+        class="flex-shrink-0"
       />
       <span class="truncate">{{ bookmark.title }}</span>
     </div>
@@ -54,6 +56,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import AppBullet from '@/components/app/AppBullet.vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import CarbonPin from '~icons/carbon/pin';
 import CarbonNewTab from '~icons/carbon/new-tab';

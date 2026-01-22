@@ -107,8 +107,6 @@ const currentBookmark = computed(() => {
 
 const isEmpty = computed(() => !loading.value && bookmarks.value.length === 0);
 
-const pendingSave = ref(null);
-
 const saveNotes = async (bookmarkId, notes) => {
   try {
     await bookmarkStorage.updateNotesById(bookmarkId, notes);
@@ -117,7 +115,6 @@ const saveNotes = async (bookmarkId, notes) => {
     if (bookmarkIndex !== -1) {
       bookmarks.value[bookmarkIndex].notes = notes;
     }
-    pendingSave.value = null;
   } catch (error) {
     console.error('Error saving notes:', error);
     notify(
@@ -127,19 +124,10 @@ const saveNotes = async (bookmarkId, notes) => {
   }
 };
 
-const debouncedSaveNotes = useDebounceFn((bookmarkId, notes) => {
-  saveNotes(bookmarkId, notes);
-}, 500);
-
-const flushPendingSave = async () => {
-  if (pendingSave.value) {
-    debouncedSaveNotes.cancel();
-    await saveNotes(pendingSave.value.bookmarkId, pendingSave.value.notes);
-  }
-};
-
 const closeEditor = async () => {
-  await flushPendingSave();
+  if (currentBookmarkId.value && editorNotes.value !== undefined) {
+    await saveNotes(currentBookmarkId.value, editorNotes.value);
+  }
   currentBookmarkId.value = null;
   editorNotes.value = '';
 };
@@ -215,19 +203,21 @@ const unpin = async (bookmark) => {
 };
 
 const openEditor = async (bookmark) => {
-  if (currentBookmark.value && currentBookmarkId.value !== bookmark.id) {
-    await flushPendingSave();
+  const previousBookmarkId = currentBookmarkId.value;
+
+  if (previousBookmarkId && previousBookmarkId !== bookmark.id && editorNotes.value !== undefined) {
+    await saveNotes(previousBookmarkId, editorNotes.value);
   }
+
   currentBookmarkId.value = bookmark.id;
   editorNotes.value = bookmark.notes || '';
 };
 
 watch(searchTerm, debouncedSearch);
 watch(editorNotes, (newNotes) => {
-  if (!currentBookmark.value) return;
-  if (newNotes === currentBookmark.value.notes) return;
-  pendingSave.value = { bookmarkId: currentBookmark.value.id, notes: newNotes };
-  debouncedSaveNotes(currentBookmark.value.id, newNotes);
+  if (!currentBookmarkId.value) return;
+  if (newNotes === currentBookmark.value?.notes) return;
+  saveNotes(currentBookmarkId.value, newNotes);
 });
 
 onMounted(loadBookmarks);
