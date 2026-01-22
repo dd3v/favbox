@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, useTemplateRef } from 'vue';
+import { ref, onMounted, useTemplateRef, onActivated } from 'vue';
 import NumberFlow from '@number-flow/vue';
 import { notify } from 'notiwind';
 import BookmarkStorage from '@/storage/bookmark';
@@ -122,7 +122,6 @@ const scan = async () => {
   scanning.value = true;
   progress.value = 0;
 
-  const limit = 50;
   const totalBookmarks = await bookmarkStorage.total();
   if (totalBookmarks === 0) {
     scanning.value = false;
@@ -133,7 +132,7 @@ const scan = async () => {
   let id = null;
 
   while (scanning.value) {
-    const batch = await bookmarkStorage.findAfterId(id, limit);
+    const batch = await bookmarkStorage.findAfterId(id, PAGINATION_LIMIT);
     if (batch.length === 0) break;
 
     processed += batch.length;
@@ -220,4 +219,8 @@ const onDelete = async (bookmark) => {
 };
 
 onMounted(load);
+onActivated(async () => {
+  total.value = 0;
+  total.value = await bookmarkStorage.getTotalByHttpStatus(httpStatuses);
+});
 </script>
