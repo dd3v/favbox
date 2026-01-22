@@ -49,21 +49,20 @@
     </div>
     <TransitionGroup
       v-show="bookmarks.length > 0"
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0 translate-y-5"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition-all duration-300 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-5"
-      move-class="transition-transform duration-300 ease-in-out"
+      enter-active-class="transition-opacity duration-200 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+      move-class="transition-transform duration-200 ease-out"
       tag="div"
       class="flex flex-col gap-y-3 p-4"
     >
       <HealthCheckCard
-        v-for="(bookmark, index) in bookmarks"
+        v-for="bookmark in bookmarks"
         :key="bookmark.id"
         :bookmark="bookmark"
-        :style="{ transitionDelay: `${Math.min(index * 50, 1000)}ms` }"
         @on-delete="onDelete"
       />
     </TransitionGroup>

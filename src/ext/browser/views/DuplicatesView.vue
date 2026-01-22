@@ -28,20 +28,19 @@
       </div>
       <TransitionGroup
         v-show="groups.length > 0"
-        enter-active-class="transition-all duration-300 ease-out"
-        enter-from-class="opacity-0 translate-y-5"
-        enter-to-class="opacity-100 translate-y-0"
-        leave-active-class="transition-all duration-300 ease-in"
-        leave-from-class="opacity-100 translate-y-0"
-        leave-to-class="opacity-0 -translate-y-5"
-        move-class="transition-transform duration-300 ease-in-out"
+        enter-active-class="transition-opacity duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-200 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+        move-class="transition-transform duration-200 ease-out"
         tag="div"
         class="flex flex-col gap-y-4 p-4"
       >
         <div
-          v-for="(group, index) in groups"
+          v-for="group in groups"
           :key="group.url"
-          :style="{ transitionDelay: `${Math.min(index * 50, 1000)}ms` }"
           class="rounded-md border border-solid bg-white shadow-xs dark:border-neutral-900 dark:bg-neutral-950 mb-3"
         >
           <div class="flex items-center justify-between w-full p-3 pb-0">

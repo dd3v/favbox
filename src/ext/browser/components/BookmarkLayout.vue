@@ -12,9 +12,9 @@
     v-else
     tag="div"
     appear
-    enter-active-class="card-enter-active"
-    enter-from-class="card-enter-from"
-    enter-to-class="card-enter-to"
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
     :class="layoutClasses"
   >
     <slot />
@@ -40,20 +40,3 @@ const LAYOUT_CLASSES = {
 
 const layoutClasses = computed(() => LAYOUT_CLASSES[props.displayType] || LAYOUT_CLASSES.masonry);
 </script>
-
-<style>
-.card-enter-active {
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-  transition-delay: var(--delay, 0ms);
-}
-
-.card-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.card-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-</style>

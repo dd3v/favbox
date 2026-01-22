@@ -97,11 +97,10 @@
         :display-type="viewMode"
       >
         <BookmarkCard
-          v-for="(bookmark, index) in bookmarksList"
+          v-for="bookmark in bookmarksList"
           :key="bookmark.id"
           :display-type="viewMode"
           :bookmark="bookmark"
-          :style="{ '--delay': `${Math.min(index * 80, 960)}ms` }"
           @on-remove="handleRemove"
           @on-edit="handleEdit"
           @on-pin="handlePin"

@@ -1,9 +1,9 @@
 <template>
   <Transition
     appear
-    enter-active-class="card-enter-active"
-    enter-from-class="card-enter-from"
-    enter-to-class="card-enter-to"
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
   >
     <component
       :is="displayComponent"
