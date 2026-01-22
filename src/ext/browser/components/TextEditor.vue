@@ -152,7 +152,7 @@ onMounted(() => {
     extensions: [StarterKit, Underline, Highlight, Typography],
     editorProps: {
       attributes: {
-        class: 'prose prose-neutral dark:prose-invert text-sm min-h-full w-full p-2 focus:outline-none',
+        class: 'prose prose-neutral dark:prose-invert prose-sm max-w-none text-sm min-h-full w-full p-2 focus:outline-none',
       },
     },
     content: props.modelValue,

@@ -51,10 +51,11 @@
         </TransitionGroup>
       </AppInfiniteScroll>
     </div>
-    <div class="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-white px-2 dark:bg-black h-full md:h-screen">
+    <div class="flex flex-1 flex-col overflow-y-auto bg-white px-2 dark:bg-black h-full md:h-screen">
       <TextEditor
         v-if="currentBookmark"
         v-model="editorNotes"
+        class="w-full"
       />
       <div
         v-else
@@ -229,7 +230,5 @@ watch(editorNotes, (newNotes) => {
   debouncedSaveNotes(currentBookmark.value.id, newNotes);
 });
 
-onMounted(() => {
-  loadBookmarks();
-});
+onMounted(loadBookmarks);
 </script>
