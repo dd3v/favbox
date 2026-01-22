@@ -56,7 +56,6 @@
                       @keydown.down.prevent="navigateDown"
                       @keydown.up.prevent="navigateUp"
                       @keydown.enter.prevent="selectActiveItem"
-                      @keydown.backspace="handleBackspace"
                     >
                   </div>
 
@@ -169,23 +168,27 @@ const emit = defineEmits(['onSelected', 'onVisibilityToggle']);
 const isOpen = ref(false);
 const searchTerm = ref('');
 const activeIndex = ref(-1);
-const command = ref(null);
 const items = ref([]);
 const itemRef = useTemplateRef('item');
 const inputRef = useTemplateRef('input');
 const isLoading = ref(false);
 
-const commands = [
-  { key: 'command', value: 'tag', icon: PhHashStraightLight },
-  { key: 'command', value: 'domain', icon: PhGlobeSimpleLight },
-  { key: 'command', value: 'keyword', icon: PhListMagnifyingGlassLight },
-];
-
-const iconMap = Object.fromEntries(commands.map((c) => [c.value, c.icon]));
+const iconMap = {
+  tag: PhHashStraightLight,
+  domain: PhGlobeSimpleLight,
+  keyword: PhListMagnifyingGlassLight,
+};
 
 const paginate = async (skip) => {
   try {
-    const results = await attributeStorage.filterByKeyAndValue(command.value.value, searchTerm.value, skip, 100);
+    const results = await attributeStorage.search(
+      { tag: true, domain: true, keyword: true },
+      'value',
+      'asc',
+      searchTerm.value,
+      skip,
+      100,
+    );
     const resultsWithIcons = results.map((item) => ({
       ...item,
       icon: iconMap[item.key],
@@ -219,72 +222,52 @@ const navigateUp = () => {
 };
 
 const performSearch = useDebounceFn(async () => {
-  if (!command.value) {
-    const term = searchTerm.value.trim().toLowerCase();
-    items.value = term === '' ? commands : commands.filter((k) => k.value.toLowerCase().includes(term));
+  isLoading.value = true;
+  try {
+    const results = await attributeStorage.search(
+      { tag: true, domain: true, keyword: true },
+      'value',
+      'asc',
+      searchTerm.value,
+      0,
+      100,
+    );
+    items.value = results.map((item) => ({
+      ...item,
+      icon: iconMap[item.key],
+    }));
     activeIndex.value = 0;
-  } else {
-    isLoading.value = true;
-    try {
-      const results = await attributeStorage.filterByKeyAndValue(command.value.value, searchTerm.value, 0, 50);
-      items.value = results.map((item) => ({
-        ...item,
-        icon: iconMap[item.key],
-      }));
-      activeIndex.value = 0;
-    } catch (e) {
-      console.error('Search error:', e);
-      items.value = [];
-    } finally {
-      isLoading.value = false;
-    }
+  } catch (e) {
+    console.error('Search error:', e);
+    items.value = [];
+  } finally {
+    isLoading.value = false;
   }
-}, 200);
+}, 100);
 
 const close = () => {
   isOpen.value = false;
   searchTerm.value = '';
-  command.value = null;
   activeIndex.value = -1;
   items.value = [];
   emit('onVisibilityToggle', false);
 };
 
-const handleCommandSelect = (selectedCommand) => {
-  if (selectedCommand.key === 'command') {
-    command.value = selectedCommand;
-    searchTerm.value = '';
-    performSearch();
-  } else {
-    emit('onSelected', [{ key: selectedCommand.key, value: selectedCommand.value }]);
-    close();
-  }
+const handleCommandSelect = (selectedItem) => {
+  emit('onSelected', [{ key: selectedItem.key, value: selectedItem.value }]);
+  close();
 };
 
 const selectActiveItem = () => {
   if (activeIndex.value >= 0 && activeIndex.value < items.value.length) {
     handleCommandSelect(items.value[activeIndex.value]);
-    nextTick(() => {
-      inputRef.value?.focus();
-    });
-  }
-};
-
-const handleBackspace = (event) => {
-  if (searchTerm.value === '' && command?.value?.key === 'command') {
-    command.value = null;
-    activeIndex.value = -1;
-    searchTerm.value = '';
-    performSearch();
-    event.preventDefault();
   }
 };
 
 const toggle = () => {
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
-    items.value = commands;
-    activeIndex.value = 0;
+    performSearch();
   }
   emit('onVisibilityToggle', isOpen.value);
 };
@@ -307,8 +290,7 @@ watch(searchTerm, () => {
 
 watch(isOpen, (open) => {
   if (open) {
-    items.value = commands;
-    activeIndex.value = 0;
+    performSearch();
     nextTick(() => {
       inputRef.value?.focus();
     });

@@ -1,5 +1,5 @@
 <template>
-  <div class="group relative w-full rounded-md border border-solid bg-white shadow-xs dark:border-neutral-900 dark:bg-neutral-950">
+  <div class="group relative w-full rounded-md border border-solid bg-white shadow-xs transition-all duration-200 ease-in-out hover:bg-gray-50 hover:shadow-sm dark:border-neutral-900 dark:bg-neutral-950 dark:hover:bg-neutral-900">
     <div class="flex items-center justify-between w-full p-3 text-gray-900 dark:text-neutral-100">
       <div class="flex items-center gap-x-3 min-w-0 flex-1">
         <AppBadge

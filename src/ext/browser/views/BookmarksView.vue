@@ -58,12 +58,12 @@
       :limit="PAGINATION_LIMIT"
       @scroll:end="loadMore"
     >
-      <div class="sticky top-0 z-10 flex w-full flex-col gap-2 bg-white/70 pb-3 pt-2 px-2 backdrop-blur-sm sm:flex-row sm:gap-x-3 dark:bg-black/70">
+      <div class="sticky top-0 z-10 flex w-full flex-row flex-wrap items-center gap-2 bg-white/70 pb-3 pt-2 px-2 backdrop-blur-sm sm:gap-x-3 dark:bg-black/70">
         <SearchTerm
           ref="search"
           v-model="bookmarksQuery"
           :placeholder="bookmarksTotalPlaceholder"
-          class="flex-1"
+          class="flex-1 min-w-0"
         />
         <div class="flex shrink-0 gap-x-2 sm:gap-x-3">
           <ViewMode
@@ -93,7 +93,7 @@
       </div>
       <BookmarkLayout
         v-if="!loading"
-        class="p-2 sm:p-4"
+        class="p-2"
         :display-type="viewMode"
       >
         <BookmarkCard
@@ -291,7 +291,7 @@ const loadAttributes = useDebounceFn(async ({ skip = 0, limit = PAGINATION_LIMIT
     console.error('Error loading attributes:', e);
     notify({ group: 'error', text: 'Error loading attributes.' }, NOTIFICATION_DURATION);
   }
-}, 200);
+}, 100);
 
 const handleRemove = async (bookmark) => {
   if (await deleteConfirmationRef.value.request() === false) {
