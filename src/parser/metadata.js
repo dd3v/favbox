@@ -135,10 +135,39 @@ export default class MetadataParser {
   }
 
   /**
+   * Extracts YouTube video ID from URL.
+   * @returns {string|null} The video ID, or null if not found.
+   * @private
+   */
+  #getYouTubeVideoId() {
+    const { url } = this.#bookmark;
+    if (!url) return null;
+
+    // Match various YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\n?#]+)/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match?.[1]) {
+        return match[1];
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Retrieves the main image URL from the HTML document.
    * @returns {string|null} The URL of the main image, or null if not found.
    */
   getImage() {
+    const videoId = this.#getYouTubeVideoId();
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+    }
+
     const metaImage = this.#getImageFromMeta();
     if (metaImage) {
       return new URL(metaImage, this.#bookmark.url).href;

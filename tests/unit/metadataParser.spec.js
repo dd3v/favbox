@@ -173,6 +173,24 @@ describe('MetadataParser', () => {
       const parser = new MetadataParser({ url: 'https://example.com' }, { html });
       expect(parser.getImage()).toBe('https://example.com/relative-image.jpg');
     });
+
+    it('should return YouTube thumbnail for youtube.com/watch URL', () => {
+      const html = '<!DOCTYPE html><html><head></head><body></body></html>';
+      const parser = new MetadataParser({ url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }, { html });
+      expect(parser.getImage()).toBe('https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg');
+    });
+
+    it('should return YouTube thumbnail for youtu.be URL', () => {
+      const html = '<!DOCTYPE html><html><head></head><body></body></html>';
+      const parser = new MetadataParser({ url: 'https://youtu.be/dQw4w9WgXcQ' }, { html });
+      expect(parser.getImage()).toBe('https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg');
+    });
+
+    it('should handle YouTube URL with additional parameters', () => {
+      const html = '<!DOCTYPE html><html><head></head><body></body></html>';
+      const parser = new MetadataParser({ url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s&feature=share' }, { html });
+      expect(parser.getImage()).toBe('https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg');
+    });
   });
 
   describe('getDomain', () => {
