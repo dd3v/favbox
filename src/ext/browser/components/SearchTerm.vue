@@ -1,43 +1,45 @@
 <template>
   <div
-    class="flex h-9 min-h-9 w-full overflow-x-auto whitespace-nowrap rounded-md bg-white px-1 shadow-sm ring-1 ring-gray-200/20 focus-within:ring-gray-200/40 dark:bg-neutral-900 dark:text-white dark:ring-neutral-700/15 focus:dark:ring-neutral-700/25"
+    class="flex h-9 min-h-9 w-full rounded-md border border-gray-200 bg-white px-2 py-1 shadow-sm focus-within:border-gray-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white focus-within:dark:border-neutral-700"
   >
-    <ul class="flex h-full items-center gap-x-1">
-      <li
-        v-for="(tag, tagKey) in modelValue"
-        :key="tagKey"
-        class="flex items-center"
-      >
-        <AppBadge
-          closable
-          :color="getColor(tag.key)"
-          @on-close="onClose(tag.key, tag.value)"
+    <div class="flex min-w-0 flex-1 items-center gap-x-1 overflow-x-auto">
+      <ul class="flex h-full items-center gap-x-1 whitespace-nowrap">
+        <li
+          v-for="(tag, tagKey) in modelValue"
+          :key="tagKey"
+          class="flex items-center"
         >
-          <component
-            :is="getIcon(tag.key)"
-            class="mr-1 size-4"
-          />
-          {{ tag.label || tag.value }}
-        </AppBadge>
-      </li>
-    </ul>
-    <input
-      ref="inputRef"
-      v-model="term"
-      name="term"
-      type="text"
-      aria-label="Search"
-      autocomplete="off"
-      autocorrect="off"
-      spellcheck="false"
-      maxlength="25"
-      :placeholder="placeholder"
-      class="w-full min-w-max flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-sm placeholder:text-sm focus:outline-none focus:ring-0"
-      @keydown.enter="add"
-      @keydown.tab.prevent="add"
-      @keydown.delete="removeLast"
-    >
-    <div class="flex flex-wrap items-center gap-x-1 text-xs text-gray-400 dark:text-neutral-600">
+          <AppBadge
+            closable
+            :color="getColor(tag.key)"
+            @on-close="onClose(tag.key, tag.value)"
+          >
+            <component
+              :is="getIcon(tag.key)"
+              class="mr-1 size-4"
+            />
+            {{ tag.label || tag.value }}
+          </AppBadge>
+        </li>
+      </ul>
+      <input
+        ref="inputRef"
+        v-model="term"
+        name="term"
+        type="text"
+        aria-label="Search"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        maxlength="25"
+        :placeholder="placeholder"
+        class="min-w-max flex-1 appearance-none border-0 bg-transparent px-1 py-0 text-xs placeholder:text-xs focus:outline-none focus:ring-0"
+        @keydown.enter="add"
+        @keydown.tab.prevent="add"
+        @keydown.delete="removeLast"
+      >
+    </div>
+    <div class="flex flex-shrink-0 flex-wrap items-center gap-x-1 text-xs text-gray-400 dark:text-neutral-600">
       <button
         class="m-0 inline-flex appearance-none items-center gap-x-1 border-none bg-transparent p-0"
         @click="handleCommandPallete"

@@ -48,8 +48,8 @@
 @layer utilities {
 
   :root {
-    --scrollbar-thumb: rgba(0, 0, 0, 1);
-    --scrollbar-thumb-hover: rgba(0, 0, 0, 1);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.2);
   }
 
   .dark {
