@@ -1,35 +1,38 @@
 <template>
   <div
-    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid border-gray-100 bg-white p-3 shadow-sm dark:border-neutral-900 dark:bg-neutral-950"
+    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid border-gray-200 bg-white p-3 shadow-xs dark:border-neutral-900 dark:bg-neutral-950"
   >
     <a
       :href="bookmark.url"
       rel="noopener noreferrer"
       target="_blank"
-      class="w-full"
+      class="w-full block"
     >
-      <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-black dark:text-white">
-        <span>{{ bookmark.title }}</span>
-        <span class="flex items-center text-xs text-gray-400 dark:text-neutral-500 mt-1 sm:mt-0 sm:ml-2">
-          <PhCalendarBlank class="text-xs mr-1 align-text-bottom" />
+      <div class="mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+        <span class="text-sm text-black dark:text-white leading-snug">{{ bookmark.title }}</span>
+        <span class="flex items-center text-xs text-gray-400 dark:text-neutral-500 shrink-0">
+          <PhCalendarBlank class="text-xs mr-1" />
           {{ new Date(bookmark.dateAdded).toISOString().slice(0, 10) }}
         </span>
       </div>
-      <div class="flex flex-col">
-        <span class="text-xs text-gray-700 dark:text-neutral-100 flex items-center gap-1">
+      <div class="flex flex-col gap-2.5">
+        <span class="text-xs text-gray-700 dark:text-neutral-100 flex items-center gap-1.5">
           <BookmarkFavicon
             :bookmark="bookmark"
-            class="w-3 h-3"
+            class="w-3 h-3 shrink-0"
           />
           {{ bookmark.domain }}
         </span>
-        <p class="my-2 break-words text-xs text-gray-700 dark:text-neutral-500">
+        <p
+          v-if="bookmark.description"
+          class="break-words text-xs text-gray-700 dark:text-neutral-500 leading-relaxed"
+        >
           {{ bookmark.description }}
         </p>
         <div
           v-if="bookmark.tags && bookmark.tags.length"
           class="flex flex-wrap gap-2"
-        >
+        >§
           <AppBadge
             v-for="(value, key) in bookmark.tags"
             :key="key"

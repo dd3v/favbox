@@ -2,7 +2,7 @@
   <div class="flex w-full overflow-y-hidden dark:bg-black">
     <!-- Sidebar with Tailwind responsive classes -->
     <div class="hidden md:block w-68 max-w-68 flex-shrink-0 transition-all duration-300 ease-in-out">
-      <div class="flex h-screen w-full max-w-64 flex-col border-r border-soft-400 bg-soft-100 p-2 dark:border-neutral-800 dark:bg-black transition-all duration-300 ease-in-out">
+      <div class="flex h-screen w-full max-w-64 flex-col border-r border-soft-400 bg-white p-2 dark:border-neutral-800 dark:bg-black transition-all duration-300 ease-in-out">
         <TabGroup>
           <TabList class="mb-2 flex gap-1 rounded-md bg-gray-100 p-1 dark:bg-neutral-900">
             <Tab
@@ -303,6 +303,8 @@ const handleRemove = async (bookmark) => {
     bookmarksList.value = bookmarksList.value.filter((item) => item.id.toString() !== id);
     notify({ group: 'default', text: 'Bookmark successfully removed!' }, NOTIFICATION_DURATION);
     console.log(`Bookmark ${id} successfully removed`);
+    const [sortColumn, sortDirection] = attributesSort.value.split(':');
+    attributesList.value = await attributeStorage.search(attributesIncludes, sortColumn, sortDirection, attributesTerm.value, 0, PAGINATION_LIMIT);
   } catch (error) {
     console.error('Error removing bookmark:', error);
     notify({ group: 'error', text: 'Failed to remove bookmark. Please try again.' }, NOTIFICATION_DURATION);

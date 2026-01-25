@@ -1,6 +1,6 @@
 <template>
   <div
-    class="group relative w-full max-w-md mx-auto overflow-hidden rounded-xl border border-solid border-gray-200 bg-white shadow-md p-0 flex flex-col dark:border-neutral-800 dark:bg-neutral-950"
+    class="group relative w-full max-w-md mx-auto overflow-hidden rounded-xl border border-solid border-gray-200 bg-white shadow-sm p-0 flex flex-col dark:border-neutral-800 dark:bg-neutral-950"
   >
     <div class="px-4 pt-4 flex-1 flex flex-col">
       <a
@@ -29,17 +29,26 @@
       target="_blank"
       rel="noopener noreferrer"
       :aria-label="`Open link: ${bookmark.title}`"
-      class="block"
+      class="block px-4 py-1"
     >
-      <BookmarkImage
-        :bookmark="bookmark"
-        rounded="rounded-md"
-        class="w-full px-4 py-1 aspect-video object-cover bg-white dark:bg-neutral-950"
-      >
-        <template #loading>
-          <AppSpinner class="size-6 mx-auto my-8" />
-        </template>
-      </BookmarkImage>
+      <div class="w-full aspect-video rounded-md bg-gray-100 dark:bg-neutral-900 flex items-center justify-center overflow-hidden">
+        <img
+          v-if="bookmark.image && !imageError"
+          :src="String(bookmark.image)"
+          :alt="bookmark.title"
+          class="w-full h-full object-cover rounded-md"
+          @error="imageError = true"
+        >
+        <div
+          v-else
+          class="flex items-center justify-center w-full h-full"
+        >
+          <BookmarkFavicon
+            :bookmark="bookmark"
+            class="max-w-8 max-h-8"
+          />
+        </div>
+      </div>
     </a>
     <!-- footer -->
     <div class="flex flex-col gap-2 px-4 py-3 border-t border-gray-200 mt-2 sm:flex-row sm:items-center sm:justify-between dark:border-neutral-800">
@@ -62,8 +71,7 @@
 </template>
 
 <script setup>
-import BookmarkImage from '@/ext/browser/components/card/BookmarkImage.vue';
-import AppSpinner from '@/components/app/AppSpinner.vue';
+import { ref } from 'vue';
 import AppBadge from '@/components/app/AppBadge.vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
 import PhCalendarBlank from '~icons/ph/calendar-blank';
@@ -74,4 +82,6 @@ defineProps({
     required: true,
   },
 });
+
+const imageError = ref(false);
 </script>

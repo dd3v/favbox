@@ -1,6 +1,6 @@
 <template>
   <div
-    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid p-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
+    class="group relative min-h-min w-full overflow-hidden rounded-md border border-solid p-3 shadow-xs dark:border-neutral-800 dark:bg-neutral-950"
     :class="activeClass"
   >
     <div class="mb-1 flex items-center gap-x-1.5 text-sm text-black dark:text-white">

@@ -27,6 +27,7 @@
     "@vuepic/vue-datepicker": "^11.0.2",
     "@vueuse/core": "^13.5.0",
     "@zanmato/vue3-treeselect": "^0.4.1",
+    "fast-average-color": "^9.5.0",
     "floating-vue": "^5.2.2",
     "jsstore": "^4.9.0",
     "linkedom": "^0.18.11",

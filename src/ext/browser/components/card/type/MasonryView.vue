@@ -16,11 +16,61 @@
         rel="noopener noreferrer"
         target="_blank"
       >
-        <BookmarkImage :bookmark="bookmark">
-          <template #loading>
-            <AppSpinner class="size-6" />
-          </template>
-        </BookmarkImage>
+        <!-- image -->
+        <div
+          class="flex w-full items-center justify-center relative"
+          :class="{
+            'min-h-[80px] sm:min-h-[120px]': !bookmark.image || imageError,
+            'min-h-[60px] sm:min-h-[80px]': bookmark.image && !imageError
+          }"
+          :style="(!bookmark.image || imageError) ? placeholder : null"
+        >
+          <img
+            v-if="bookmark.image && !imageError"
+            :key="bookmark.id"
+            :src="String(bookmark.image)"
+            :alt="bookmark.title"
+            class="max-h-full max-w-full object-cover transition-all duration-700 ease-out relative"
+            :class="{ 'opacity-0': imageLoading }"
+            @loadstart="imageLoading = true; imageError = false"
+            @load="imageLoading = false"
+            @error="onImageError"
+          >
+          <div
+            v-if="imageLoading && bookmark.image && !imageError"
+            class="absolute inset-0 flex items-center justify-center z-10"
+          >
+            <AppSpinner />
+          </div>
+          <div
+            v-if="!bookmark.image || imageError"
+            class="relative flex size-full items-center justify-center overflow-hidden min-w-0"
+          >
+            <div class="relative z-0 flex flex-col items-center p-6 w-full min-w-0">
+
+              <div
+                class="group relative flex aspect-square size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/20 dark:bg-white/5 shadow-lg backdrop-blur-xl mb-4"
+              >
+                <BookmarkFavicon
+                  :bookmark="bookmark"
+                  class="relative z-10 max-h-8 max-w-8 rounded-sm object-contain"
+                />
+              </div>
+
+              <div class="text-center w-full min-w-0">
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate px-1">
+                  {{ bookmark.domain || bookmark.title }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  No preview available
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!-- end image -->
+
         <div class="p-2 sm:p-3">
           <h1 class="break-words text-sm text-black dark:text-white line-clamp-3">{{ bookmark.title }}</h1>
           <p class="break-words py-2 text-xs text-gray-700 dark:text-neutral-500">
@@ -61,20 +111,37 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import AppBadge from '@/components/app/AppBadge.vue';
 import AppSpinner from '@/components/app/AppSpinner.vue';
-import BookmarkImage from '@/ext/browser/components/card/BookmarkImage.vue';
 import BookmarkFavicon from '@/ext/browser/components/BookmarkFavicon.vue';
+import useColorExtraction from '@/composables/useColorExtraction';
 import PhCalendarBlank from '~icons/ph/calendar-blank';
 
-defineProps({
+const props = defineProps({
   bookmark: {
     type: Object,
     required: true,
   },
 });
 
+const imageError = ref(false);
+const imageLoading = ref(true);
+const { placeholder, extract } = useColorExtraction();
+const faviconUrl = `https://icons.duckduckgo.com/ip3/${props.bookmark.domain}.ico`;
+const cacheKey = `fav_${props.bookmark.domain}`;
+const onImageError = async () => {
+  imageError.value = true;
+  imageLoading.value = false;
+  extract(faviconUrl, cacheKey);
+};
+
+onMounted(async () => {
+  if (!props.bookmark.image) {
+    imageLoading.value = false;
+    extract(faviconUrl, cacheKey);
+  }
+});
 const gradientClasses = [
   'gradient-cyan-blue',
   'gradient-indigo-violet',

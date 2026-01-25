@@ -84,30 +84,47 @@ export default class AttributeStorage {
   }
 
   async remove(bookmark) {
+    console.log('AttributeStorage.remove', bookmark);
     const connection = await useConnection();
     const allAttributes = this.getAttributesFromBookmark(bookmark);
+
     if (allAttributes.length === 0) return;
+
+    const ids = allAttributes.map((attr) => attr.id);
+    console.log(ids);
     const existing = await connection.select({
       from: 'attributes',
-      where: { id: { in: allAttributes.map((attr) => attr.id) } },
+      where: { id: { in: ids } },
     });
-    const updatedAttributes = existing.map((record) => ({
-      ...record,
-      count: Math.max(0, (record.count || 0) - 1),
-    })).filter((attr) => attr.count > 0);
-    const toDelete = existing.filter((record) => (record.count || 0) <= 1).map((r) => r.id);
+
+    const toDelete = [];
+    const toUpdate = [];
+
+    existing.forEach((record) => {
+      const newCount = (record.count || 0) - 1;
+
+      if (newCount <= 0) {
+        toDelete.push(record.id);
+      } else {
+        toUpdate.push({
+          ...record,
+          count: newCount,
+        });
+      }
+    });
+
     if (toDelete.length > 0) {
       await connection.remove({
         from: 'attributes',
         where: { id: { in: toDelete } },
       });
     }
-    if (updatedAttributes.length > 0) {
+
+    if (toUpdate.length > 0) {
       await connection.insert({
         into: 'attributes',
         upsert: true,
-        values: updatedAttributes,
-        skipDataCheck: true,
+        values: toUpdate,
       });
     }
   }

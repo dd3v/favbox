@@ -1,15 +1,21 @@
 <template>
-  <img
-    v-if="faviconUrl"
-    :src="faviconUrl"
-    alt="favicon"
-    class="size-4"
-    @error="handleError"
-  >
-  <PhGlobeSimpleLight
-    v-else
-    class="size-4 text-black dark:text-white"
-  />
+  <div>
+    <img
+      v-if="faviconUrl"
+      v-show="loaded"
+      :key="faviconUrl"
+      class="size-full"
+      :src="faviconUrl"
+      alt="favicon"
+      @load="loaded = true"
+      @error="handleError"
+    >
+
+    <PhGlobeSimpleLight
+      v-if="!loaded"
+      class="size-4 text-black dark:text-white"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -23,6 +29,7 @@ const props = defineProps({
   },
 });
 
+const loaded = ref(false);
 const originalFailed = ref(false);
 const fallbackFailed = ref(false);
 
@@ -39,6 +46,8 @@ const faviconUrl = computed(() => {
 });
 
 const handleError = () => {
+  loaded.value = false;
+
   if (!originalFailed.value) {
     originalFailed.value = true;
   } else {
