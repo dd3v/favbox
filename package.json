@@ -59,7 +59,7 @@
     "file-loader": "^6.2.0",
     "globals": "^16.3.0",
     "jsdom": "^26.1.0",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.14",
     "tailwindcss": "^4.1.11",
     "terser": "^5.31.0",
     "unplugin-auto-import": "^19.3.0",
